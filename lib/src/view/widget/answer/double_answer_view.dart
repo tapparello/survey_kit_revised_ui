@@ -66,6 +66,7 @@ class _DoubleAnswerViewState extends State<DoubleAnswerView>
           Container(
             width: MediaQuery.of(context).size.width,
             child: TextField(
+              style: Theme.of(context).textTheme.titleMedium,
               autofocus: true,
               decoration: textFieldInputDecoration(
                 hint: _doubleAnswerFormat.hint,

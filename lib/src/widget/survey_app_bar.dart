@@ -24,7 +24,7 @@ class SurveyAppBar extends StatelessWidget implements PreferredSizeWidget {
       child: Text(
         SurveyConfiguration.of(context).localizations?['cancel'] ?? 'Cancel',
         style: TextStyle(
-          color: Theme.of(context).primaryColor,
+          color: Theme.of(context).appBarTheme.toolbarTextStyle?.color ?? Theme.of(context).primaryColor,
         ),
       ),
       onPressed: () => surveyController.closeSurvey(

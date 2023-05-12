@@ -31,7 +31,7 @@ class _IntegerAnswerViewState extends State<IntegerAnswerView>
     super.initState();
     final answer = widget.questionStep.answerFormat;
     if (answer == null) {
-      throw Exception('ImageAnswerFormat is null');
+      throw Exception('IntegerAnswerFormat is null');
     }
     _integerAnswerFormat = answer as IntegerAnswerFormat;
     _controller = TextEditingController();
@@ -63,6 +63,7 @@ class _IntegerAnswerViewState extends State<IntegerAnswerView>
           Container(
             width: MediaQuery.of(context).size.width,
             child: TextField(
+              style: Theme.of(context).textTheme.titleMedium,
               textInputAction: TextInputAction.next,
               autofocus: true,
               decoration: textFieldInputDecoration(

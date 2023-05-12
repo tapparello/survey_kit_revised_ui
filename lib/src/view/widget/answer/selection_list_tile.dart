@@ -23,7 +23,7 @@ class SelectionListTile extends StatelessWidget {
               text,
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     color: isSelected
-                        ? Theme.of(context).primaryColor
+                        ? Theme.of(context).listTileTheme.selectedColor
                         : Theme.of(context).textTheme.headlineSmall?.color,
                   ),
             ),
@@ -32,7 +32,7 @@ class SelectionListTile extends StatelessWidget {
                     Icons.check,
                     size: 32,
                     color: isSelected
-                        ? Theme.of(context).primaryColor
+                        ? Theme.of(context).listTileTheme.selectedColor
                         : Colors.black,
                   )
                 : Container(

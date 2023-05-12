@@ -70,6 +70,7 @@ class _TextAnswerViewState extends State<TextAnswerView>
           width: MediaQuery.of(context).size.width,
           height: 50.0,
           child: TextField(
+            style: Theme.of(context).textTheme.titleMedium,
             textInputAction: TextInputAction.next,
             autofocus: true,
             decoration: textFieldInputDecoration(

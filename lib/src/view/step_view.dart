@@ -36,54 +36,82 @@ class _StepViewState extends State<StepView> {
 
     final questionAnswer = QuestionAnswer.of(context);
 
-    return ColoredBox(
-      color: Theme.of(context).colorScheme.background,
-      child: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraint) {
-            return Padding(
-              padding: const EdgeInsets.all(30),
-              child: SingleChildScrollView(
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(minHeight: constraint.maxHeight),
-                  child: IntrinsicHeight(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: ContentWidget(
-                            content: widget.step.content,
+    return Scaffold(
+      persistentFooterButtons: [
+        SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: AnimatedBuilder(
+              animation: questionAnswer.isValid,
+              builder: (context, child) {
+                return OutlinedButton(
+                  onPressed: questionAnswer.isValid.value ||
+                      !widget.step.isMandatory
+                      ? () => _surveyController.nextStep(
+                    context,
+                    questionAnswer.stepResult,
+                  )
+                      : null,
+                  child: Text(
+                    widget.step.buttonText ??
+                        surveyConfiguration.localizations?['next']
+                            ?.toUpperCase() ??
+                        'Next',
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+      ],
+      body: SizedBox.expand(
+        child: ColoredBox(
+          color: Theme.of(context).colorScheme.background,
+          child: SafeArea(
+            child: LayoutBuilder(
+              builder: (context, constraint) {
+                return Padding(
+                  padding: const EdgeInsets.all(30),
+                  child: SingleChildScrollView(
+                    child: IntrinsicHeight(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            child: ContentWidget(
+                              content: widget.step.content,
+                            ),
                           ),
-                        ),
-                        if (widget.answerView != null) widget.answerView!,
-                        AnimatedBuilder(
-                          animation: questionAnswer.isValid,
-                          builder: (context, child) {
-                            return OutlinedButton(
-                              onPressed: questionAnswer.isValid.value ||
-                                      !widget.step.isMandatory
-                                  ? () => _surveyController.nextStep(
-                                        context,
-                                        questionAnswer.stepResult,
-                                      )
-                                  : null,
-                              child: Text(
-                                widget.step.buttonText ??
-                                    surveyConfiguration.localizations?['next']
-                                        ?.toUpperCase() ??
-                                    'Next',
-                              ),
-                            );
-                          },
-                        ),
-                      ],
+                          if (widget.answerView != null) widget.answerView!,
+                          // AnimatedBuilder(
+                          //   animation: questionAnswer.isValid,
+                          //   builder: (context, child) {
+                          //     return OutlinedButton(
+                          //       onPressed: questionAnswer.isValid.value ||
+                          //               !widget.step.isMandatory
+                          //           ? () => _surveyController.nextStep(
+                          //                 context,
+                          //                 questionAnswer.stepResult,
+                          //               )
+                          //           : null,
+                          //       child: Text(
+                          //         widget.step.buttonText ??
+                          //             surveyConfiguration.localizations?['next']
+                          //                 ?.toUpperCase() ??
+                          //             'Next',
+                          //       ),
+                          //     );
+                          //   },
+                          // ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ),
-            );
-          },
+                );
+              },
+            ),
+          ),
         ),
       ),
     );
