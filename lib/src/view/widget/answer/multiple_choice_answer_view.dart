@@ -69,14 +69,14 @@ class _MultipleChoiceAnswerView extends State<MultipleChoiceAnswerView>
                 (TextChoice tc) => SelectionListTile(
                   text: tc.text,
                   onTap: () {
-                    setState(
-                      () {
-                        if (_selectedChoices.contains(tc)) {
-                          _selectedChoices.remove(tc);
-                        } else {}
-                      },
-                    );
-                    onChange([..._selectedChoices, tc]);
+                    if (_selectedChoices.contains(tc)) {
+                      _selectedChoices.remove(tc);
+                    } else {
+                      _selectedChoices.add(tc);
+                    }
+                    setState( () {},);
+                    //onChange([..._selectedChoices, tc]);
+                    super.onChange(_selectedChoices);
                   },
                   isSelected: _selectedChoices.contains(tc),
                 ),
