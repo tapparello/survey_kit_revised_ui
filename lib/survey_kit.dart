@@ -26,6 +26,7 @@ export 'src/model/content/section_content.dart';
 export 'src/model/content/styled_text_content.dart';
 export 'src/model/content/text_content.dart';
 export 'src/model/content/video_content.dart';
+export 'src/model/content/html_content.dart';
 export 'src/model/predifined/completion_step.dart';
 export 'src/model/predifined/instruction_step.dart';
 export 'src/model/predifined/question_step.dart';

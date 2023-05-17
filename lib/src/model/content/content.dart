@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:survey_kit/src/model/content/audio_content.dart';
+import 'package:survey_kit/src/model/content/html_content.dart';
 import 'package:survey_kit/src/model/content/lottie_content.dart';
 import 'package:survey_kit/src/model/content/markdown_content.dart';
 import 'package:survey_kit/src/model/content/text_content.dart';
@@ -33,6 +34,8 @@ abstract class Content {
         return MarkdownContent.fromJson(json);
       case 'lottie':
         return LottieContent.fromJson(json);
+      case 'html':
+        return HtmlContent.fromJson(json);
       default:
         throw Exception('Unknown type: $type');
     }
