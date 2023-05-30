@@ -14,6 +14,7 @@ class StyledTextContent extends Content {
   final bool bold;
   final bool italic;
   final bool underlined;
+  final bool center;
 
   const StyledTextContent({
     required this.text,
@@ -21,6 +22,7 @@ class StyledTextContent extends Content {
     this.bold = false,
     this.italic = false,
     this.underlined = false,
+    this.center = false,
   }) : super(contentType: type);
 
   factory StyledTextContent.fromJson(Map<String, dynamic> json) =>
