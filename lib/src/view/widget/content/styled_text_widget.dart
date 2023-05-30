@@ -15,6 +15,7 @@ class StyledTextWidget extends StatelessWidget {
 
     return SelectableText(
       content.text,
+      textAlign: content.center ? TextAlign.center : TextAlign.start,
       style: theme.textTheme.bodyMedium?.copyWith(
         decoration:
             content.underlined ? TextDecoration.underline : TextDecoration.none,
