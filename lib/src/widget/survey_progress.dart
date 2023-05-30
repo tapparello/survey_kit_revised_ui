@@ -33,7 +33,7 @@ class _SurveyProgressState extends State<SurveyProgress> {
               if (progressbarConfiguration.showLabel &&
                   progressbarConfiguration.label != null)
                 progressbarConfiguration.label!(
-                  state.currentStepIndex.toString(),
+                  (state.currentStepIndex+1).toString(),
                   state.stepCount.toString(),
                 )
               else
