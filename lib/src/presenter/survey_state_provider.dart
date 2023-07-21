@@ -5,22 +5,22 @@ import 'package:flutter/material.dart' hide Step;
 import 'package:survey_kit/survey_kit.dart';
 
 // ignore: must_be_immutable
-class SurveyPresenterInherited extends InheritedWidget {
-  SurveyPresenterInherited({
+class SurveyStateProvider extends InheritedWidget {
+  SurveyStateProvider({
     super.key,
     required this.taskNavigator,
     required this.onResult,
     required super.child,
+    required this.navigatorKey,
     this.stepShell,
     required this.results,
   })  : _state = LoadingSurveyState(),
-        startDate = DateTime.now() {
-    onEvent(StartSurvey());
-  }
+        startDate = DateTime.now();
 
   final TaskNavigator taskNavigator;
   final Function(SurveyResult) onResult;
   final StepShell? stepShell;
+  final GlobalKey<NavigatorState> navigatorKey;
 
   late SurveyState _state;
   SurveyState get state => _state;
@@ -32,15 +32,15 @@ class SurveyPresenterInherited extends InheritedWidget {
   late StreamController<SurveyState> surveyStateStream =
       StreamController<SurveyState>.broadcast();
 
-  static SurveyPresenterInherited of(BuildContext context) {
+  static SurveyStateProvider of(BuildContext context) {
     final result =
-        context.dependOnInheritedWidgetOfExactType<SurveyPresenterInherited>();
+        context.dependOnInheritedWidgetOfExactType<SurveyStateProvider>();
     assert(result != null, 'No SurveyPresenterInherited found in context');
     return result!;
   }
 
   @override
-  bool updateShouldNotify(SurveyPresenterInherited oldWidget) =>
+  bool updateShouldNotify(SurveyStateProvider oldWidget) =>
       taskNavigator != oldWidget.taskNavigator ||
       onResult != oldWidget.onResult ||
       _state != oldWidget._state;
@@ -50,18 +50,32 @@ class SurveyPresenterInherited extends InheritedWidget {
 
   void onEvent(SurveyEvent event) {
     if (event is StartSurvey) {
-      updateState(_handleInitialStep());
+      final newState = _handleInitialStep();
+      updateState(newState);
+      navigatorKey.currentState?.pushNamed(
+        '/',
+        arguments: newState,
+      );
     } else if (event is NextStep) {
       if (state is PresentingSurveyState) {
-        updateState(_handleNextStep(event, state as PresentingSurveyState));
+        final newState = _handleNextStep(event, state as PresentingSurveyState);
+        updateState(newState);
+        navigatorKey.currentState?.pushNamed(
+          '/',
+          arguments: newState,
+        );
       }
     } else if (event is StepBack) {
       if (state is PresentingSurveyState) {
-        updateState(_handleStepBack(event, state as PresentingSurveyState));
+        final newState = _handleStepBack(event, state as PresentingSurveyState);
+        updateState(newState);
+        navigatorKey.currentState?.pop();
       }
     } else if (event is CloseSurvey) {
       if (state is PresentingSurveyState) {
-        updateState(_handleClose(event, state as PresentingSurveyState));
+        final newState = _handleClose(event, state as PresentingSurveyState);
+        updateState(newState);
+        navigatorKey.currentState?.pop();
       }
     }
   }
@@ -87,6 +101,7 @@ class SurveyPresenterInherited extends InheritedWidget {
       finishReason: FinishReason.completed,
       results: const [],
     );
+
     return SurveyResultState(
       result: taskResult,
       currentStep: null,
@@ -100,6 +115,7 @@ class SurveyPresenterInherited extends InheritedWidget {
     _addResult(event.questionResult);
     final nextStep = taskNavigator.nextStep(
       step: currentState.currentStep,
+      previousResults: results.toList(),
       questionResult: event.questionResult,
     );
 
@@ -126,6 +142,8 @@ class SurveyPresenterInherited extends InheritedWidget {
     _addResult(event.questionResult);
     final previousStep = taskNavigator.previousInList(currentState.currentStep);
 
+    //If theres no previous step we can't go back further
+
     if (previousStep != null) {
       final questionResult = _getResultByStepIdentifier(previousStep.id);
 
@@ -140,7 +158,6 @@ class SurveyPresenterInherited extends InheritedWidget {
       );
     }
 
-    //If theres no previous step we can't go back further
     return state;
   }
 
