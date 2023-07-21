@@ -1,3 +1,7 @@
+import 'dart:convert';
+import 'dart:developer';
+
+import 'package:survey_kit/src/model/answer/text_choice.dart';
 import 'package:survey_kit/src/model/result/step_result.dart';
 import 'package:survey_kit/src/model/step.dart';
 import 'package:survey_kit/src/navigator/rules/conditional_navigation_rule.dart';
@@ -15,6 +19,7 @@ class NavigableTaskNavigator extends TaskNavigator {
     final navigableTask = task as NavigableTask;
     final rule = navigableTask.getRuleByStepIdentifier(step.id);
     if (rule == null) {
+      print('rule is empty');
       return nextInList(step);
     }
     switch (rule.runtimeType) {
@@ -50,12 +55,19 @@ class NavigableTaskNavigator extends TaskNavigator {
     if (questionResult == null) {
       return nextInList(step);
     }
+    log(json.encode(questionResult.toJson()));
     final dynamic result = questionResult.result;
     if (result == null) {
       return nextInList(step);
     }
+    log(json.encode(result.toJson()));
+    String? value;
+    switch (result.runtimeType){
+      case TextChoice:
+        value = (result as TextChoice).value;
+    }
     final nextStepIdentifier =
-        rule.resultToStepIdentifierMapper(questionResult);
+        rule.resultToStepIdentifierMapper(value);
     if (nextStepIdentifier == null) {
       return nextInList(step);
     }
