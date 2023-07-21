@@ -12,6 +12,7 @@ SingleChoiceAnswerFormat _$SingleChoiceAnswerFormatFromJson(
       textChoices: (json['textChoices'] as List<dynamic>)
           .map((e) => TextChoice.fromJson(e as Map<String, dynamic>))
           .toList(),
+      shuffleChoices: json['shuffleChoices'] as bool? ?? false,
       defaultSelection: json['defaultSelection'] == null
           ? null
           : TextChoice.fromJson(
@@ -26,5 +27,6 @@ Map<String, dynamic> _$SingleChoiceAnswerFormatToJson(
       'question': instance.question,
       'type': instance.answerType,
       'textChoices': instance.textChoices.map((e) => e.toJson()).toList(),
+      'shuffleChoices' : instance.shuffleChoices,
       'defaultSelection': instance.defaultSelection?.toJson(),
     };

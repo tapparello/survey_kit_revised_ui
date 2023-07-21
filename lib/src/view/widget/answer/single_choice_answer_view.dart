@@ -37,6 +37,11 @@ class _SingleChoiceAnswerViewState extends State<SingleChoiceAnswerView>
       throw Exception('SingleSelectAnswer is null');
     }
     _singleChoiceAnswerFormat = answer as SingleChoiceAnswerFormat;
+
+    if (_singleChoiceAnswerFormat.shuffleChoices) {
+      _singleChoiceAnswerFormat.textChoices.shuffle();
+    }
+
     _selectedChoice = widget.result?.result as TextChoice? ??
         _singleChoiceAnswerFormat.defaultSelection;
   }
@@ -55,7 +60,7 @@ class _SingleChoiceAnswerViewState extends State<SingleChoiceAnswerView>
   @override
   bool isValid(TextChoice? result) {
     if (widget.questionStep.isMandatory) {
-      return result != null;
+      return _selectedChoice != null;
     }
     return true;
   }

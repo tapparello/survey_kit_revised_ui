@@ -10,10 +10,12 @@ class SingleChoiceAnswerFormat extends AnswerFormat {
 
   final List<TextChoice> textChoices;
   final TextChoice? defaultSelection;
+  final bool shuffleChoices;
 
   const SingleChoiceAnswerFormat({
     required this.textChoices,
     this.defaultSelection,
+    this.shuffleChoices = false,
     super.question,
     super.answerType = type,
   }) : super();
