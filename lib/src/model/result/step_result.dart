@@ -33,6 +33,7 @@ class StepResult<T> {
       startTime: questionResult.startTime,
       endTime: questionResult.endTime,
       result: questionResult as T?,
+      valueIdentifier: questionResult.valueIdentifier,
     );
   }
 

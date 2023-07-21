@@ -1,7 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:survey_kit/src/view/widget/question_answer.dart';
 
 mixin AnswerMixin<T extends StatefulWidget, R> on State<T> {
+
+  @override
+  void initState() {
+    super.initState();
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      //onChange(QuestionAnswer.of(context).stepResult?.result as R?);
+      onLoad(QuestionAnswer.of(context).stepResult?.result as R?);
+    });
+  }
+
+  void onLoad(R? result){
+    onValidationChanged = isValid(result);
+  }
+
   void onChange(R? result) {
     onValidationChanged = isValid(result);
     onStepResultChanged = result;

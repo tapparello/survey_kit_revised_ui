@@ -12,6 +12,7 @@ class SurveyPresenterInherited extends InheritedWidget {
     required this.onResult,
     required super.child,
     this.stepShell,
+    required this.results,
   })  : _state = LoadingSurveyState(),
         startDate = DateTime.now() {
     onEvent(StartSurvey());
@@ -44,7 +45,7 @@ class SurveyPresenterInherited extends InheritedWidget {
       onResult != oldWidget.onResult ||
       _state != oldWidget._state;
 
-  Set<StepResult> results = {};
+  Set<StepResult> results;
   late final DateTime startDate;
 
   void onEvent(SurveyEvent event) {

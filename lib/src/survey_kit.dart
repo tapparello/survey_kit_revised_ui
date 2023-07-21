@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart' hide Step;
 import 'package:survey_kit/src/configuration/survey_configuration.dart';
 import 'package:survey_kit/src/controller/survey_controller.dart';
+import 'package:survey_kit/src/model/result/step_result.dart';
 import 'package:survey_kit/src/model/result/survey_result.dart';
 import 'package:survey_kit/src/model/step.dart';
 import 'package:survey_kit/src/navigator/navigable_task_navigator.dart';
@@ -45,6 +46,8 @@ class SurveyKit extends StatefulWidget {
   /// Step shell
   final StepShell? stepShell;
 
+  final Set<StepResult>? initialResults;
+
   const SurveyKit({
     super.key,
     required this.task,
@@ -54,6 +57,7 @@ class SurveyKit extends StatefulWidget {
     this.appBar,
     this.localizations,
     this.stepShell,
+    this.initialResults,
   });
 
   @override
@@ -98,6 +102,7 @@ class _SurveyKitState extends State<SurveyKit> {
         taskNavigator: _taskNavigator,
         onResult: widget.onResult,
         stepShell: widget.stepShell,
+        results: widget.initialResults ?? {},
         child: SurveyPage(
           length: widget.task.steps.length,
           onResult: widget.onResult,
