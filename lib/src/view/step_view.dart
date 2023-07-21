@@ -37,30 +37,36 @@ class _StepViewState extends State<StepView> {
     final questionAnswer = QuestionAnswer.of(context);
 
     return Scaffold(
+
       persistentFooterButtons: [
         SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: AnimatedBuilder(
-              animation: questionAnswer.isValid,
-              builder: (context, child) {
-                return OutlinedButton(
-                  onPressed: questionAnswer.isValid.value ||
-                      !widget.step.isMandatory
-                      ? () => _surveyController.nextStep(
-                    context,
-                    questionAnswer.stepResult,
-                  )
-                      : null,
-                  child: Text(
-                    widget.step.buttonText ??
-                        surveyConfiguration.localizations?['next']
-                            ?.toUpperCase() ??
-                        'Next',
-                  ),
-                );
-              },
-            ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: AnimatedBuilder(
+                  animation: questionAnswer.isValid,
+                  builder: (context, child) {
+                    return OutlinedButton(
+                      onPressed: questionAnswer.isValid.value ||
+                          !widget.step.isMandatory
+                          ? () => _surveyController.nextStep(
+                        context,
+                        questionAnswer.stepResult,
+                      )
+                          : null,
+                      child: Text(
+                        widget.step.buttonText ??
+                            surveyConfiguration.localizations?['next']
+                                ?.toUpperCase() ??
+                            'Next',
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
           ),
         ),
       ],
@@ -73,39 +79,35 @@ class _StepViewState extends State<StepView> {
                 return Padding(
                   padding: const EdgeInsets.all(30),
                   child: SingleChildScrollView(
-                    child: IntrinsicHeight(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Expanded(
-                            child: ContentWidget(
-                              content: widget.step.content,
-                            ),
-                          ),
-                          if (widget.answerView != null) widget.answerView!,
-                          // AnimatedBuilder(
-                          //   animation: questionAnswer.isValid,
-                          //   builder: (context, child) {
-                          //     return OutlinedButton(
-                          //       onPressed: questionAnswer.isValid.value ||
-                          //               !widget.step.isMandatory
-                          //           ? () => _surveyController.nextStep(
-                          //                 context,
-                          //                 questionAnswer.stepResult,
-                          //               )
-                          //           : null,
-                          //       child: Text(
-                          //         widget.step.buttonText ??
-                          //             surveyConfiguration.localizations?['next']
-                          //                 ?.toUpperCase() ??
-                          //             'Next',
-                          //       ),
-                          //     );
-                          //   },
-                          // ),
-                        ],
-                      ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        ContentWidget(
+                          content: widget.step.content,
+                        ),
+                        if (widget.answerView != null) widget.answerView!,
+                        // AnimatedBuilder(
+                        //   animation: questionAnswer.isValid,
+                        //   builder: (context, child) {
+                        //     return OutlinedButton(
+                        //       onPressed: questionAnswer.isValid.value ||
+                        //               !widget.step.isMandatory
+                        //           ? () => _surveyController.nextStep(
+                        //                 context,
+                        //                 questionAnswer.stepResult,
+                        //               )
+                        //           : null,
+                        //       child: Text(
+                        //         widget.step.buttonText ??
+                        //             surveyConfiguration.localizations?['next']
+                        //                 ?.toUpperCase() ??
+                        //             'Next',
+                        //       ),
+                        //     );
+                        //   },
+                        // ),
+                      ],
                     ),
                   ),
                 );
