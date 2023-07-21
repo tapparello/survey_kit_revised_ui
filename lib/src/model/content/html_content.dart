@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_html/style.dart';
+// import 'package:flutter_html/style.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:survey_kit/src/model/content/content.dart';
 import 'package:survey_kit/src/view/widget/content/html_widget.dart';

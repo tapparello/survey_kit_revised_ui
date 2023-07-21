@@ -10,30 +10,30 @@ environment:
   flutter: ">=2.0.0"
 
 dependencies:
-  chewie: ^1.5.0
-  collection: ^1.16.0
+  chewie: ^1.7.0
+  collection: ^1.17.1
   cupertino_icons: ^1.0.5
   flutter:
     sdk: flutter
-  flutter_markdown: ^0.6.14
-  image_picker: ^0.8.7+5
+  flutter_markdown: ^0.6.17
+  image_picker: ^1.0.1
   intl: ^0.18.1
   json_annotation: ^4.8.1
-  just_audio: ^0.9.32
-  lottie: ^2.1.0
+  just_audio: ^0.9.34
+  lottie: ^2.5.0
   rxdart: ^0.27.7
-  universal_html: ^2.2.1
-  url_launcher: ^6.1.11
+  universal_html: ^2.2.3
+  url_launcher: ^6.1.12
   uuid: ^3.0.7
-  video_player: ^2.6.1
+  video_player: ^2.7.0
   visibility_detector: ^0.4.0+2
-  flutter_html: ^2.2.1
+  flutter_html: ^3.0.0-beta.2
 
 dev_dependencies:
-  build_runner: ^2.3.3
+  build_runner: ^2.4.6
   flutter_test:
     sdk: flutter
-  json_serializable: ^6.6.2
+  json_serializable: ^6.7.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
