@@ -51,9 +51,13 @@ class SurveyAppBar extends StatelessWidget implements PreferredSizeWidget {
 
           final state = snapshot.data!;
 
-          return (state as PresentingSurveyState).isFirstStep
-              ? const SizedBox.shrink()
-              : backButton;
+          if (state is PresentingSurveyState) {
+            return (state as PresentingSurveyState).isFirstStep
+                ? const SizedBox.shrink()
+                : backButton;
+          } else {
+            return const SizedBox.shrink();
+          }
         },
       ),
       title: const SurveyProgress(),

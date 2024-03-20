@@ -23,7 +23,6 @@ class NavigableTaskNavigator extends TaskNavigator {
     final navigableTask = task as NavigableTask;
     final rule = navigableTask.getRuleByStepIdentifier(step.id);
     if (rule == null) {
-      print('rule is empty');
       return nextInList(step);
     }
     switch (rule.runtimeType) {

@@ -19,14 +19,15 @@ export 'src/model/answer/time_answer_format.dart';
 //Content
 export 'src/model/content/audio_content.dart';
 export 'src/model/content/content.dart';
+export 'src/model/content/html_content.dart';
 export 'src/model/content/image_content.dart';
 export 'src/model/content/lottie_content.dart';
 export 'src/model/content/markdown_content.dart';
 export 'src/model/content/section_content.dart';
+export 'src/model/content/separator_content.dart';
 export 'src/model/content/styled_text_content.dart';
 export 'src/model/content/text_content.dart';
 export 'src/model/content/video_content.dart';
-export 'src/model/content/html_content.dart';
 export 'src/model/predifined/completion_step.dart';
 export 'src/model/predifined/instruction_step.dart';
 export 'src/model/predifined/question_step.dart';
@@ -61,6 +62,8 @@ export 'src/view/widget/answer/single_choice_answer_view.dart';
 export 'src/view/widget/answer/text_answer_view.dart';
 export 'src/view/widget/answer/time_answer_view.dart';
 export 'src/view/widget/content/content_widget.dart';
+//Widgets
+export 'src/view/widget/content/video_widget.dart';
 export 'src/view/widget/decoration/input_decoration.dart';
 export 'src/view/widget/question_answer.dart';
 export 'src/widget/survey_app_bar.dart';
