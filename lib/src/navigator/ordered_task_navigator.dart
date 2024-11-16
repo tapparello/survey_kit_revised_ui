@@ -11,8 +11,11 @@ class OrderedTaskNavigator extends TaskNavigator {
     required Step step,
     required List<StepResult> previousResults,
     StepResult? questionResult,
+    bool recordStep = true,
   }) {
-    record(step);
+    if (recordStep) {
+      record(step);
+    }
     return nextInList(step);
   }
 
@@ -20,6 +23,8 @@ class OrderedTaskNavigator extends TaskNavigator {
   Step? previousInList(Step step) {
     final currentIndex =
         task.steps.indexWhere((element) => element.id == step.id);
+    print('currentIndex: $currentIndex');
+    print(task.steps[currentIndex - 1].id);
     return (currentIndex - 1 < 0) ? null : task.steps[currentIndex - 1];
   }
 
@@ -27,7 +32,7 @@ class OrderedTaskNavigator extends TaskNavigator {
   Step? firstStep() {
     final previousStep = peekHistory();
     return previousStep == null
-        ? task.initalStep ?? task.steps.first
+        ? task.initialStep ?? task.steps.first
         : nextInList(previousStep);
   }
 }

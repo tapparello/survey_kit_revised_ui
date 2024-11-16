@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart' hide Step;
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:survey_kit/src/model/answer/single_choice_answer_format.dart';
+import 'package:survey_kit/src/model/answer/single_choice_answer_with_feedback_format.dart';
 import 'package:survey_kit/src/model/answer/text_choice.dart';
 import 'package:survey_kit/src/model/result/step_result.dart';
 import 'package:survey_kit/src/model/step.dart';
@@ -8,13 +7,12 @@ import 'package:survey_kit/src/util/measure_date_state_mixin.dart';
 import 'package:survey_kit/src/view/widget/answer/answer_mixin.dart';
 import 'package:survey_kit/src/view/widget/answer/answer_question_text.dart';
 import 'package:survey_kit/src/view/widget/answer/selection_list_tile.dart';
-import 'dart:convert';
 
-class SingleChoiceAnswerView extends StatefulWidget {
+class SingleChoiceAnswerWithFeedbackView extends StatefulWidget {
   final Step questionStep;
   final StepResult? result;
 
-  const SingleChoiceAnswerView({
+  const SingleChoiceAnswerWithFeedbackView({
     Key? key,
     required this.questionStep,
     required this.result,
@@ -24,16 +22,12 @@ class SingleChoiceAnswerView extends StatefulWidget {
   _SingleChoiceAnswerViewState createState() => _SingleChoiceAnswerViewState();
 }
 
-class _SingleChoiceAnswerViewState extends State<SingleChoiceAnswerView>
+class _SingleChoiceAnswerViewState extends State<SingleChoiceAnswerWithFeedbackView>
     with
         MeasureDateStateMixin,
-        AnswerMixin<SingleChoiceAnswerView, TextChoice> {
-
-  late final SingleChoiceAnswerFormat _singleChoiceAnswerFormat;
+        AnswerMixin<SingleChoiceAnswerWithFeedbackView, TextChoice> {
+  late final SingleChoiceAnswerWithFeedbackFormat _singleChoiceAnswerWithFeedbackFormat;
   TextChoice? _selectedChoice;
-  late final SharedPreferences prefs;
-  late List<TextChoice> _textChoices = [];
-
 
   @override
   void initState() {
@@ -42,16 +36,10 @@ class _SingleChoiceAnswerViewState extends State<SingleChoiceAnswerView>
     if (answer == null) {
       throw Exception('SingleSelectAnswer is null');
     }
-    _singleChoiceAnswerFormat = answer as SingleChoiceAnswerFormat;
+    _singleChoiceAnswerWithFeedbackFormat = answer as SingleChoiceAnswerWithFeedbackFormat;
 
-    if (_singleChoiceAnswerFormat.choicesFromVariable != null) {
-      getTextChoices();
-    } else {
-      _textChoices = _singleChoiceAnswerFormat.textChoices;
-    }
-
-    if (_singleChoiceAnswerFormat.shuffleChoices) {
-      _singleChoiceAnswerFormat.textChoices.shuffle();
+    if (_singleChoiceAnswerWithFeedbackFormat.shuffleChoices) {
+      _singleChoiceAnswerWithFeedbackFormat.textChoices.shuffle();
     }
 
     TextChoice? previousChoice;
@@ -62,7 +50,7 @@ class _SingleChoiceAnswerViewState extends State<SingleChoiceAnswerView>
       previousChoice = TextChoice.fromJson(widget.result?.result);
     }
 
-    _selectedChoice = previousChoice ?? _singleChoiceAnswerFormat.defaultSelection;
+    _selectedChoice = previousChoice ?? _singleChoiceAnswerWithFeedbackFormat.defaultSelection;
 
     // Handle results from previous runs of the survey
     WidgetsFlutterBinding.ensureInitialized();
@@ -71,25 +59,6 @@ class _SingleChoiceAnswerViewState extends State<SingleChoiceAnswerView>
         super.onChange(_selectedChoice);
       }
     });
-
-  }
-
-  Future<void> getTextChoices() async {
-
-    prefs = await SharedPreferences.getInstance();
-    final textChoices = prefs.getStringList(_singleChoiceAnswerFormat.choicesFromVariable!);
-
-    if (textChoices != null){
-      final choices = textChoices.map((String choice) => TextChoice(text: choice, value: choice)).toList();
-      if (_singleChoiceAnswerFormat.shuffleChoices) {
-        choices.shuffle();
-      }
-
-      setState(() {
-        _textChoices = choices;
-      });
-    }
-
   }
 
   @override
@@ -115,6 +84,7 @@ class _SingleChoiceAnswerViewState extends State<SingleChoiceAnswerView>
   Widget build(BuildContext context) {
     final questionText = widget.questionStep.answerFormat?.question;
 
+    // // Handle results from previous runs of the survey
     // if (_selectedChoice != null) {
     //   onValidationChanged = isValid(_selectedChoice);
     // }
@@ -127,7 +97,7 @@ class _SingleChoiceAnswerViewState extends State<SingleChoiceAnswerView>
           const Divider(
             color: Colors.grey,
           ),
-          ..._textChoices.map( //_singleChoiceAnswerFormat.textChoices.map(
+          ..._singleChoiceAnswerWithFeedbackFormat.textChoices.map(
             (TextChoice tc) {
               return SelectionListTile(
                 text: tc.text,

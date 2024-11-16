@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:uuid/uuid.dart';
 
@@ -16,8 +17,16 @@ class TextChoice {
     this.value,
   }) : id = id ?? const Uuid().v4();
 
+  @override
+  bool operator == (Object other) =>
+      identical(this, other) ||
+          other is TextChoice &&
+              runtimeType == other.runtimeType &&
+              text == other.text && value == other.value;
+
   factory TextChoice.fromJson(Map<String, dynamic> json) =>
       _$TextChoiceFromJson(json);
 
   Map<String, dynamic> toJson() => _$TextChoiceToJson(this);
+
 }

@@ -14,6 +14,7 @@ class SurveyResult {
   final DateTime endTime;
   final FinishReason finishReason;
   final List<StepResult> results;
+  final String? lastShownStepId;
 
   const SurveyResult({
     required this.id,
@@ -21,6 +22,7 @@ class SurveyResult {
     required this.endTime,
     required this.finishReason,
     required this.results,
+    this.lastShownStepId,
   });
 
   factory SurveyResult.fromJson(Map<String, dynamic> json) =>
@@ -36,7 +38,8 @@ class SurveyResult {
           id == other.id &&
           startTime == other.startTime &&
           endTime == other.endTime &&
-          finishReason == other.finishReason;
+          finishReason == other.finishReason &&
+          lastShownStepId == other.lastShownStepId;
 
   @override
   int get hashCode =>
@@ -44,7 +47,8 @@ class SurveyResult {
       startTime.hashCode ^
       endTime.hashCode ^
       finishReason.hashCode ^
-      results.hashCode;
+      results.hashCode ^
+      lastShownStepId.hashCode;
 }
 
 enum FinishReason { saved, discarded, completed, failed }

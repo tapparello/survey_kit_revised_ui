@@ -15,6 +15,7 @@ abstract class TaskNavigator {
     required Step step,
     required List<StepResult> previousResults,
     StepResult? questionResult,
+    bool recordStep = true,
   });
   Step? previousInList(Step step);
 
@@ -32,6 +33,14 @@ abstract class TaskNavigator {
       return null;
     }
     return history.last;
+  }
+
+  // bool hasNextStep(Step step){
+  //   return nextInList(step) != null;
+  // }
+
+  bool hasNextStep(Step step, List<StepResult> previousResults){
+    return nextStep(step: step, previousResults: previousResults, recordStep: false) != null;
   }
 
   bool hasPreviousStep() {

@@ -28,5 +28,6 @@ Map<String, dynamic> _$AudioContentToJson(AudioContent instance) {
   val['title'] = instance.title;
   val['subtitle'] = instance.subtitle;
   val['externalLink'] = instance.externalLink;
+  val['type'] = 'audio';
   return val;
 }

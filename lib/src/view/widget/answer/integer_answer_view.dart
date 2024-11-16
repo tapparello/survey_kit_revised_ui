@@ -55,6 +55,12 @@ class _IntegerAnswerViewState extends State<IntegerAnswerView>
   Widget build(BuildContext context) {
     final questionText = widget.questionStep.answerFormat?.question;
 
+    // This will enable the next button in case we already have a correct result
+    final number = int.tryParse(_controller.text);
+    if (number != null) {
+      onChange(number);
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 32.0),
       child: Column(

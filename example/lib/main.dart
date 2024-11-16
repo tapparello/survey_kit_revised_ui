@@ -181,7 +181,7 @@ class _MyAppState extends State<MyApp> {
         ),
 
         Step(
-          id: 'OnlyConent',
+          id: 'OnlyContent',
           content: const [
             TextContent(
               text: 'Listen carefully!',

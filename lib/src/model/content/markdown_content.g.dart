@@ -23,5 +23,6 @@ Map<String, dynamic> _$MarkdownContentToJson(MarkdownContent instance) {
 
   writeNotNull('id', instance.id);
   val['text'] = instance.text;
+  val['type'] = 'markdown';
   return val;
 }

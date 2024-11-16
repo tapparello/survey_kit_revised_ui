@@ -22,5 +22,6 @@ Map<String, dynamic> _$HtmlContentToJson(HtmlContent instance) {
 
   writeNotNull('id', instance.id);
   val['html'] = instance.html;
+  val['type'] = 'html';
   return val;
 }

@@ -18,6 +18,7 @@ mixin AnswerMixin<T extends StatefulWidget, R> on State<T> {
 
   void onLoad(R? result){
     onValidationChanged = isValid(result);
+    print('onLoad - ${isValid(result)} - $result');
   }
 
   void onChange(R? result) {
@@ -33,20 +34,18 @@ mixin AnswerMixin<T extends StatefulWidget, R> on State<T> {
     final prefs = await SharedPreferences.getInstance();
     final stepId = QuestionAnswer.of(context).step.id;
 
-    switch (R){
-      case TextChoice:
-        final choice = (result as TextChoice).text;
+    if (result is int) {
+      await prefs.setInt(stepId, result);
+    } else if (result is TextChoice) {
+      final choice = result.value ?? result.text;
         await prefs.setString(stepId, choice);
-        break;
-      case List<TextChoice>:
-        final choices = (result as List<TextChoice>).map((choice) => choice.text).toList();
+    } else if (result is List<TextChoice>) {
+      final choices = result.map((choice) => choice.text).toList();
         await prefs.setStringList(stepId, choices);
-        break;
-      case List<MultiDouble>:
-        final answers = (result as List<MultiDouble>).map((answer) => answer.value.toString()).toList();
+    } else if (result is List<MultiDouble>) {
+      final answers = result.map((answer) => answer.value.toString()).toList();
         await prefs.setStringList(stepId, answers);
-        break;
-      default:
+    } else {
         await prefs.setString(stepId, result.toString());
     }
   }
@@ -54,6 +53,7 @@ mixin AnswerMixin<T extends StatefulWidget, R> on State<T> {
   bool isValid(R? result);
 
   set onValidationChanged(bool isValid) {
+    print('onValidationChanged - $isValid');
     QuestionAnswer.of(context).setIsValid(isValid);
   }
 

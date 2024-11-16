@@ -6,10 +6,12 @@ import 'package:survey_kit/src/model/answer/double_answer_format.dart';
 import 'package:survey_kit/src/model/answer/image_answer_format.dart';
 import 'package:survey_kit/src/model/answer/integer_answer_format.dart';
 import 'package:survey_kit/src/model/answer/multiple_choice_answer_format.dart';
+import 'package:survey_kit/src/model/answer/multiple_choice_answer_with_feedback_format.dart';
 import 'package:survey_kit/src/model/answer/multiple_choice_auto_complete_answer_format.dart';
 import 'package:survey_kit/src/model/answer/multiple_double_answer_format.dart';
 import 'package:survey_kit/src/model/answer/scale_answer_format.dart';
 import 'package:survey_kit/src/model/answer/single_choice_answer_format.dart';
+import 'package:survey_kit/src/model/answer/single_choice_answer_with_feedback_format.dart';
 import 'package:survey_kit/src/model/answer/text_answer_format.dart';
 import 'package:survey_kit/src/model/answer/time_answer_format.dart';
 import 'package:survey_kit/src/model/result/step_result.dart';
@@ -32,8 +34,12 @@ abstract class AnswerFormat {
     switch (type) {
       case MultipleChoiceAnswerFormat.type:
         return MultipleChoiceAnswerFormat.fromJson(json);
+      case MultipleChoiceAnswerWithFeedbackFormat.type:
+        return MultipleChoiceAnswerWithFeedbackFormat.fromJson(json);
       case SingleChoiceAnswerFormat.type:
         return SingleChoiceAnswerFormat.fromJson(json);
+      case SingleChoiceAnswerWithFeedbackFormat.type:
+        return SingleChoiceAnswerWithFeedbackFormat.fromJson(json);
       case BooleanAnswerFormat.type:
         return BooleanAnswerFormat.fromJson(json);
       case DateAnswerFormat.type:

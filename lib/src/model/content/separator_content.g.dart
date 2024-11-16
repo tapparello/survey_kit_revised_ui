@@ -23,5 +23,6 @@ Map<String, dynamic> _$SeparatorContentToJson(SeparatorContent instance) {
 
   writeNotNull('id', instance.id);
   val['height'] = instance.height;
+  val['type'] = 'separator';
   return val;
 }

@@ -2,6 +2,7 @@ import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import 'package:visibility_detector/visibility_detector.dart';
+import 'package:flutter/services.dart';
 
 class SurveyKitVideoPlayer extends StatefulWidget {
   const SurveyKitVideoPlayer({
@@ -33,6 +34,15 @@ class _SurveyKitVideoPlayerState extends State<SurveyKitVideoPlayer> {
           videoPlayerController: _controller,
           autoPlay: widget.autoPlay,
           looping: widget.loop,
+          zoomAndPan: true,
+          deviceOrientationsOnEnterFullScreen: [
+            DeviceOrientation.portraitUp,
+            DeviceOrientation.landscapeLeft,
+            DeviceOrientation.landscapeRight,
+          ],
+          deviceOrientationsAfterFullScreen: [
+            DeviceOrientation.portraitUp
+          ],
         );
         setState(() {});
       });
@@ -67,10 +77,8 @@ class _SurveyKitVideoPlayerState extends State<SurveyKitVideoPlayer> {
 
   @override
   void dispose() {
+    _chewieController.dispose();
+    _controller.dispose();
     super.dispose();
-    _controller.pause().then((value) {
-      _chewieController.dispose();
-      _controller.dispose();
-    });
   }
 }

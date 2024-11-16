@@ -28,6 +28,7 @@ Map<String, dynamic> _$ImageContentToJson(ImageContent instance) {
   val['fit'] = _$BoxFitEnumMap[instance.fit];
   val['width'] = instance.width;
   val['height'] = instance.height;
+  val['type'] = 'image';
   return val;
 }
 

@@ -1,6 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart' hide Step;
-import 'package:survey_kit/src/model/answer/multiple_choice_answer_format.dart';
+import 'package:survey_kit/src/model/answer/multiple_choice_answer_with_feedback_format.dart';
 import 'package:survey_kit/src/model/answer/text_choice.dart';
 import 'package:survey_kit/src/model/result/step_result.dart';
 import 'package:survey_kit/src/model/step.dart';
@@ -11,27 +11,26 @@ import 'package:survey_kit/src/view/widget/answer/selection_list_tile.dart';
 import 'package:survey_kit/src/view/widget/question_answer.dart';
 import 'package:flutter_html/flutter_html.dart' hide Content;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
 
-class MultipleChoiceAnswerView extends StatefulWidget {
+class MultipleChoiceAnswerWithFeedbackView extends StatefulWidget {
   final Step questionStep;
   final StepResult? result;
 
-  const MultipleChoiceAnswerView({
+  const MultipleChoiceAnswerWithFeedbackView({
     Key? key,
     required this.questionStep,
     required this.result,
   }) : super(key: key);
 
   @override
-  _MultipleChoiceAnswerView createState() => _MultipleChoiceAnswerView();
+  _MultipleChoiceAnswerWithFeedbackView createState() => _MultipleChoiceAnswerWithFeedbackView();
 }
 
-class _MultipleChoiceAnswerView extends State<MultipleChoiceAnswerView>
+class _MultipleChoiceAnswerWithFeedbackView extends State<MultipleChoiceAnswerWithFeedbackView>
     with
         MeasureDateStateMixin,
-        AnswerMixin<MultipleChoiceAnswerView, List<TextChoice>> {
-  late final MultipleChoiceAnswerFormat _multipleChoiceAnswer;
+        AnswerMixin<MultipleChoiceAnswerWithFeedbackView, List<TextChoice>> {
+  late final MultipleChoiceAnswerWithFeedbackFormat _multipleChoiceAnswer;
 
   late final SharedPreferences prefs;
   List<TextChoice> _selectedChoices = [];
@@ -46,41 +45,21 @@ class _MultipleChoiceAnswerView extends State<MultipleChoiceAnswerView>
     if (answer == null) {
       throw Exception('MultiSelectAnswer is null');
     }
-    _multipleChoiceAnswer = answer as MultipleChoiceAnswerFormat;
+    _multipleChoiceAnswer = answer as MultipleChoiceAnswerWithFeedbackFormat;
 
     if (_multipleChoiceAnswer.choicesFromVariable != null) {
       getTextChoices();
-      _selectedChoices = [];
     } else {
-
       _textChoices = _multipleChoiceAnswer.textChoices;
-      List<TextChoice>? previousChoices;
-
-      if (widget.result?.result is List<TextChoice>) {
-        previousChoices = widget.result?.result as List<TextChoice>;
-      } else if (widget.result?.result is Map<String, dynamic>) {
-        print(StepResult.fromJson(widget.result?.result));
-        print(jsonDecode(widget.result?.result).toString());
-        //previousChoices = TextChoice.fromJson(widget.result?.result);
-      }
-
-      _selectedChoices = previousChoices ?? [];
-
     }
 
     if (_multipleChoiceAnswer.shuffleChoices) {
       _multipleChoiceAnswer.textChoices.shuffle();
     }
 
-    // _selectedChoices = widget.result?.result as List<TextChoice>? ?? [];
+    _selectedChoices = widget.result?.result as List<TextChoice>? ?? [];
 
     _noneOfTheAboveOption = TextChoice(id: 'None', text: _multipleChoiceAnswer.noneOptionText ?? 'None of the above', value: _multipleChoiceAnswer.noneOptionText ?? 'None of the above');
-
-    // Handle results from previous runs of the survey
-    WidgetsFlutterBinding.ensureInitialized();
-    Future.delayed(Duration.zero, () {
-      super.onChange(_selectedChoices);
-    });
   }
 
   Future<void> getTextChoices() async {
@@ -114,14 +93,13 @@ class _MultipleChoiceAnswerView extends State<MultipleChoiceAnswerView>
   Widget build(BuildContext context) {
     final questionText = widget.questionStep.answerFormat?.question;
 
-    // _selectedChoices = QuestionAnswer.of(context).stepResult?.result as List<TextChoice>? ??
-    //     widget.result?.result as List<TextChoice>? ??
-    //     [];
+    _selectedChoices = QuestionAnswer.of(context).stepResult?.result as List<TextChoice>? ??
+        widget.result?.result as List<TextChoice>? ??
+        [];
 
     // Handle results from previous runs of the survey
     if (_selectedChoices.isNotEmpty) {
-      // onValidationChanged = isValid(_selectedChoices);
-      super.onChange(_selectedChoices);
+      onValidationChanged = isValid(_selectedChoices);
     }
 
     return Padding(
@@ -147,7 +125,7 @@ class _MultipleChoiceAnswerView extends State<MultipleChoiceAnswerView>
                         _selectedChoices.add(tc);
                       } else {
                         var message = _multipleChoiceAnswer.maxAllowedChoicesErrorMessage ?? 'You can only select up to ${_multipleChoiceAnswer.maxAllowedChoices} options from the list.</p><p>Remove one of the existing options before selecting a new one.';
-                        _dialogBuilder(context, "<p>$message</p>");
+                        _dialogBuilder(context, '<p>$message</p>');
                       }
                       // _selectedChoices.add(tc);
                     }
@@ -159,63 +137,6 @@ class _MultipleChoiceAnswerView extends State<MultipleChoiceAnswerView>
                 ),
               )
               .toList(),
-          if (_multipleChoiceAnswer.otherField) ...[
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 2.0),
-              child: ListTile(
-                trailing: (_selectedChoices.firstWhereOrNull((choice) => choice.id == 'Other') == null) ?
-                Container(
-                  width: 32,
-                  height: 32,
-                )
-                : Icon(
-                  Icons.check,
-                  size: 32,
-                  color: Theme.of(context).listTileTheme.selectedColor
-                ),
-                title: TextField(
-                  onChanged: (v) {
-                    int? currentIndex;
-                    final otherTextChoice = _selectedChoices
-                        .firstWhereIndexedOrNull((index, element) {
-                      final isOtherField = element.id == 'Other';
-
-                      if (isOtherField) {
-                        currentIndex = index;
-                      }
-
-                      return isOtherField;
-                    });
-
-                    setState(() {
-                      if (v.isEmpty && otherTextChoice != null) {
-                        _selectedChoices.remove(otherTextChoice);
-                      } else if (v.isNotEmpty) {
-                        final updatedTextChoice =
-                            TextChoice(id: 'Other', value: v, text: v);
-                        if (otherTextChoice == null) {
-                          _selectedChoices.add(updatedTextChoice);
-                        } else if (currentIndex != null) {
-                          _selectedChoices[currentIndex!] = updatedTextChoice;
-                        }
-                      }
-                      onChange(_selectedChoices);
-                    });
-                  },
-                  decoration: InputDecoration(
-                    // labelText: 'Other',
-                    // labelStyle: Theme.of(context).textTheme.titleLarge,
-                    hintText: _multipleChoiceAnswer.otherHintText ?? 'Write more here...',
-                    hintStyle: Theme.of(context).textTheme.titleMedium,
-                    // floatingLabelBehavior: FloatingLabelBehavior.always,
-                  ),
-                ),
-              ),
-            ),
-            const Divider(
-              color: Colors.grey,
-            ),
-          ],
           if (_multipleChoiceAnswer.noneOption) ...[
             SelectionListTile(
               text: _noneOfTheAboveOption.text,
@@ -239,13 +160,13 @@ class _MultipleChoiceAnswerView extends State<MultipleChoiceAnswerView>
 
   Future<void> _dialogBuilder(BuildContext context, String message) {
 
-    final Map<String, Style> htmlStyle = {
-      "p": Style(
+    final htmlStyle = <String, Style>{
+      'p': Style(
         textAlign: TextAlign.center,
         fontWeight: FontWeight.bold,
         fontSize: FontSize(16.0),
       ),
-      "ul": Style(
+      'ul': Style(
         fontSize: FontSize(16.0),
       ),
     };

@@ -17,7 +17,7 @@ class SelectionListTile extends StatelessWidget {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14.0),
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
           child: ListTile(
             title: Text(
               text,
@@ -27,6 +27,7 @@ class SelectionListTile extends StatelessWidget {
                         : Theme.of(context).textTheme.headlineSmall?.color,
                   ),
             ),
+            contentPadding: EdgeInsets.zero,
             trailing: isSelected
                 ? Icon(
                     Icons.check,

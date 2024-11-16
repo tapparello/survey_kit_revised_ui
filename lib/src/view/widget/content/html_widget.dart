@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_html_table/flutter_html_table.dart';
 import 'package:survey_kit/src/model/content/html_content.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HtmlWidget extends StatelessWidget {
   const HtmlWidget({
@@ -14,6 +15,12 @@ class HtmlWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Html(data: htmlContent.html,
+      onLinkTap: (url, _, __) async {
+        final Uri _url = Uri.parse(url ?? '');
+        if (await canLaunchUrl(_url)) {
+          await launchUrl(_url);
+        }
+      },
       extensions: const [
         TableHtmlExtension(),
       ],

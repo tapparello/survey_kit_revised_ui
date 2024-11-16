@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:survey_kit/src/model/step.dart';
 import 'package:survey_kit/src/navigator/rules/navigation_rule.dart';
 import 'package:survey_kit/src/task/task.dart';
@@ -12,13 +13,13 @@ class NavigableTask extends Task {
   NavigableTask({
     String? id,
     List<Step> steps = const [],
-    Step? initialStep,
+    String? initialStepId,
     Map<String, NavigationRule>? navigationRules,
   })  : navigationRules = navigationRules ?? {},
         super(
           id: id,
           steps: steps,
-          initalStep: initialStep,
+          initialStep: steps.firstWhereOrNull((step) => step.id == initialStepId),
         );
 
   /// Adds a [NavigationRule] to the [navigationRule] Map

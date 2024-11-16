@@ -31,5 +31,6 @@ Map<String, dynamic> _$LottieContentToJson(LottieContent instance) {
   val['repeat'] = instance.repeat;
   val['width'] = instance.width;
   val['height'] = instance.height;
+  val['type'] = 'lottie';
   return val;
 }

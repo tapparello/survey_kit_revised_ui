@@ -15,8 +15,12 @@ class SurveyAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final progressbarConfiguration =
+        SurveyConfiguration.of(context).surveyProgressConfiguration;
+
     final surveyController =
         controller ?? SurveyConfiguration.of(context).surveyController;
+
     final surveyStream =
         SurveyStateProvider.of(context).surveyStateStream.stream;
 
@@ -24,7 +28,8 @@ class SurveyAppBar extends StatelessWidget implements PreferredSizeWidget {
       child: Text(
         SurveyConfiguration.of(context).localizations?['cancel'] ?? 'Cancel',
         style: TextStyle(
-          color: Theme.of(context).appBarTheme.toolbarTextStyle?.color ?? Theme.of(context).primaryColor,
+          color: Theme.of(context).appBarTheme.toolbarTextStyle?.color ??
+              Theme.of(context).primaryColor,
         ),
       ),
       onPressed: () => surveyController.closeSurvey(
@@ -40,6 +45,10 @@ class SurveyAppBar extends StatelessWidget implements PreferredSizeWidget {
       },
     );
 
+    final actionWidget = progressbarConfiguration.showCloseButton
+        ? cancelButton
+        : const SizedBox.shrink();
+
     return AppBar(
       elevation: 0,
       leading: StreamBuilder<SurveyState>(
@@ -52,9 +61,7 @@ class SurveyAppBar extends StatelessWidget implements PreferredSizeWidget {
           final state = snapshot.data!;
 
           if (state is PresentingSurveyState) {
-            return (state as PresentingSurveyState).isFirstStep
-                ? const SizedBox.shrink()
-                : backButton;
+            return state.isFirstStep ? const SizedBox.shrink() : backButton;
           } else {
             return const SizedBox.shrink();
           }
@@ -62,7 +69,26 @@ class SurveyAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       title: const SurveyProgress(),
       actions: [
-        cancelButton,
+        StreamBuilder<SurveyState>(
+          stream: surveyStream,
+          builder: (context, snapshot) {
+            if (snapshot.data == null) {
+              return const SizedBox.shrink();
+            }
+
+            final state = snapshot.data!;
+
+            if (state is PresentingSurveyState) {
+              return progressbarConfiguration.label!(
+                (state.currentStepIndex+1).toString(),
+                state.stepCount.toString(),
+              );
+            } else {
+              return const SizedBox.shrink();
+            }
+          },
+        ),
+        actionWidget,
       ],
     );
   }

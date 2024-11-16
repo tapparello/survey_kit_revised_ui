@@ -72,9 +72,9 @@ class _TextAnswerViewState extends State<TextAnswerView>
           child: TextField(
             maxLines: _textAnswerFormat.maxLines == null ? 1 : null,
             expands: _textAnswerFormat.maxLines != null,
-            style: Theme.of(context).textTheme.titleMedium,
+            style: Theme.of(context).textTheme.bodyLarge,
             textInputAction: TextInputAction.next,
-            autofocus: true,
+            autofocus: false,
             decoration: textFieldInputDecoration(
               hint: _textAnswerFormat.hint,
             ),

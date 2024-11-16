@@ -16,12 +16,12 @@ abstract class Task {
   late final String id;
   @JsonKey(defaultValue: <Step>[])
   final List<Step> steps;
-  final Step? initalStep;
+  final Step? initialStep;
 
   Task({
     String? id,
     this.steps = const [],
-    this.initalStep,
+    this.initialStep,
   }) : id = id ?? const Uuid().v4();
 
   /// Creates a task from a Map. The task needs to have a type definition of

@@ -9,11 +9,13 @@ class SingleChoiceAnswerFormat extends AnswerFormat {
   static const String type = 'single';
 
   final List<TextChoice> textChoices;
+  final String? choicesFromVariable;
   final TextChoice? defaultSelection;
   final bool shuffleChoices;
 
   const SingleChoiceAnswerFormat({
     required this.textChoices,
+    this.choicesFromVariable,
     this.defaultSelection,
     this.shuffleChoices = false,
     super.question,

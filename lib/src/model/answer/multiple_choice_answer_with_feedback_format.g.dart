@@ -1,24 +1,25 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'multiple_choice_answer_format.dart';
+part of 'multiple_choice_answer_with_feedback_format.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-MultipleChoiceAnswerFormat _$MultipleChoiceAnswerFormatFromJson(
+MultipleChoiceAnswerWithFeedbackFormat _$MultipleChoiceAnswerWithFeedbackFormatFromJson(
         Map<String, dynamic> json) =>
-    MultipleChoiceAnswerFormat(
+    MultipleChoiceAnswerWithFeedbackFormat(
       textChoices: (json['textChoices'] as List<dynamic>)
           .map((e) => TextChoice.fromJson(e as Map<String, dynamic>))
           .toList(),
+      feedbackCorrect: json['feedbackCorrect'] as String?,
+      feedbackWrong: json['feedbackWrong'] as String?,
       choicesFromVariable: json['choicesFromVariable'] as String?,
-      otherField: json['otherField'] as bool? ?? false,
       shuffleChoices: json['shuffleChoices'] as bool? ?? false,
+      coloredFeedback: json['coloredFeedback'] as bool? ?? false,
       minRequiredChoices: json['minRequiredChoices'] as int? ?? 1,
       maxAllowedChoices: json['maxAllowedChoices'] as int? ?? 999,
       maxAllowedChoicesErrorMessage: json['maxAllowedChoicesErrorMessage'] as String?,
-      otherHintText: json['otherHintText'] as String?,
       noneOption: json['noneOption'] as bool? ?? false,
       noneOptionText: json['noneOptionText'] as String?,
       defaultSelection: json['defaultSelection'] == null
@@ -27,18 +28,20 @@ MultipleChoiceAnswerFormat _$MultipleChoiceAnswerFormatFromJson(
               json['defaultSelection'] as Map<String, dynamic>),
       question: json['question'] as String?,
       answerType: json['type'] as String?,
+
     );
 
-Map<String, dynamic> _$MultipleChoiceAnswerFormatToJson(
-        MultipleChoiceAnswerFormat instance) =>
+Map<String, dynamic> _$MultipleChoiceAnswerWithFeedbackFormatToJson(
+      MultipleChoiceAnswerWithFeedbackFormat instance) =>
     <String, dynamic>{
       'question': instance.question,
       'type': instance.answerType,
       'textChoices': instance.textChoices,
+      'feedbackCorrect': instance.feedbackCorrect,
+      'feedbackWrong': instance.feedbackWrong,
+      'coloredFeedback': instance.coloredFeedback,
       'choicesFromVariable': instance.choicesFromVariable,
       'defaultSelection': instance.defaultSelection,
-      'otherField': instance.otherField,
-      'otherHintText': instance.otherHintText,
       'noneOption': instance.noneOption,
       'noneOptionText': instance.noneOptionText,
       'shuffleChoices' : instance.shuffleChoices,

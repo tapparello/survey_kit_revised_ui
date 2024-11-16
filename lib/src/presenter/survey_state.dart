@@ -19,6 +19,8 @@ class PresentingSurveyState extends SurveyState {
   final int stepCount;
   final bool isPreviousStep;
 
+  final bool isInitialStep;
+
   const PresentingSurveyState({
     required this.stepCount,
     required this.currentStep,
@@ -27,6 +29,7 @@ class PresentingSurveyState extends SurveyState {
     this.result,
     this.currentStepIndex = 0,
     this.isPreviousStep = false,
+    this.isInitialStep = false
   });
 
   @override

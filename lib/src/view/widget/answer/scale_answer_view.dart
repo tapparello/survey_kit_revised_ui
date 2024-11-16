@@ -40,6 +40,7 @@ class _ScaleAnswerViewState extends State<ScaleAnswerView>
     final result = QuestionAnswer.of(context).stepResult?.result as double? ??
         _scaleAnswerFormat.defaultValue;
     final questionText = widget.questionStep.answerFormat?.question;
+
     return Padding(
       padding: const EdgeInsets.all(14.0),
       child: Column(
@@ -50,46 +51,67 @@ class _ScaleAnswerViewState extends State<ScaleAnswerView>
           Padding(
             padding: const EdgeInsets.all(14.0),
             child: Text(
-              result.toInt().toString(),
-              style: Theme.of(context).textTheme.headlineSmall,
+              result.toStringAsFixed(0),
+              style: Theme.of(context).textTheme.displayMedium,
             ),
           ),
           Column(
             children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 32.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      _scaleAnswerFormat.minimumValueDescription,
-                      style: const TextStyle(
-                        fontSize: 16.0,
-                      ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                      _scaleAnswerFormat.minimumValue.toStringAsFixed(0),
+                      style: Theme.of(context).textTheme.titleMedium,
                     ),
-                    Text(
-                      _scaleAnswerFormat.maximumValueDescription,
-                      style: const TextStyle(
-                        fontSize: 16.0,
-                      ),
+                  Expanded(
+                    flex: 8,
+                    child: Slider.adaptive(
+                      value: result,
+                      onChanged: (double value) {
+                        setState(() {
+                          onChange(value);
+                        });
+                      },
+                      min: _scaleAnswerFormat.minimumValue,
+                      max: _scaleAnswerFormat.maximumValue,
+                      // activeColor: Theme.of(context).sliderTheme.activeTrackColor,
+                      divisions: (_scaleAnswerFormat.maximumValue -
+                              _scaleAnswerFormat.minimumValue) ~/
+                          _scaleAnswerFormat.step,
+                      label: result.toString(),
                     ),
-                  ],
-                ),
+                  ),
+                  Text(
+                      _scaleAnswerFormat.maximumValue.toStringAsFixed(0),
+                      style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ],
               ),
-              Slider.adaptive(
-                value: result,
-                onChanged: (double value) {
-                  setState(() {
-                    onChange(value);
-                  });
-                },
-                min: _scaleAnswerFormat.minimumValue,
-                max: _scaleAnswerFormat.maximumValue,
-                // activeColor: Theme.of(context).sliderTheme.activeTrackColor,
-                divisions: (_scaleAnswerFormat.maximumValue -
-                        _scaleAnswerFormat.minimumValue) ~/
-                    _scaleAnswerFormat.step,
-                label: result.toString(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Expanded(
+                    flex: 4,
+                    child: Text(
+                      _scaleAnswerFormat.minimumValueDescription,
+                      textAlign: TextAlign.left,
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                  ),
+                  const Expanded(
+                    flex: 3,
+                    child: Spacer(),
+                  ),
+                  Expanded(
+                    flex: 4,
+                    child: Text(
+                      _scaleAnswerFormat.maximumValueDescription,
+                      textAlign: TextAlign.right,
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

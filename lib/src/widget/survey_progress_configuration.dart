@@ -22,6 +22,9 @@ class SurveyProgressConfiguration {
   /// the label )
   final bool showLabel;
 
+  // If a close button should be shown
+  final bool showCloseButton;
+
   /// Label widget which should be shown above the appbar (Also need to
   /// activate via the 'showLabel flag {from currentProgress, to
   /// finishOfProgress})
@@ -33,6 +36,7 @@ class SurveyProgressConfiguration {
 
   SurveyProgressConfiguration({
     this.showProgressbar = true,
+    this.showCloseButton = true,
     this.progressbarColor = Colors.white,
     this.height = 6.0,
     this.padding = const EdgeInsets.symmetric(horizontal: 24.0),
