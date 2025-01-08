@@ -17,17 +17,23 @@ class VideoWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final widget = kIsWeb
-        ? WebVideoPlayer(
-            videoContent.url,
-            autoplay: videoContent.autoPlay,
-            loop: videoContent.loop,
-          )
-        : SurveyKitVideoPlayer(
-            videoUrl: videoContent.url,
-            autoPlay: videoContent.autoPlay,
-            loop: videoContent.loop,
-          );
+    // final widget = kIsWeb
+    //     ? WebVideoPlayer(
+    //         videoContent.url,
+    //         autoplay: videoContent.autoPlay,
+    //         loop: videoContent.loop,
+    //       )
+    //     : SurveyKitVideoPlayer(
+    //         videoUrl: videoContent.url,
+    //         autoPlay: videoContent.autoPlay,
+    //         loop: videoContent.loop,
+    //       );
+
+    final widget = SurveyKitVideoPlayer(
+      videoUrl: videoContent.url,
+      autoPlay: videoContent.autoPlay,
+      loop: videoContent.loop,
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

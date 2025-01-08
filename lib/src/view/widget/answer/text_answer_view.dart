@@ -37,7 +37,12 @@ class _TextAnswerViewState extends State<TextAnswerView>
       throw Exception('TextAnswerFormat is null');
     }
     _textAnswerFormat = answer as TextAnswerFormat;
-    isValid(_controller.text);
+
+    // Handle results from previous runs of the survey
+    WidgetsFlutterBinding.ensureInitialized();
+    Future.delayed(Duration.zero, () {
+      onChange(_controller.text);
+    });
   }
 
   @override

@@ -58,10 +58,10 @@ class _MultipleChoiceAnswerView extends State<MultipleChoiceAnswerView>
 
       if (widget.result?.result is List<TextChoice>) {
         previousChoices = widget.result?.result as List<TextChoice>;
-      } else if (widget.result?.result is Map<String, dynamic>) {
-        print(StepResult.fromJson(widget.result?.result));
-        print(jsonDecode(widget.result?.result).toString());
-        //previousChoices = TextChoice.fromJson(widget.result?.result);
+      } else if (widget.result?.result is List<dynamic>) {
+        previousChoices = (widget.result?.result as List<dynamic>)
+          .map((e) => TextChoice.fromJson(e as Map<String, dynamic>))
+          .toList();
       }
 
       _selectedChoices = previousChoices ?? [];

@@ -27,8 +27,8 @@ class _SurveyKitVideoPlayerState extends State<SurveyKitVideoPlayer> {
   @override
   void initState() {
     super.initState();
-    _controller = VideoPlayerController.network(
-      widget.videoUrl,
+    _controller = VideoPlayerController.networkUrl(
+        Uri.parse(widget.videoUrl),
     )..initialize().then((_) {
         _chewieController = ChewieController(
           videoPlayerController: _controller,
@@ -36,12 +36,11 @@ class _SurveyKitVideoPlayerState extends State<SurveyKitVideoPlayer> {
           looping: widget.loop,
           zoomAndPan: true,
           deviceOrientationsOnEnterFullScreen: [
-            DeviceOrientation.portraitUp,
             DeviceOrientation.landscapeLeft,
             DeviceOrientation.landscapeRight,
           ],
           deviceOrientationsAfterFullScreen: [
-            DeviceOrientation.portraitUp
+            DeviceOrientation.portraitUp,
           ],
         );
         setState(() {});

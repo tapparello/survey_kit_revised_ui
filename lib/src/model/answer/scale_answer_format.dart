@@ -14,6 +14,8 @@ class ScaleAnswerFormat extends AnswerFormat {
   final double step;
   final String maximumValueDescription;
   final String minimumValueDescription;
+  final bool isVertical;
+  final bool isAge;
 
   const ScaleAnswerFormat({
     required this.maximumValue,
@@ -22,6 +24,8 @@ class ScaleAnswerFormat extends AnswerFormat {
     required this.step,
     this.maximumValueDescription = '',
     this.minimumValueDescription = '',
+    this.isVertical = false,
+    this.isAge = false,
     super.question,
     super.answerType = type,
   }) : super();
