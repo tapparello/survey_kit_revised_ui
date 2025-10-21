@@ -32,8 +32,7 @@ class _StepViewState extends State<StepView> {
   @override
   Widget build(BuildContext context) {
     final surveyConfiguration = SurveyConfiguration.of(context);
-    final _surveyController =
-        widget.controller ?? surveyConfiguration.surveyController;
+    final _surveyController = widget.controller ?? surveyConfiguration.surveyController;
 
     final questionAnswer = QuestionAnswer.of(context);
 
@@ -42,24 +41,22 @@ class _StepViewState extends State<StepView> {
         context: context,
       ),
       child: Text(
-        surveyConfiguration.localizations?['cancel'] ??
-            'Cancel',
+        surveyConfiguration.localizations?['cancel'] ?? 'Cancel',
       ),
     );
 
-    //TODO: Replace below with a check for the last step
+    // TODO(Cristiano): Replace below with a check for the last step
     // if (widget.step.buttonText == 'Done') saveAndCloseButton = const SizedBox.shrink();
-    var nextStepButtonText = widget.step.buttonText ??
-        toBeginningOfSentenceCase(surveyConfiguration.localizations?['next']) ?? 'Next';
+    var nextStepButtonText = widget.step.buttonText ?? toBeginningOfSentenceCase(surveyConfiguration.localizations?['next']) ?? 'Next';
 
     if (!surveyConfiguration.taskNavigator.hasNextStep(widget.step, SurveyStateProvider.of(context).results.toList())) {
-    // if (!surveyConfiguration.taskNavigator.hasNextStep(widget.step)) {
+      // if (!surveyConfiguration.taskNavigator.hasNextStep(widget.step)) {
       nextStepButtonText = toBeginningOfSentenceCase(surveyConfiguration.localizations?['done']) ?? 'Done';
       saveAndCloseButton = const SizedBox.shrink();
     }
 
     return Scaffold(
-    backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       persistentFooterButtons: [
         SafeArea(
           child: Column(
@@ -73,16 +70,16 @@ class _StepViewState extends State<StepView> {
                   builder: (context, child) {
                     return ElevatedButton(
                       onPressed: questionAnswer.isValid.value || !widget.step.isMandatory
-                          ? () =>
-                          _surveyController.nextStep(context, questionAnswer.stepResult) : null,
+                          ? () => _surveyController.nextStep(context, questionAnswer.stepResult)
+                          : null,
                       child: Text(
-                          nextStepButtonText,
+                        nextStepButtonText,
                       ),
                     );
                   },
                 ),
               ),
-              saveAndCloseButton
+              saveAndCloseButton,
             ],
           ),
         ),
@@ -90,20 +87,19 @@ class _StepViewState extends State<StepView> {
       body: SizedBox.expand(
         child: Container(
           decoration: BoxDecoration(
-            color:  Theme.of(context).colorScheme.surface,
+            color: Theme.of(context).colorScheme.surface,
             border: const Border(
               // top: BorderSide(width: 1.0, color: Colors.blue),
               bottom: BorderSide(width: 0.2, color: Colors.black),
             ),
           ),
-
           child: SafeArea(
             child: LayoutBuilder(
               builder: (context, constraint) {
                 return Scrollbar(
                   // thumbVisibility: true,
                   child: Padding(
-                    padding: const EdgeInsets.only(top: 16.0, left:  16.0, right: 16.0),
+                    padding: const EdgeInsets.only(top: 16.0, left: 16.0, right: 16.0),
                     child: SingleChildScrollView(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.start,
@@ -145,6 +141,4 @@ class _StepViewState extends State<StepView> {
       ),
     );
   }
-
-
 }

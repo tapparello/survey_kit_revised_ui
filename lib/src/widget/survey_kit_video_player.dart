@@ -1,8 +1,8 @@
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:video_player/video_player.dart';
 import 'package:visibility_detector/visibility_detector.dart';
-import 'package:flutter/services.dart';
 
 class SurveyKitVideoPlayer extends StatefulWidget {
   const SurveyKitVideoPlayer({
@@ -28,7 +28,7 @@ class _SurveyKitVideoPlayerState extends State<SurveyKitVideoPlayer> {
   void initState() {
     super.initState();
     _controller = VideoPlayerController.networkUrl(
-        Uri.parse(widget.videoUrl),
+      Uri.parse(widget.videoUrl),
     )..initialize().then((_) {
         _chewieController = ChewieController(
           videoPlayerController: _controller,

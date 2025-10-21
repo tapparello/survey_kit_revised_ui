@@ -5,7 +5,6 @@ import 'package:survey_kit/src/model/step.dart';
 import 'package:survey_kit/src/util/measure_date_state_mixin.dart';
 import 'package:survey_kit/src/view/widget/answer/answer_mixin.dart';
 import 'package:survey_kit/src/view/widget/answer/answer_question_text.dart';
-import 'package:survey_kit/src/view/widget/question_answer.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 
@@ -23,8 +22,7 @@ class ScaleAnswerView extends StatefulWidget {
   _ScaleAnswerViewState createState() => _ScaleAnswerViewState();
 }
 
-class _ScaleAnswerViewState extends State<ScaleAnswerView>
-    with MeasureDateStateMixin, AnswerMixin<ScaleAnswerView, double> {
+class _ScaleAnswerViewState extends State<ScaleAnswerView> with MeasureDateStateMixin, AnswerMixin<ScaleAnswerView, double> {
   late final ScaleAnswerFormat _scaleAnswerFormat;
 
   double _value = 0.0;
@@ -54,8 +52,8 @@ class _ScaleAnswerViewState extends State<ScaleAnswerView>
 
   @override
   Widget build(BuildContext context) {
-    final result = widget.result?.result as double? ?? //QuestionAnswer.of(context).stepResult?.result
-        _scaleAnswerFormat.defaultValue;
+    // final result = widget.result?.result as double? ?? //QuestionAnswer.of(context).stepResult?.result
+    //     _scaleAnswerFormat.defaultValue;
 
     final questionText = widget.questionStep.answerFormat?.question;
 
@@ -66,13 +64,14 @@ class _ScaleAnswerViewState extends State<ScaleAnswerView>
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           if (questionText != null) AnswerQuestionText(text: questionText),
-          if (!_scaleAnswerFormat.isVertical) Padding(
-            padding: const EdgeInsets.all(14.0),
-            child: Text(
-              _value.toStringAsFixed(0),
-              style: Theme.of(context).textTheme.displayMedium,
+          if (!_scaleAnswerFormat.isVertical)
+            Padding(
+              padding: const EdgeInsets.all(14.0),
+              child: Text(
+                _value.toStringAsFixed(0),
+                style: Theme.of(context).textTheme.displayMedium,
+              ),
             ),
-          ),
           if (_scaleAnswerFormat.isVertical)
             Container(
               height: 350,
@@ -197,76 +196,76 @@ class _ScaleAnswerViewState extends State<ScaleAnswerView>
                   },
                   enableTooltip: true,
                   minorTicksPerInterval: 0,
-                  onChanged: (dynamic value){
+                  onChanged: (dynamic value) {
                     setState(() {
                       _value = value;
                       onChange(_value);
                     });
-                    },
+                  },
                 ),
               ),
-            ) else Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
+            )
+          else
+            Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
                       _scaleAnswerFormat.minimumValue.toStringAsFixed(0),
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
-                  Expanded(
-                    flex: 8,
-                    child: Slider.adaptive(
-                      value: _value,
-                      onChanged: (double value) {
-                        setState(() {
-                          _value = value;
-                          onChange(_value);
-                        });
-                      },
-                      min: _scaleAnswerFormat.minimumValue,
-                      max: _scaleAnswerFormat.maximumValue,
-                      // activeColor: Theme.of(context).sliderTheme.activeTrackColor,
-                      divisions: (_scaleAnswerFormat.maximumValue -
-                              _scaleAnswerFormat.minimumValue) ~/
-                          _scaleAnswerFormat.step,
-                      label: _value.toString(),
+                    Expanded(
+                      flex: 8,
+                      child: Slider.adaptive(
+                        value: _value,
+                        onChanged: (double value) {
+                          setState(() {
+                            _value = value;
+                            onChange(_value);
+                          });
+                        },
+                        min: _scaleAnswerFormat.minimumValue,
+                        max: _scaleAnswerFormat.maximumValue,
+                        // activeColor: Theme.of(context).sliderTheme.activeTrackColor,
+                        divisions: (_scaleAnswerFormat.maximumValue - _scaleAnswerFormat.minimumValue) ~/ _scaleAnswerFormat.step,
+                        label: _value.toString(),
+                      ),
                     ),
-                  ),
-                  Text(
+                    Text(
                       _scaleAnswerFormat.maximumValue.toStringAsFixed(0),
                       style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Expanded(
-                    flex: 4,
-                    child: Text(
-                      _scaleAnswerFormat.minimumValueDescription,
-                      textAlign: TextAlign.left,
-                      style: Theme.of(context).textTheme.bodyLarge,
                     ),
-                  ),
-                  const Spacer(),
-                  // const Expanded(
-                  //   flex: 3,
-                  //   child: Spacer(),
-                  // ),
-                  Expanded(
-                    flex: 4,
-                    child: Text(
-                      _scaleAnswerFormat.maximumValueDescription,
-                      textAlign: TextAlign.right,
-                      style: Theme.of(context).textTheme.bodyLarge,
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      flex: 4,
+                      child: Text(
+                        _scaleAnswerFormat.minimumValueDescription,
+                        textAlign: TextAlign.left,
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+                    const Spacer(),
+                    // const Expanded(
+                    //   flex: 3,
+                    //   child: Spacer(),
+                    // ),
+                    Expanded(
+                      flex: 4,
+                      child: Text(
+                        _scaleAnswerFormat.maximumValueDescription,
+                        textAlign: TextAlign.right,
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
         ],
       ),
     );

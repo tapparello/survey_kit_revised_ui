@@ -29,7 +29,7 @@ class PresentingSurveyState extends SurveyState {
     this.result,
     this.currentStepIndex = 0,
     this.isPreviousStep = false,
-    this.isInitialStep = false
+    this.isInitialStep = false,
   });
 
   @override

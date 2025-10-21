@@ -1,7 +1,3 @@
-import 'dart:convert';
-import 'dart:developer';
-
-import 'package:survey_kit/src/model/answer/text_choice.dart';
 import 'package:survey_kit/src/model/result/step_result.dart';
 import 'package:survey_kit/src/model/step.dart';
 import 'package:survey_kit/src/navigator/rules/conditional_navigation_rule.dart';
@@ -9,15 +5,15 @@ import 'package:survey_kit/src/navigator/rules/direct_navigation_rule.dart';
 import 'package:survey_kit/src/navigator/task_navigator.dart';
 import 'package:survey_kit/src/task/navigable_task.dart';
 import 'package:survey_kit/src/task/task.dart';
+import 'package:survey_kit/src/util/survey_kit_logger.dart';
 
 class NavigableTaskNavigator extends TaskNavigator {
-
-  NavigableTaskNavigator(Task task) : super(task){
+  NavigableTaskNavigator(Task task) : super(task) {
     _init();
   }
 
   void _init() {
-    print('NavigableTaskNavigator');
+    SurveyKitLogger.d('NavigableTaskNavigator');
   }
 
   @override
@@ -38,9 +34,7 @@ class NavigableTaskNavigator extends TaskNavigator {
     switch (rule.runtimeType) {
       case DirectNavigationRule:
         return task.steps.firstWhere(
-          (element) =>
-              element.id ==
-              (rule as DirectNavigationRule).destinationStepIdentifier,
+          (element) => element.id == (rule as DirectNavigationRule).destinationStepIdentifier,
         );
       case ConditionalNavigationRule:
         return evaluateNextStep(
@@ -55,12 +49,12 @@ class NavigableTaskNavigator extends TaskNavigator {
 
   @override
   Step? previousInList(Step? step) {
-    print('previousInList for ${step?.id}');
+    SurveyKitLogger.d('previousInList for ${step?.id}');
     if (history.isEmpty) {
-      print('history is empty');
+      SurveyKitLogger.d('history is empty');
       return null;
     }
-    print('previousInList is ${history.last.id}');
+    SurveyKitLogger.d('previousInList is ${history.last.id}');
     return history.removeLast();
   }
 
@@ -70,8 +64,7 @@ class NavigableTaskNavigator extends TaskNavigator {
     List<StepResult> previousResults,
     StepResult? questionResult,
   ) {
-    final nextStepIdentifier =
-        rule.resultToStepIdentifierMapper(previousResults, questionResult);
+    final nextStepIdentifier = rule.resultToStepIdentifierMapper(previousResults, questionResult);
     if (nextStepIdentifier == null) {
       return nextInList(step);
     }
@@ -109,7 +102,7 @@ class NavigableTaskNavigator extends TaskNavigator {
     //     // Re-generate the history in case the task is restarted from a different initial step
     //     var currentStep = task.steps.first;
     //     Step? step;
-    //     print('Recorded step: ${currentStep.id}');
+    //     SurveyKitLogger.d('Recorded step: ${currentStep.id}');
     //     while (currentStep.id != task.initialStep!.id) {
     //       step = nextStep(
     //         step: currentStep,
@@ -117,7 +110,7 @@ class NavigableTaskNavigator extends TaskNavigator {
     //         questionResult: null,
     //       );
     //
-    //       print('Recorded step: ${step?.id}');
+    //       SurveyKitLogger.d('Recorded step: ${step?.id}');
     //       if (step == null) {
     //         break;
     //       }

@@ -2,8 +2,9 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart' hide Step;
-import 'package:survey_kit/survey_kit.dart';
 import 'package:flutter_html/flutter_html.dart' hide Content;
+import 'package:survey_kit/src/util/survey_kit_logger.dart';
+import 'package:survey_kit/survey_kit.dart';
 
 // ignore: must_be_immutable
 class SurveyStateProvider extends InheritedWidget {
@@ -30,21 +31,17 @@ class SurveyStateProvider extends InheritedWidget {
     surveyStateStream.add(_state);
   }
 
-  late StreamController<SurveyState> surveyStateStream =
-      StreamController<SurveyState>.broadcast();
+  late StreamController<SurveyState> surveyStateStream = StreamController<SurveyState>.broadcast();
 
   static SurveyStateProvider of(BuildContext context) {
-    final result =
-        context.dependOnInheritedWidgetOfExactType<SurveyStateProvider>();
+    final result = context.dependOnInheritedWidgetOfExactType<SurveyStateProvider>();
     assert(result != null, 'No SurveyPresenterInherited found in context');
     return result!;
   }
 
   @override
   bool updateShouldNotify(SurveyStateProvider oldWidget) =>
-      taskNavigator != oldWidget.taskNavigator ||
-      onResult != oldWidget.onResult ||
-      _state != oldWidget._state;
+      taskNavigator != oldWidget.taskNavigator || onResult != oldWidget.onResult || _state != oldWidget._state;
 
   Set<StepResult> results;
   late final DateTime startDate;
@@ -59,7 +56,6 @@ class SurveyStateProvider extends InheritedWidget {
       );
     } else if (event is NextStep) {
       if (state is PresentingSurveyState) {
-
         final currentState = state as PresentingSurveyState;
 
         final newState = _handleNextStep(event, state as PresentingSurveyState);
@@ -85,22 +81,18 @@ class SurveyStateProvider extends InheritedWidget {
           }
         } else if (currentState.currentStep.answerFormat is MultipleChoiceAnswerWithFeedbackFormat) {
           final answerFormat = currentState.currentStep.answerFormat as MultipleChoiceAnswerWithFeedbackFormat?;
-          final selectedChoices = event.questionResult?.result as List<TextChoice>? ??
-              [];
+          final selectedChoices = event.questionResult?.result as List<TextChoice>? ?? [];
 
-          final answers =
-          selectedChoices.map((choice) => choice.value).toList();
+          final answers = selectedChoices.map((choice) => choice.value).toList();
 
-          if (answers.contains('wrong')){
+          if (answers.contains('wrong')) {
             Color? backgroundColor;
             if (answerFormat!.coloredFeedback) {
               backgroundColor = Colors.red;
             }
 
             _showDialog(answerFormat.feedbackWrong ?? 'You selected the incorrect answers!', newState, true, backgroundColor);
-
           } else {
-
             Color? backgroundColor;
             if (answerFormat!.coloredFeedback) {
               backgroundColor = Colors.green;
@@ -114,13 +106,10 @@ class SurveyStateProvider extends InheritedWidget {
               });
 
               _showDialog(answerFormat.feedbackCorrect ?? 'You selected the correct answers!', newState, false, backgroundColor);
-
             } else {
               _showDialog(answerFormat.feedbackCorrect ?? 'You selected the correct answers!', newState, true, backgroundColor);
             }
-
           }
-
         } else {
           navigatorKey.currentState?.pushNamed(
             '/',
@@ -146,8 +135,8 @@ class SurveyStateProvider extends InheritedWidget {
         // }
 
         navigatorKey.currentState?.pushReplacementNamed(
-            '/',
-            arguments: newState,
+          '/',
+          arguments: newState,
         );
       }
     } else if (event is CloseSurvey) {
@@ -162,12 +151,11 @@ class SurveyStateProvider extends InheritedWidget {
   SurveyState _handleInitialStep() {
     final step = taskNavigator.firstStep();
     if (step != null) {
-
       // Check if we need to recreate the history
       if (step.id != taskNavigator.task.steps.first.id) {
         var currentStep = taskNavigator.task.steps.first;
         Step? nextStepToVisit;
-        print('Visiting steps starting from: ${currentStep.id}');
+        SurveyKitLogger.d('Visiting steps starting from: ${currentStep.id}');
         while (currentStep.id != step.id) {
           final questionResult = _getResultByStepIdentifier(currentStep.id);
           // _addResult(questionResult);
@@ -177,7 +165,7 @@ class SurveyStateProvider extends InheritedWidget {
             questionResult: questionResult,
           );
 
-          print('Recorded step: ${currentStep.id}');
+          SurveyKitLogger.d('Recorded step: ${currentStep.id}');
 
           if (nextStepToVisit == null) {
             break;
@@ -185,7 +173,6 @@ class SurveyStateProvider extends InheritedWidget {
 
           currentStep = nextStepToVisit;
         }
-
       }
 
       final questionResult = _getResultByStepIdentifier(step.id);
@@ -251,12 +238,12 @@ class SurveyStateProvider extends InheritedWidget {
     _addResult(event.questionResult);
     final previousStep = taskNavigator.previousInList(currentState.currentStep);
 
-    print('Ready to visit previous step: ${previousStep?.id}');
+    SurveyKitLogger.d('Ready to visit previous step: ${previousStep?.id}');
     //If theres no previous step we can't go back further
     if (previousStep != null) {
       final questionResult = _getResultByStepIdentifier(previousStep.id);
 
-      print('Previous step result: ${questionResult?.toJson().toString()}');
+      SurveyKitLogger.d('Previous step result: ${questionResult?.toJson().toString()}');
 
       return PresentingSurveyState(
         currentStep: previousStep,
@@ -342,7 +329,6 @@ class SurveyStateProvider extends InheritedWidget {
   }
 
   void _showDialog(String feedbackMessage, SurveyState newState, bool showNextButton, Color? backgroundColor) {
-
     final htmlStyle = <String, Style>{
       'p': Style(
         textAlign: TextAlign.center,
@@ -368,16 +354,22 @@ class SurveyStateProvider extends InheritedWidget {
               children: <Widget>[
                 Html(data: '<strong>$feedbackMessage</strong>', style: htmlStyle),
                 const SizedBox(height: 15),
-                if (showNextButton) TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                          navigatorKey.currentState?.pushNamed(
-                            '/',
-                            arguments: newState,
-                          );
-                        },
-                        child: Text('Next', style: TextStyle( fontSize: 16.0, color: (backgroundColor != null) ? Colors.white : Colors.blueAccent, fontWeight: FontWeight.bold)),
-                      ) else const SizedBox.shrink(),
+                if (showNextButton)
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      navigatorKey.currentState?.pushNamed(
+                        '/',
+                        arguments: newState,
+                      );
+                    },
+                    child: Text(
+                      'Next',
+                      style: TextStyle(fontSize: 16.0, color: (backgroundColor != null) ? Colors.white : Colors.blueAccent, fontWeight: FontWeight.bold),
+                    ),
+                  )
+                else
+                  const SizedBox.shrink(),
               ],
             ),
           ),
@@ -385,7 +377,4 @@ class SurveyStateProvider extends InheritedWidget {
       },
     );
   }
-
 }
-
-

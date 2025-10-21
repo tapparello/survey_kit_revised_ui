@@ -14,9 +14,10 @@ class HtmlWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Html(data: htmlContent.html,
+    return Html(
+      data: htmlContent.html,
       onLinkTap: (url, _, __) async {
-        final Uri _url = Uri.parse(url ?? '');
+        final _url = Uri.parse(url ?? '');
         if (await canLaunchUrl(_url)) {
           await launchUrl(_url);
         }
@@ -24,25 +25,29 @@ class HtmlWidget extends StatelessWidget {
       extensions: const [
         TableHtmlExtension(),
       ],
-    style: {
-      'table': Style(
-        backgroundColor: const Color.fromARGB(0x50, 0xee, 0xee, 0xee),
-      ),
-      // 'tr': Style(
-      //   border: const Border(left: BorderSide(color: Colors.grey), top: BorderSide(color: Colors.grey),bottom: BorderSide(color: Colors.grey)),
-      // ),
-      'th': Style(
-        padding: HtmlPaddings.all(6),
-        verticalAlign: VerticalAlign.middle,
-        backgroundColor: Colors.grey,
-      ),
-      'td': Style(
-        verticalAlign: VerticalAlign.middle,
-        padding: HtmlPaddings.all(6),
-        border: const Border(left: BorderSide(color: Colors.grey, width: 0.5), right: BorderSide(color: Colors.grey, width: 0.5),
-          top: BorderSide(color: Colors.grey),bottom: BorderSide(color: Colors.grey),
+      style: {
+        'table': Style(
+          backgroundColor: const Color.fromARGB(0x50, 0xee, 0xee, 0xee),
         ),
-      )
-    },);
+        // 'tr': Style(
+        //   border: const Border(left: BorderSide(color: Colors.grey), top: BorderSide(color: Colors.grey),bottom: BorderSide(color: Colors.grey)),
+        // ),
+        'th': Style(
+          padding: HtmlPaddings.all(6),
+          verticalAlign: VerticalAlign.middle,
+          backgroundColor: Colors.grey,
+        ),
+        'td': Style(
+          verticalAlign: VerticalAlign.middle,
+          padding: HtmlPaddings.all(6),
+          border: const Border(
+            left: BorderSide(color: Colors.grey, width: 0.5),
+            right: BorderSide(color: Colors.grey, width: 0.5),
+            top: BorderSide(color: Colors.grey),
+            bottom: BorderSide(color: Colors.grey),
+          ),
+        ),
+      },
+    );
   }
 }

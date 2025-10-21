@@ -16,8 +16,7 @@ class SurveyKitAudioPlayer extends StatefulWidget {
   _SurveyKitAudioPlayerState createState() => _SurveyKitAudioPlayerState();
 }
 
-class _SurveyKitAudioPlayerState extends State<SurveyKitAudioPlayer>
-    with WidgetsBindingObserver {
+class _SurveyKitAudioPlayerState extends State<SurveyKitAudioPlayer> with WidgetsBindingObserver {
   late final AudioPlayer _audioPlayer;
 
   @override
@@ -33,8 +32,7 @@ class _SurveyKitAudioPlayerState extends State<SurveyKitAudioPlayer>
     super.dispose();
   }
 
-  Stream<PositionData> get _positionDataStream =>
-      Rx.combineLatest3<Duration, Duration, Duration?, PositionData>(
+  Stream<PositionData> get _positionDataStream => Rx.combineLatest3<Duration, Duration, Duration?, PositionData>(
         _audioPlayer.positionStream,
         _audioPlayer.bufferedPositionStream,
         _audioPlayer.durationStream,
@@ -63,7 +61,7 @@ class _SurveyKitAudioPlayerState extends State<SurveyKitAudioPlayer>
       height: 74,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(18),
-        color: theme.colorScheme.primary.withOpacity(0.1),
+        color: theme.colorScheme.primary.withValues(alpha: 0.1),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -75,8 +73,7 @@ class _SurveyKitAudioPlayerState extends State<SurveyKitAudioPlayer>
               final processingState = playerState?.processingState;
               final playing = playerState?.playing;
 
-              if (processingState == ProcessingState.loading ||
-                  processingState == ProcessingState.buffering) {
+              if (processingState == ProcessingState.loading || processingState == ProcessingState.buffering) {
                 return Container(
                   margin: const EdgeInsets.all(8.0),
                   width: 48,
@@ -111,8 +108,7 @@ class _SurveyKitAudioPlayerState extends State<SurveyKitAudioPlayer>
                 return SeekBar(
                   duration: positionData?.duration ?? Duration.zero,
                   position: positionData?.position ?? Duration.zero,
-                  bufferedPosition:
-                      positionData?.bufferedPosition ?? Duration.zero,
+                  bufferedPosition: positionData?.bufferedPosition ?? Duration.zero,
                   onChangeEnd: _audioPlayer.seek,
                 );
               },
@@ -122,8 +118,7 @@ class _SurveyKitAudioPlayerState extends State<SurveyKitAudioPlayer>
             stream: _positionDataStream,
             builder: (context, snapshot) {
               final positionData = snapshot.data;
-              final remaining = (positionData?.duration ?? Duration.zero) -
-                  (positionData?.position ?? Duration.zero);
+              final remaining = (positionData?.duration ?? Duration.zero) - (positionData?.position ?? Duration.zero);
 
               return Text(
                 remaining.text,
@@ -212,10 +207,8 @@ class SeekBarState extends State<SeekBar> {
         SliderTheme(
           data: _sliderThemeData.copyWith(
             thumbShape: HiddenThumbComponentShape(),
-            activeTrackColor: _sliderThemeData.activeTrackColor ??
-                theme.primaryColor.withOpacity(0.1),
-            inactiveTrackColor:
-                _sliderThemeData.inactiveTrackColor ?? Colors.grey.shade300,
+            activeTrackColor: _sliderThemeData.activeTrackColor ?? theme.primaryColor.withValues(alpha: 0.1),
+            inactiveTrackColor: _sliderThemeData.inactiveTrackColor ?? Colors.grey.shade300,
           ),
           child: ExcludeSemantics(
             child: Slider(

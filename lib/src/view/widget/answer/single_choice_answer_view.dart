@@ -8,7 +8,6 @@ import 'package:survey_kit/src/util/measure_date_state_mixin.dart';
 import 'package:survey_kit/src/view/widget/answer/answer_mixin.dart';
 import 'package:survey_kit/src/view/widget/answer/answer_question_text.dart';
 import 'package:survey_kit/src/view/widget/answer/selection_list_tile.dart';
-import 'dart:convert';
 
 class SingleChoiceAnswerView extends StatefulWidget {
   final Step questionStep;
@@ -24,16 +23,11 @@ class SingleChoiceAnswerView extends StatefulWidget {
   _SingleChoiceAnswerViewState createState() => _SingleChoiceAnswerViewState();
 }
 
-class _SingleChoiceAnswerViewState extends State<SingleChoiceAnswerView>
-    with
-        MeasureDateStateMixin,
-        AnswerMixin<SingleChoiceAnswerView, TextChoice> {
-
+class _SingleChoiceAnswerViewState extends State<SingleChoiceAnswerView> with MeasureDateStateMixin, AnswerMixin<SingleChoiceAnswerView, TextChoice> {
   late final SingleChoiceAnswerFormat _singleChoiceAnswerFormat;
   TextChoice? _selectedChoice;
   late final SharedPreferences prefs;
   late List<TextChoice> _textChoices = [];
-
 
   @override
   void initState() {
@@ -71,15 +65,13 @@ class _SingleChoiceAnswerViewState extends State<SingleChoiceAnswerView>
         super.onChange(_selectedChoice);
       }
     });
-
   }
 
   Future<void> getTextChoices() async {
-
     prefs = await SharedPreferences.getInstance();
     final textChoices = prefs.getStringList(_singleChoiceAnswerFormat.choicesFromVariable!);
 
-    if (textChoices != null){
+    if (textChoices != null) {
       final choices = textChoices.map((String choice) => TextChoice(text: choice, value: choice)).toList();
       if (_singleChoiceAnswerFormat.shuffleChoices) {
         choices.shuffle();
@@ -89,7 +81,6 @@ class _SingleChoiceAnswerViewState extends State<SingleChoiceAnswerView>
         _textChoices = choices;
       });
     }
-
   }
 
   @override
@@ -127,7 +118,8 @@ class _SingleChoiceAnswerViewState extends State<SingleChoiceAnswerView>
           const Divider(
             color: Colors.grey,
           ),
-          ..._textChoices.map( //_singleChoiceAnswerFormat.textChoices.map(
+          ..._textChoices.map(
+            //_singleChoiceAnswerFormat.textChoices.map(
             (TextChoice tc) {
               return SelectionListTile(
                 text: tc.text,

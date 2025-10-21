@@ -33,9 +33,7 @@ class _MyAppState extends State<MyApp> {
             child: FutureBuilder<Task>(
               future: getSampleTask(),
               builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.done &&
-                    snapshot.hasData &&
-                    snapshot.data != null) {
+                if (snapshot.connectionState == ConnectionState.done && snapshot.hasData && snapshot.data != null) {
                   final task = snapshot.data!;
                   return SurveyKitView(
                     task: task,
@@ -54,8 +52,7 @@ class _MyAppState extends State<MyApp> {
     final task = NavigableTask(
       navigationRules: {
         'SingleChoice': ConditionalNavigationRule(
-          resultToStepIdentifierMapper:
-              (List<StepResult> results, StepResult? input) {
+          resultToStepIdentifierMapper: (List<StepResult> results, StepResult? input) {
             final selectedChoice = input?.result as TextChoice;
             switch (selectedChoice.text) {
               case 'Yes':
@@ -89,8 +86,7 @@ class _MyAppState extends State<MyApp> {
                 fontSize: 24,
               ),
               subtitle: StyledTextContent(
-                text:
-                    'A set of 30 colors based on the Material spec that can be used to configure the color properties of most components.',
+                text: 'A set of 30 colors based on the Material spec that can be used to configure the color properties of most components.',
                 fontSize: 12,
                 italic: true,
                 underlined: true,
@@ -102,26 +98,21 @@ class _MyAppState extends State<MyApp> {
             ),
             VideoContent(
               title: 'This is an video about a bear',
-              url:
-                  'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-              externalLink:
-                  'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+              url: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+              externalLink: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
               width: 900,
             ),
             AudioContent(
               title: 'This is an audio',
               subtitle: 'The audio is gong',
-              externalLink:
-                  'https://github.com/QuickBirdEng/survey_kit/raw/main/assets/gong.mp3',
-              url:
-                  'https://github.com/QuickBirdEng/survey_kit/raw/main/assets/gong.mp3',
+              externalLink: 'https://github.com/QuickBirdEng/survey_kit/raw/main/assets/gong.mp3',
+              url: 'https://github.com/QuickBirdEng/survey_kit/raw/main/assets/gong.mp3',
             ),
             LottieContent(
               repeat: true,
-              url:
-                  'https://assets4.lottiefiles.com/packages/lf20_mNvu7WUM7W.json',
+              url: 'https://assets4.lottiefiles.com/packages/lf20_mNvu7WUM7W.json',
             ),
-            MarkdownContent(text: 'This is markdown')
+            MarkdownContent(text: 'This is markdown'),
           ],
           answerFormat: SingleChoiceAnswerFormat(
             textChoices: [
@@ -190,8 +181,7 @@ class _MyAppState extends State<MyApp> {
             AudioContent(
               title: 'This is an audio',
               subtitle: 'This is a good subtitle for the video',
-              url:
-                  'https://github.com/QuickBirdEng/survey_kit/raw/main/assets/gong.mp3',
+              url: 'https://github.com/QuickBirdEng/survey_kit/raw/main/assets/gong.mp3',
             ),
           ],
         ),
@@ -411,8 +401,7 @@ class SurveyKitView extends StatelessWidget {
                           padding: const EdgeInsets.all(16),
                           child: SafeArea(
                             child: OutlinedButton(
-                              onPressed: questionAnswer.isValid.value ||
-                                      !step.isMandatory
+                              onPressed: questionAnswer.isValid.value || !step.isMandatory
                                   ? () => surveyController.nextStep(
                                         context,
                                         questionAnswer.stepResult,

@@ -19,13 +19,10 @@ class MultipleChoiceAutoCompleteAnswerView extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<MultipleChoiceAutoCompleteAnswerView> createState() =>
-      _MultipleChoiceAutoCompleteAnswerViewState();
+  State<MultipleChoiceAutoCompleteAnswerView> createState() => _MultipleChoiceAutoCompleteAnswerViewState();
 }
 
-class _MultipleChoiceAutoCompleteAnswerViewState
-    extends State<MultipleChoiceAutoCompleteAnswerView>
-    with MeasureDateStateMixin {
+class _MultipleChoiceAutoCompleteAnswerViewState extends State<MultipleChoiceAutoCompleteAnswerView> with MeasureDateStateMixin {
   late final MultipleChoiceAutoCompleteAnswerFormat _multipleChoiceAnswer;
 
   List<TextChoice> _selectedChoices = [];
@@ -38,8 +35,7 @@ class _MultipleChoiceAutoCompleteAnswerViewState
       throw Exception('MultipleChoiceAutoCompleteAnswerFormat is null');
     }
     _multipleChoiceAnswer = answer as MultipleChoiceAutoCompleteAnswerFormat;
-    _selectedChoices = widget.result?.result as List<TextChoice>? ??
-        _multipleChoiceAnswer.defaultSelection;
+    _selectedChoices = widget.result?.result as List<TextChoice>? ?? _multipleChoiceAnswer.defaultSelection;
   }
 
   // TODO(marvin): refactor the widgets and organize, DRY also
@@ -74,8 +70,7 @@ class _MultipleChoiceAutoCompleteAnswerViewState
               .toList(),
           ..._selectedChoices
               .where(
-                (element) =>
-                    !_multipleChoiceAnswer.textChoices.contains(element),
+                (element) => !_multipleChoiceAnswer.textChoices.contains(element),
               )
               .map(
                 (TextChoice tc) => SelectionListTile(
@@ -92,8 +87,7 @@ class _MultipleChoiceAutoCompleteAnswerViewState
                 title: TextField(
                   onChanged: (v) {
                     int? currentIndex;
-                    final otherTextChoice = _selectedChoices
-                        .firstWhereIndexedOrNull((index, element) {
+                    final otherTextChoice = _selectedChoices.firstWhereIndexedOrNull((index, element) {
                       final isOtherField = element.value == 'Other';
 
                       if (isOtherField) {
@@ -107,8 +101,7 @@ class _MultipleChoiceAutoCompleteAnswerViewState
                       if (v.isEmpty && otherTextChoice != null) {
                         _selectedChoices.remove(otherTextChoice);
                       } else if (v.isNotEmpty) {
-                        final updatedTextChoice =
-                            TextChoice(id: 'Other', value: v, text: v);
+                        final updatedTextChoice = TextChoice(id: 'Other', value: v, text: v);
                         if (otherTextChoice == null) {
                           _selectedChoices.add(updatedTextChoice);
                         } else if (currentIndex != null) {
@@ -163,9 +156,7 @@ class _AutoComplete extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Autocomplete<TextChoice>(
-      fieldViewBuilder:
-          (context, textEditingController, focusNode, onFieldSubmitted) =>
-              TextField(
+      fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) => TextField(
         controller: textEditingController,
         focusNode: focusNode,
         decoration: InputDecoration(
@@ -196,9 +187,7 @@ class _AutoComplete extends StatelessWidget {
         }
 
         return suggestions.where(
-          (element) => element.text
-              .toLowerCase()
-              .contains(textEditingValue.text.toLowerCase()),
+          (element) => element.text.toLowerCase().contains(textEditingValue.text.toLowerCase()),
         );
       },
       onSelected: onSelected,
@@ -237,11 +226,9 @@ class _OptionsViewBuilder extends StatelessWidget {
                   },
                   child: Builder(
                     builder: (BuildContext context) {
-                      final highlight =
-                          AutocompleteHighlightedOption.of(context) == index;
+                      final highlight = AutocompleteHighlightedOption.of(context) == index;
                       if (highlight) {
-                        SchedulerBinding.instance
-                            .addPostFrameCallback((Duration timeStamp) {
+                        SchedulerBinding.instance.addPostFrameCallback((Duration timeStamp) {
                           Scrollable.ensureVisible(context, alignment: 0.5);
                         });
                       }
@@ -253,8 +240,7 @@ class _OptionsViewBuilder extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(option.text),
-                            if (selectedChoices.contains(option))
-                              const Icon(Icons.done)
+                            if (selectedChoices.contains(option)) const Icon(Icons.done),
                           ],
                         ),
                       );

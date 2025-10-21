@@ -3,10 +3,10 @@ import 'package:flutter/scheduler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:survey_kit/src/model/answer/multi_double.dart';
 import 'package:survey_kit/src/model/answer/text_choice.dart';
+import 'package:survey_kit/src/util/survey_kit_logger.dart';
 import 'package:survey_kit/src/view/widget/question_answer.dart';
 
 mixin AnswerMixin<T extends StatefulWidget, R> on State<T> {
-
   @override
   void initState() {
     super.initState();
@@ -16,9 +16,9 @@ mixin AnswerMixin<T extends StatefulWidget, R> on State<T> {
     });
   }
 
-  void onLoad(R? result){
+  void onLoad(R? result) {
     onValidationChanged = isValid(result);
-    print('onLoad - ${isValid(result)} - $result');
+    SurveyKitLogger.d('onLoad - ${isValid(result)} - $result');
   }
 
   void onChange(R? result) {
@@ -30,7 +30,6 @@ mixin AnswerMixin<T extends StatefulWidget, R> on State<T> {
   }
 
   Future<void> saveToSharedPreferences(R result) async {
-
     final prefs = await SharedPreferences.getInstance();
     final stepId = QuestionAnswer.of(context).step.id;
 
@@ -38,22 +37,22 @@ mixin AnswerMixin<T extends StatefulWidget, R> on State<T> {
       await prefs.setInt(stepId, result);
     } else if (result is TextChoice) {
       final choice = result.value ?? result.text;
-        await prefs.setString(stepId, choice);
+      await prefs.setString(stepId, choice);
     } else if (result is List<TextChoice>) {
       final choices = result.map((choice) => choice.text).toList();
-        await prefs.setStringList(stepId, choices);
+      await prefs.setStringList(stepId, choices);
     } else if (result is List<MultiDouble>) {
       final answers = result.map((answer) => answer.value.toString()).toList();
-        await prefs.setStringList(stepId, answers);
+      await prefs.setStringList(stepId, answers);
     } else {
-        await prefs.setString(stepId, result.toString());
+      await prefs.setString(stepId, result.toString());
     }
   }
 
   bool isValid(R? result);
 
   set onValidationChanged(bool isValid) {
-    print('onValidationChanged - $isValid');
+    SurveyKitLogger.d('onValidationChanged - $isValid');
     QuestionAnswer.of(context).setIsValid(isValid);
   }
 

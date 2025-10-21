@@ -1,11 +1,8 @@
-import 'dart:developer';
-
 import 'package:survey_kit/src/model/result/step_result.dart';
 import 'package:survey_kit/src/navigator/rules/navigation_rule.dart';
 
 class ConditionalNavigationRule implements NavigationRule {
-  final String? Function(List<StepResult>, StepResult?)
-      resultToStepIdentifierMapper;
+  final String? Function(List<StepResult>, StepResult?) resultToStepIdentifierMapper;
 
   ConditionalNavigationRule({required this.resultToStepIdentifierMapper});
 

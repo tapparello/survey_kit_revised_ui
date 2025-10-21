@@ -1,5 +1,6 @@
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart' hide Step;
+import 'package:flutter_html/flutter_html.dart' hide Content;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:survey_kit/src/model/answer/multiple_choice_answer_with_feedback_format.dart';
 import 'package:survey_kit/src/model/answer/text_choice.dart';
 import 'package:survey_kit/src/model/result/step_result.dart';
@@ -9,8 +10,6 @@ import 'package:survey_kit/src/view/widget/answer/answer_mixin.dart';
 import 'package:survey_kit/src/view/widget/answer/answer_question_text.dart';
 import 'package:survey_kit/src/view/widget/answer/selection_list_tile.dart';
 import 'package:survey_kit/src/view/widget/question_answer.dart';
-import 'package:flutter_html/flutter_html.dart' hide Content;
-import 'package:shared_preferences/shared_preferences.dart';
 
 class MultipleChoiceAnswerWithFeedbackView extends StatefulWidget {
   final Step questionStep;
@@ -27,9 +26,7 @@ class MultipleChoiceAnswerWithFeedbackView extends StatefulWidget {
 }
 
 class _MultipleChoiceAnswerWithFeedbackView extends State<MultipleChoiceAnswerWithFeedbackView>
-    with
-        MeasureDateStateMixin,
-        AnswerMixin<MultipleChoiceAnswerWithFeedbackView, List<TextChoice>> {
+    with MeasureDateStateMixin, AnswerMixin<MultipleChoiceAnswerWithFeedbackView, List<TextChoice>> {
   late final MultipleChoiceAnswerWithFeedbackFormat _multipleChoiceAnswer;
 
   late final SharedPreferences prefs;
@@ -59,15 +56,18 @@ class _MultipleChoiceAnswerWithFeedbackView extends State<MultipleChoiceAnswerWi
 
     _selectedChoices = widget.result?.result as List<TextChoice>? ?? [];
 
-    _noneOfTheAboveOption = TextChoice(id: 'None', text: _multipleChoiceAnswer.noneOptionText ?? 'None of the above', value: _multipleChoiceAnswer.noneOptionText ?? 'None of the above');
+    _noneOfTheAboveOption = TextChoice(
+      id: 'None',
+      text: _multipleChoiceAnswer.noneOptionText ?? 'None of the above',
+      value: _multipleChoiceAnswer.noneOptionText ?? 'None of the above',
+    );
   }
 
   Future<void> getTextChoices() async {
-
     prefs = await SharedPreferences.getInstance();
     final textChoices = prefs.getStringList(_multipleChoiceAnswer.choicesFromVariable!);
 
-    if (textChoices != null){
+    if (textChoices != null) {
       final choices = textChoices.map((String choice) => TextChoice(text: choice, value: choice)).toList();
       if (_multipleChoiceAnswer.shuffleChoices) {
         choices.shuffle();
@@ -77,13 +77,12 @@ class _MultipleChoiceAnswerWithFeedbackView extends State<MultipleChoiceAnswerWi
         _textChoices = choices;
       });
     }
-
   }
 
   @override
   bool isValid(List<TextChoice>? result) {
     if (widget.questionStep.isMandatory) {
-      return (_selectedChoices.length >= _multipleChoiceAnswer.minRequiredChoices) ?? false;
+      return _selectedChoices.length >= _multipleChoiceAnswer.minRequiredChoices;
       //return _selectedChoices.isNotEmpty ?? false;
     }
     return true;
@@ -93,9 +92,7 @@ class _MultipleChoiceAnswerWithFeedbackView extends State<MultipleChoiceAnswerWi
   Widget build(BuildContext context) {
     final questionText = widget.questionStep.answerFormat?.question;
 
-    _selectedChoices = QuestionAnswer.of(context).stepResult?.result as List<TextChoice>? ??
-        widget.result?.result as List<TextChoice>? ??
-        [];
+    _selectedChoices = QuestionAnswer.of(context).stepResult?.result as List<TextChoice>? ?? widget.result?.result as List<TextChoice>? ?? [];
 
     // Handle results from previous runs of the survey
     if (_selectedChoices.isNotEmpty) {
@@ -118,18 +115,21 @@ class _MultipleChoiceAnswerWithFeedbackView extends State<MultipleChoiceAnswerWi
                     if (_selectedChoices.contains(tc)) {
                       _selectedChoices.remove(tc);
                     } else {
-                      if(_selectedChoices.contains(_noneOfTheAboveOption)){
+                      if (_selectedChoices.contains(_noneOfTheAboveOption)) {
                         _selectedChoices.remove(_noneOfTheAboveOption);
                       }
-                      if(_selectedChoices.length < _multipleChoiceAnswer.maxAllowedChoices){
+                      if (_selectedChoices.length < _multipleChoiceAnswer.maxAllowedChoices) {
                         _selectedChoices.add(tc);
                       } else {
-                        var message = _multipleChoiceAnswer.maxAllowedChoicesErrorMessage ?? 'You can only select up to ${_multipleChoiceAnswer.maxAllowedChoices} options from the list.</p><p>Remove one of the existing options before selecting a new one.';
+                        final message = _multipleChoiceAnswer.maxAllowedChoicesErrorMessage ??
+                            'You can only select up to ${_multipleChoiceAnswer.maxAllowedChoices} options from the list.</p><p>Remove one of the existing options before selecting a new one.';
                         _dialogBuilder(context, '<p>$message</p>');
                       }
                       // _selectedChoices.add(tc);
                     }
-                    setState( () {},);
+                    setState(
+                      () {},
+                    );
                     //onChange([..._selectedChoices, tc]);
                     super.onChange(_selectedChoices);
                   },
@@ -144,8 +144,9 @@ class _MultipleChoiceAnswerWithFeedbackView extends State<MultipleChoiceAnswerWi
                 if (_selectedChoices.contains(_noneOfTheAboveOption)) {
                   _selectedChoices.remove(_noneOfTheAboveOption);
                 } else {
-                  _selectedChoices..clear()
-                  ..add(_noneOfTheAboveOption);
+                  _selectedChoices
+                    ..clear()
+                    ..add(_noneOfTheAboveOption);
                 }
                 setState(() {});
                 super.onChange(_selectedChoices);
@@ -159,7 +160,6 @@ class _MultipleChoiceAnswerWithFeedbackView extends State<MultipleChoiceAnswerWi
   }
 
   Future<void> _dialogBuilder(BuildContext context, String message) {
-
     final htmlStyle = <String, Style>{
       'p': Style(
         textAlign: TextAlign.center,
@@ -196,5 +196,4 @@ class _MultipleChoiceAnswerWithFeedbackView extends State<MultipleChoiceAnswerWi
       },
     );
   }
-
 }

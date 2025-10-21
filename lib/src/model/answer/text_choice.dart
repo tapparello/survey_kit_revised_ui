@@ -4,6 +4,7 @@ import 'package:uuid/uuid.dart';
 
 part 'text_choice.g.dart';
 
+@immutable
 @JsonSerializable()
 class TextChoice {
   final String id;
@@ -18,15 +19,13 @@ class TextChoice {
   }) : id = id ?? const Uuid().v4();
 
   @override
-  bool operator == (Object other) =>
-      identical(this, other) ||
-          other is TextChoice &&
-              runtimeType == other.runtimeType &&
-              text == other.text && value == other.value;
+  bool operator ==(Object other) =>
+      identical(this, other) || other is TextChoice && runtimeType == other.runtimeType && text == other.text && value == other.value;
 
-  factory TextChoice.fromJson(Map<String, dynamic> json) =>
-      _$TextChoiceFromJson(json);
+  @override
+  int get hashCode => text.hashCode ^ value.hashCode;
+
+  factory TextChoice.fromJson(Map<String, dynamic> json) => _$TextChoiceFromJson(json);
 
   Map<String, dynamic> toJson() => _$TextChoiceToJson(this);
-
 }
