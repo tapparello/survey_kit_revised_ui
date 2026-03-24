@@ -15,11 +15,13 @@ class NavigableTask extends Task {
     List<Step> steps = const [],
     String? initialStepId,
     Map<String, NavigationRule>? navigationRules,
+    Map<String, dynamic>? variables,
   })  : navigationRules = navigationRules ?? {},
         super(
           id: id,
           steps: steps,
           initialStep: steps.firstWhereOrNull((step) => step.id == initialStepId),
+          variables: variables,
         );
 
   /// Adds a [NavigationRule] to the [navigationRule] Map
@@ -52,6 +54,8 @@ class NavigableTask extends Task {
       }
     }
 
+    final variables = (json['variables'] as Map<String, dynamic>?) ?? {};
+
     return NavigableTask(
       id: json['id'] as String,
       steps: json['steps'] != null
@@ -62,6 +66,7 @@ class NavigableTask extends Task {
               .toList()
           : [],
       navigationRules: navigationRules,
+      variables: variables,
     );
   }
 

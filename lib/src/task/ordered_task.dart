@@ -12,22 +12,28 @@ class OrderedTask extends Task {
     required String id,
     required List<Step> steps,
     String? initialStepId,
+    Map<String, dynamic>? variables,
   }) : super(
           id: id,
           steps: steps,
           initialStep: steps.firstWhereOrNull((step) => step.id == initialStepId),
+          variables: variables,
         );
 
-  factory OrderedTask.fromJson(Map<String, dynamic> json) => OrderedTask(
-        id: json['id'] as String,
-        steps: json['steps'] != null
-            ? (json['steps'] as List)
-                .map(
-                  (dynamic step) => Step.fromJson(step as Map<String, dynamic>),
-                )
-                .toList()
-            : [],
-      );
+  factory OrderedTask.fromJson(Map<String, dynamic> json) {
+    final variables = (json['variables'] as Map<String, dynamic>?) ?? {};
+    return OrderedTask(
+      id: json['id'] as String,
+      steps: json['steps'] != null
+          ? (json['steps'] as List)
+              .map(
+                (dynamic step) => Step.fromJson(step as Map<String, dynamic>),
+              )
+              .toList()
+          : [],
+      variables: variables,
+    );
+  }
 
 
 

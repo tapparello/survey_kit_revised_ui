@@ -17,12 +17,16 @@ abstract class Task {
   @JsonKey(defaultValue: <Step>[])
   final List<Step> steps;
   final Step? initialStep;
+  @JsonKey(defaultValue: <String, dynamic>{})
+  final Map<String, dynamic> variables;
 
   Task({
     String? id,
     this.steps = const [],
     this.initialStep,
-  }) : id = id ?? const Uuid().v4();
+    Map<String, dynamic>? variables,
+  })  : id = id ?? const Uuid().v4(),
+        variables = variables ?? {};
 
   /// Creates a task from a Map. The task needs to have a type definition of
   /// either 'ordered' - [OrderedTask] or 'navigable' - [NavigableTask].
