@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart' hide Step;
 import 'package:flutter_html/flutter_html.dart' hide Content;
 import 'package:survey_kit/src/configuration/survey_configuration.dart';
+import 'package:survey_kit/src/presenter/survey_state_provider.dart';
 import 'package:survey_kit/src/model/answer/multiple_choice_answer_format.dart';
 import 'package:survey_kit/src/model/answer/text_choice.dart';
 import 'package:survey_kit/src/model/result/step_result.dart';
@@ -87,15 +88,33 @@ class _MultipleChoiceAnswerView extends State<MultipleChoiceAnswerView> with Mea
   }
 
   void getTextChoices() {
+    final variableKey = _multipleChoiceAnswer.choicesFromVariable!;
     final variables = SurveyConfiguration.of(context).variables;
-    final textChoices = variables[_multipleChoiceAnswer.choicesFromVariable!] as List<String>?;
+    final variableValue = variables[variableKey];
 
-    if (textChoices != null) {
-      final choices = textChoices.map((String choice) => TextChoice(text: choice, value: choice)).toList();
+    List<TextChoice> choices = [];
+
+    if (variableValue is List<String>) {
+      choices = variableValue.map((String choice) => TextChoice(text: choice, value: choice)).toList();
+    } else {
+      // Fall back to looking up a previous step result by ID
+      final provider = SurveyStateProvider.of(context);
+      final stepResult = provider.getStepResultById(variableKey);
+      if (stepResult?.result is List<TextChoice>) {
+        choices = List<TextChoice>.from(stepResult!.result as List<TextChoice>);
+      } else if (stepResult?.result is List<dynamic>) {
+        choices = (stepResult!.result as List<dynamic>).map((e) {
+          if (e is TextChoice) return e;
+          if (e is Map<String, dynamic>) return TextChoice.fromJson(e);
+          return TextChoice(text: e.toString(), value: e.toString());
+        }).toList();
+      }
+    }
+
+    if (choices.isNotEmpty) {
       if (_multipleChoiceAnswer.shuffleChoices) {
         choices.shuffle();
       }
-
       setState(() {
         _textChoices = choices;
       });
