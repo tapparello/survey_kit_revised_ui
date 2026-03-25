@@ -12,7 +12,7 @@ class ActionNavigationRule implements NavigationRule {
   factory ActionNavigationRule.fromJson(Map<String, dynamic> json) {
     return ActionNavigationRule(
       actionId: json['actionId'] as String,
-      nextStepIdentifier: json['nextStep'] as String?,
+      nextStepIdentifier: (json['nextStep'] ?? json['nextStepIdentifier']) as String?,
     );
   }
 
