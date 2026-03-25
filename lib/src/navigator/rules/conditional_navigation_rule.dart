@@ -1,3 +1,4 @@
+import 'package:survey_kit/src/model/answer/text_choice.dart';
 import 'package:survey_kit/src/model/result/step_result.dart';
 import 'package:survey_kit/src/navigator/rules/navigation_rule.dart';
 
@@ -11,7 +12,7 @@ class ConditionalNavigationRule implements NavigationRule {
     return ConditionalNavigationRule(
       resultToStepIdentifierMapper: (results, input) {
         if (input == null) return null;
-        final answerValue = input.result?.toString();
+        final answerValue = _extractValue(input.result);
         for (final MapEntry entry in inputValues.entries) {
           if (entry.key == answerValue) {
             return entry.value as String;
@@ -20,6 +21,12 @@ class ConditionalNavigationRule implements NavigationRule {
         return null;
       },
     );
+  }
+
+  static String? _extractValue(dynamic result) {
+    if (result is TextChoice) return result.value;
+    if (result is Map<String, dynamic>) return result['value']?.toString();
+    return result?.toString();
   }
 
   @override
