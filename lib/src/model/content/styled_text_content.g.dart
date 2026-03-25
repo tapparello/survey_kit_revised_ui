@@ -14,6 +14,7 @@ StyledTextContent _$StyledTextContentFromJson(Map<String, dynamic> json) =>
       italic: json['italic'] as bool? ?? false,
       underlined: json['underlined'] as bool? ?? false,
       center: json['center'] as bool? ?? false,
+      style: json['style'] as String?,
     );
 
 Map<String, dynamic> _$StyledTextContentToJson(StyledTextContent instance) =>
@@ -24,5 +25,5 @@ Map<String, dynamic> _$StyledTextContentToJson(StyledTextContent instance) =>
       'italic': instance.italic,
       'underlined': instance.underlined,
       'center': instance.center,
-      'type': 'styled_text',
+      if (instance.style != null) 'style': instance.style!,
     };

@@ -7,7 +7,7 @@ part 'styled_text_content.g.dart';
 
 @JsonSerializable()
 class StyledTextContent extends Content {
-  static const type = 'styledText';
+  static const type = 'styled_text';
 
   final String text;
   final double fontSize;
@@ -15,6 +15,8 @@ class StyledTextContent extends Content {
   final bool italic;
   final bool underlined;
   final bool center;
+  @JsonKey(includeIfNull: false)
+  final String? style;
 
   const StyledTextContent({
     required this.text,
@@ -23,6 +25,7 @@ class StyledTextContent extends Content {
     this.italic = false,
     this.underlined = false,
     this.center = false,
+    this.style,
   }) : super(contentType: type);
 
   factory StyledTextContent.fromJson(Map<String, dynamic> json) =>
