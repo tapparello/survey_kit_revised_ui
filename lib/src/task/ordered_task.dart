@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:survey_kit/src/configuration/survey_registries.dart';
 import 'package:survey_kit/src/model/step.dart';
 import 'package:survey_kit/src/task/task.dart';
 
@@ -20,14 +21,14 @@ class OrderedTask extends Task {
           variables: variables,
         );
 
-  factory OrderedTask.fromJson(Map<String, dynamic> json) {
+  factory OrderedTask.fromJson(Map<String, dynamic> json, {SurveyRegistries? registries}) {
     final variables = (json['variables'] as Map<String, dynamic>?) ?? {};
     return OrderedTask(
       id: json['id'] as String,
       steps: json['steps'] != null
           ? (json['steps'] as List)
               .map(
-                (dynamic step) => Step.fromJson(step as Map<String, dynamic>),
+                (dynamic step) => Step.fromJson(step as Map<String, dynamic>, registries: registries),
               )
               .toList()
           : [],

@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:survey_kit/src/configuration/survey_registries.dart';
 import 'package:survey_kit/src/model/step.dart';
 import 'package:survey_kit/src/navigator/rules/navigation_rule.dart';
 import 'package:survey_kit/src/task/task.dart';
@@ -40,7 +41,7 @@ class NavigableTask extends Task {
     return navigationRules[stepIdentifier];
   }
 
-  factory NavigableTask.fromJson(Map<String, dynamic> json) {
+  factory NavigableTask.fromJson(Map<String, dynamic> json, {SurveyRegistries? registries}) {
     final navigationRules = <String, NavigationRule>{};
 
     if (json['rules'] != null) {
@@ -61,7 +62,7 @@ class NavigableTask extends Task {
       steps: json['steps'] != null
           ? (json['steps'] as List)
               .map(
-                (dynamic step) => Step.fromJson(step as Map<String, dynamic>),
+                (dynamic step) => Step.fromJson(step as Map<String, dynamic>, registries: registries),
               )
               .toList()
           : [],
