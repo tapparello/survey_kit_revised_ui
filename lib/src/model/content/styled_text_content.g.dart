@@ -19,6 +19,7 @@ StyledTextContent _$StyledTextContentFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$StyledTextContentToJson(StyledTextContent instance) =>
     <String, dynamic>{
+      'type': 'styled_text',
       'text': instance.text,
       'fontSize': instance.fontSize,
       'bold': instance.bold,

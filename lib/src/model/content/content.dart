@@ -26,12 +26,23 @@ abstract class Content {
 
   factory Content.fromJson(Map<String, dynamic> json, {SurveyRegistries? registries}) {
     final type = json['type'] as String?;
-    assert(type != null, 'type is required');
 
     // Check custom registry first
     if (registries != null) {
       final custom = registries.resolveContent(json);
       if (custom != null) return custom;
+    }
+
+    // If type is missing (e.g., from previously serialized results),
+    // try to infer from the JSON shape or return a text placeholder
+    if (type == null) {
+      if (json.containsKey('html')) {
+        return HtmlContent.fromJson(json);
+      }
+      if (json.containsKey('text')) {
+        return StyledTextContent.fromJson(json);
+      }
+      return const TextContent(text: '');
     }
 
     switch (type) {
