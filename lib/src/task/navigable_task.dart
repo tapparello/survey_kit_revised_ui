@@ -65,6 +65,7 @@ class NavigableTask extends Task {
               )
               .toList()
           : [],
+      initialStepId: json['initialStepId'] as String?,
       navigationRules: navigationRules,
       variables: variables,
     );

@@ -31,6 +31,7 @@ class OrderedTask extends Task {
               )
               .toList()
           : [],
+      initialStepId: json['initialStepId'] as String?,
       variables: variables,
     );
   }
