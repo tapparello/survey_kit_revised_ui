@@ -9,8 +9,11 @@ class DirectNavigationRule implements NavigationRule {
 
   DirectNavigationRule(this.destinationStepIdentifier);
 
-  factory DirectNavigationRule.fromJson(Map<String, dynamic> json) =>
-      _$DirectNavigationRuleFromJson(json);
+  factory DirectNavigationRule.fromJson(Map<String, dynamic> json) {
+    final raw = json['destinationStepIdentifier'];
+    final id = raw is Map<String, dynamic> ? raw['id'] as String : raw as String;
+    return DirectNavigationRule(id);
+  }
   @override
   Map<String, dynamic> toJson() => _$DirectNavigationRuleToJson(this);
 }
