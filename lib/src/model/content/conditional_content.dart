@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:survey_kit/src/configuration/survey_registries.dart';
 import 'package:survey_kit/src/model/content/content.dart';
 import 'package:survey_kit/src/model/content/styled_text_content.dart';
 
@@ -13,11 +14,10 @@ class ConditionalContent extends Content {
     required this.options,
   }) : super(contentType: type);
 
-  factory ConditionalContent.fromJson(Map<String, dynamic> json) {
+  factory ConditionalContent.fromJson(Map<String, dynamic> json, {SurveyRegistries? registries}) {
     final optionsJson = json['options'] as Map<String, dynamic>;
     final options = optionsJson.map(
-      (key, value) =>
-          MapEntry(key, Content.fromJson(value as Map<String, dynamic>)),
+      (key, value) => MapEntry(key, Content.fromJson(value as Map<String, dynamic>, registries: registries)),
     );
     return ConditionalContent(
       variable: json['variable'] as String,

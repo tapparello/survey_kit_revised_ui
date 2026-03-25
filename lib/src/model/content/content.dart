@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:survey_kit/src/configuration/survey_registries.dart';
 import 'package:survey_kit/src/model/content/audio_content.dart';
 import 'package:survey_kit/src/model/content/conditional_content.dart';
 import 'package:survey_kit/src/model/content/html_content.dart';
@@ -23,9 +24,15 @@ abstract class Content {
     required this.contentType,
   });
 
-  factory Content.fromJson(Map<String, dynamic> json) {
+  factory Content.fromJson(Map<String, dynamic> json, {SurveyRegistries? registries}) {
     final type = json['type'] as String?;
     assert(type != null, 'type is required');
+
+    // Check custom registry first
+    if (registries != null) {
+      final custom = registries.resolveContent(json);
+      if (custom != null) return custom;
+    }
 
     switch (type) {
       case 'audio':
@@ -47,7 +54,7 @@ abstract class Content {
       case 'separator':
         return SeparatorContent.fromJson(json);
       case 'conditional':
-        return ConditionalContent.fromJson(json);
+        return ConditionalContent.fromJson(json, registries: registries);
       default:
         throw Exception('Unknown type: $type');
     }
