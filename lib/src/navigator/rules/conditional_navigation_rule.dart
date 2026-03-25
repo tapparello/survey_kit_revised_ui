@@ -10,8 +10,10 @@ class ConditionalNavigationRule implements NavigationRule {
     final inputValues = json['values'] as Map<String, dynamic>;
     return ConditionalNavigationRule(
       resultToStepIdentifierMapper: (results, input) {
+        if (input == null) return null;
+        final answerValue = input.result?.toString();
         for (final MapEntry entry in inputValues.entries) {
-          if (entry.key == input) {
+          if (entry.key == answerValue) {
             return entry.value as String;
           }
         }
