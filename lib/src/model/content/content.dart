@@ -67,7 +67,10 @@ abstract class Content {
       case 'conditional':
         return ConditionalContent.fromJson(json, registries: registries);
       default:
-        throw Exception('Unknown type: $type');
+        // Unknown types (e.g., custom content from app registries) may appear
+        // when deserializing saved results without registries. Return a
+        // placeholder instead of crashing.
+        return const TextContent(text: '');
     }
   }
 
