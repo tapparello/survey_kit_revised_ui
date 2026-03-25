@@ -53,5 +53,8 @@ abstract class Content {
     }
   }
 
-  Widget createWidget();
+  Widget createWidget({
+    Map<String, dynamic> variables = const {},
+    Map<String, StyledTextContent>? contentStyles,
+  });
 }

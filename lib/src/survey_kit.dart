@@ -1,7 +1,9 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart' hide Step;
 import 'package:survey_kit/src/configuration/survey_configuration.dart';
+import 'package:survey_kit/src/configuration/survey_registries.dart';
 import 'package:survey_kit/src/controller/survey_controller.dart';
+import 'package:survey_kit/src/model/content/styled_text_content.dart';
 import 'package:survey_kit/src/model/result/step_result.dart';
 import 'package:survey_kit/src/model/result/survey_result.dart';
 import 'package:survey_kit/src/model/step.dart';
@@ -53,6 +55,12 @@ class SurveyKit extends StatefulWidget {
   /// Decoration which is applied to the survey container
   final BoxDecoration? decoration;
 
+  /// Survey registries for custom content/step types and navigation handlers
+  final SurveyRegistries? registries;
+
+  /// Named content styles keyed by style name
+  final Map<String, StyledTextContent>? contentStyles;
+
   const SurveyKit({
     super.key,
     required this.task,
@@ -64,6 +72,8 @@ class SurveyKit extends StatefulWidget {
     this.stepShell,
     this.initialResults,
     this.decoration,
+    this.registries,
+    this.contentStyles,
   });
 
   @override
@@ -87,7 +97,7 @@ class _SurveyKitState extends State<SurveyKit> {
       return OrderedTaskNavigator(widget.task);
     }
     if (task is NavigableTask) {
-      return NavigableTaskNavigator(widget.task);
+      return NavigableTaskNavigator(widget.task, registries: widget.registries);
     }
 
     throw Exception('Task must be either OrderedTask or NavigableTask');
@@ -107,6 +117,9 @@ class _SurveyKitState extends State<SurveyKit> {
       surveyController: widget.surveyController ?? SurveyController(),
       localizations: widget.localizations,
       padding: const EdgeInsets.all(14),
+      registries: widget.registries,
+      contentStyles: widget.contentStyles,
+      variables: widget.task.variables,
       child: SurveyStateProvider(
         taskNavigator: _taskNavigator,
         onResult: widget.onResult,

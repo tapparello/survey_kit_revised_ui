@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:survey_kit/src/model/content/content.dart';
+import 'package:survey_kit/src/model/content/styled_text_content.dart';
 
 class ConditionalContent extends Content {
   static const type = 'conditional';
@@ -41,7 +42,10 @@ class ConditionalContent extends Content {
   }
 
   @override
-  Widget createWidget() {
+  Widget createWidget({
+    Map<String, dynamic> variables = const {},
+    Map<String, StyledTextContent>? contentStyles,
+  }) {
     // Default: returns empty widget. Actual resolution happens in ContentWidget.
     return const SizedBox.shrink();
   }

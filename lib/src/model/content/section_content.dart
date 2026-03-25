@@ -25,8 +25,20 @@ class SectionContent extends Content {
   Map<String, dynamic> toJson() => _$SectionContentToJson(this);
 
   @override
-  Widget createWidget() {
-    return SectionWidget(sectionContent: this);
+  Widget createWidget({
+    Map<String, dynamic> variables = const {},
+    Map<String, StyledTextContent>? contentStyles,
+  }) {
+    if (variables.isEmpty && contentStyles == null) {
+      return SectionWidget(sectionContent: this);
+    }
+    // Pass variables and styles through to each child
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: toList
+          .map((e) => e.createWidget(variables: variables, contentStyles: contentStyles))
+          .toList(),
+    );
   }
 }
 

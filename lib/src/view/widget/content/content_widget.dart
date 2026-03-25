@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart' hide Step;
+import 'package:survey_kit/src/model/content/conditional_content.dart';
 import 'package:survey_kit/src/util/extension.dart';
 import 'package:survey_kit/survey_kit.dart';
 
@@ -20,19 +21,25 @@ class ContentWidget extends StatefulWidget {
 class _ContentWidgetState extends State<ContentWidget> {
   @override
   Widget build(BuildContext context) {
-    final contentView = Container(
+    final config = SurveyConfiguration.of(context);
+    final variables = config.variables;
+    final contentStyles = config.contentStyles;
+
+    final resolvedContent = widget.content.expand((content) {
+      if (content is ConditionalContent) {
+        final resolved = content.resolveContent(variables);
+        return resolved != null ? [resolved] : <Content>[];
+      }
+      return [content];
+    }).toList();
+
+    final contentView = SizedBox(
       width: double.infinity,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
-        children: widget.content
-            .map(
-              (e) => e.createWidget(),
-            )
-            .withSeparator(
-              const _Separator(
-                height: 14,
-              ),
-            )
+        children: resolvedContent
+            .map((e) => e.createWidget(variables: variables, contentStyles: contentStyles))
+            .withSeparator(const _Separator(height: 14))
             .toList(),
       ),
     );
