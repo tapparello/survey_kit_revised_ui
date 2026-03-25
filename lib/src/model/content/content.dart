@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:survey_kit/src/model/content/audio_content.dart';
+import 'package:survey_kit/src/model/content/conditional_content.dart';
 import 'package:survey_kit/src/model/content/html_content.dart';
 import 'package:survey_kit/src/model/content/image_content.dart';
 import 'package:survey_kit/src/model/content/lottie_content.dart';
@@ -45,6 +46,8 @@ abstract class Content {
         return HtmlContent.fromJson(json);
       case 'separator':
         return SeparatorContent.fromJson(json);
+      case 'conditional':
+        return ConditionalContent.fromJson(json);
       default:
         throw Exception('Unknown type: $type');
     }
