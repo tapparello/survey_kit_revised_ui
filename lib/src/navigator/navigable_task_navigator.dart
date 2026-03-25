@@ -110,6 +110,7 @@ class NavigableTaskNavigator extends TaskNavigator {
       SurveyKitLogger.d('No handler registered for custom rule: ${rule.ruleId}');
       return nextInList(step);
     }
+    task.variables['_currentStepId'] = step.id;
     final nextStepId = handler(previousResults, questionResult, task.variables);
     if (nextStepId == 'end_task') return null;
     return task.steps.firstWhereOrNull((s) => s.id == nextStepId);
