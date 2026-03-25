@@ -55,7 +55,7 @@ class _MultipleChoiceAnswerWithFeedbackView extends State<MultipleChoiceAnswerWi
       _multipleChoiceAnswer.textChoices.shuffle();
     }
 
-    _selectedChoices = widget.result?.result as List<TextChoice>? ?? [];
+    _selectedChoices = _safeTextChoiceList(widget.result?.result);
 
     _noneOfTheAboveOption = TextChoice(
       id: 'None',
@@ -119,7 +119,8 @@ class _MultipleChoiceAnswerWithFeedbackView extends State<MultipleChoiceAnswerWi
   Widget build(BuildContext context) {
     final questionText = widget.questionStep.answerFormat?.question;
 
-    _selectedChoices = QuestionAnswer.of(context).stepResult?.result as List<TextChoice>? ?? widget.result?.result as List<TextChoice>? ?? [];
+    final currentResult = QuestionAnswer.of(context).stepResult?.result;
+    _selectedChoices = currentResult != null ? _safeTextChoiceList(currentResult) : _safeTextChoiceList(widget.result?.result);
 
     // Handle results from previous runs of the survey
     if (_selectedChoices.isNotEmpty) {
@@ -184,6 +185,18 @@ class _MultipleChoiceAnswerWithFeedbackView extends State<MultipleChoiceAnswerWi
         ],
       ),
     );
+  }
+
+  static List<TextChoice> _safeTextChoiceList(dynamic raw) {
+    if (raw is List<TextChoice>) return raw;
+    if (raw is List) {
+      return raw.map((item) {
+        if (item is TextChoice) return item;
+        if (item is Map<String, dynamic>) return TextChoice.fromJson(item);
+        return TextChoice(text: item.toString(), value: item.toString());
+      }).toList();
+    }
+    return [];
   }
 
   Future<void> _dialogBuilder(BuildContext context, String message) {

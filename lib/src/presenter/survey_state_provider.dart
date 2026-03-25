@@ -81,7 +81,16 @@ class SurveyStateProvider extends InheritedWidget {
           }
         } else if (currentState.currentStep.answerFormat is MultipleChoiceAnswerWithFeedbackFormat) {
           final answerFormat = currentState.currentStep.answerFormat as MultipleChoiceAnswerWithFeedbackFormat?;
-          final selectedChoices = event.questionResult?.result as List<TextChoice>? ?? [];
+          final rawChoices = event.questionResult?.result;
+          final selectedChoices = rawChoices is List<TextChoice>
+              ? rawChoices
+              : rawChoices is List
+                  ? rawChoices.map((item) {
+                      if (item is TextChoice) return item;
+                      if (item is Map<String, dynamic>) return TextChoice.fromJson(item);
+                      return TextChoice(text: item.toString(), value: item.toString());
+                    }).toList()
+                  : <TextChoice>[];
 
           final answers = selectedChoices.map((choice) => choice.value).toList();
 
