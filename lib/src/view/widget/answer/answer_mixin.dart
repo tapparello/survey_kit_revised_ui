@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:survey_kit/src/model/answer/multi_double.dart';
-import 'package:survey_kit/src/model/answer/text_choice.dart';
 import 'package:survey_kit/src/util/survey_kit_logger.dart';
 import 'package:survey_kit/src/view/widget/question_answer.dart';
 
@@ -24,29 +21,6 @@ mixin AnswerMixin<T extends StatefulWidget, R> on State<T> {
   void onChange(R? result) {
     onValidationChanged = isValid(result);
     onStepResultChanged = result;
-    if (result != null) {
-      saveToSharedPreferences(result);
-    }
-  }
-
-  Future<void> saveToSharedPreferences(R result) async {
-    final prefs = await SharedPreferences.getInstance();
-    final stepId = QuestionAnswer.of(context).step.id;
-
-    if (result is int) {
-      await prefs.setInt(stepId, result);
-    } else if (result is TextChoice) {
-      final choice = result.value ?? result.text;
-      await prefs.setString(stepId, choice);
-    } else if (result is List<TextChoice>) {
-      final choices = result.map((choice) => choice.text).toList();
-      await prefs.setStringList(stepId, choices);
-    } else if (result is List<MultiDouble>) {
-      final answers = result.map((answer) => answer.value.toString()).toList();
-      await prefs.setStringList(stepId, answers);
-    } else {
-      await prefs.setString(stepId, result.toString());
-    }
   }
 
   bool isValid(R? result);

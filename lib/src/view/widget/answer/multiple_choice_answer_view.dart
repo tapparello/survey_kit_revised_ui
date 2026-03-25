@@ -1,7 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart' hide Step;
 import 'package:flutter_html/flutter_html.dart' hide Content;
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:survey_kit/src/configuration/survey_configuration.dart';
 import 'package:survey_kit/src/model/answer/multiple_choice_answer_format.dart';
 import 'package:survey_kit/src/model/answer/text_choice.dart';
 import 'package:survey_kit/src/model/result/step_result.dart';
@@ -28,7 +28,6 @@ class MultipleChoiceAnswerView extends StatefulWidget {
 class _MultipleChoiceAnswerView extends State<MultipleChoiceAnswerView> with MeasureDateStateMixin, AnswerMixin<MultipleChoiceAnswerView, List<TextChoice>> {
   late final MultipleChoiceAnswerFormat _multipleChoiceAnswer;
 
-  late final SharedPreferences prefs;
   List<TextChoice> _selectedChoices = [];
   late List<TextChoice> _textChoices = [];
   late final TextChoice _noneOfTheAboveOption;
@@ -78,9 +77,9 @@ class _MultipleChoiceAnswerView extends State<MultipleChoiceAnswerView> with Mea
     });
   }
 
-  Future<void> getTextChoices() async {
-    prefs = await SharedPreferences.getInstance();
-    final textChoices = prefs.getStringList(_multipleChoiceAnswer.choicesFromVariable!);
+  void getTextChoices() {
+    final variables = SurveyConfiguration.of(context).variables;
+    final textChoices = variables[_multipleChoiceAnswer.choicesFromVariable!] as List<String>?;
 
     if (textChoices != null) {
       final choices = textChoices.map((String choice) => TextChoice(text: choice, value: choice)).toList();

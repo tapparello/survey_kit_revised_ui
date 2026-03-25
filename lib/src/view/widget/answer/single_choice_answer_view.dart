@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart' hide Step;
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:survey_kit/src/configuration/survey_configuration.dart';
 import 'package:survey_kit/src/model/answer/single_choice_answer_format.dart';
 import 'package:survey_kit/src/model/answer/text_choice.dart';
 import 'package:survey_kit/src/model/result/step_result.dart';
@@ -26,7 +26,6 @@ class SingleChoiceAnswerView extends StatefulWidget {
 class _SingleChoiceAnswerViewState extends State<SingleChoiceAnswerView> with MeasureDateStateMixin, AnswerMixin<SingleChoiceAnswerView, TextChoice> {
   late final SingleChoiceAnswerFormat _singleChoiceAnswerFormat;
   TextChoice? _selectedChoice;
-  late final SharedPreferences prefs;
   late List<TextChoice> _textChoices = [];
 
   @override
@@ -67,9 +66,9 @@ class _SingleChoiceAnswerViewState extends State<SingleChoiceAnswerView> with Me
     });
   }
 
-  Future<void> getTextChoices() async {
-    prefs = await SharedPreferences.getInstance();
-    final textChoices = prefs.getStringList(_singleChoiceAnswerFormat.choicesFromVariable!);
+  void getTextChoices() {
+    final variables = SurveyConfiguration.of(context).variables;
+    final textChoices = variables[_singleChoiceAnswerFormat.choicesFromVariable!] as List<String>?;
 
     if (textChoices != null) {
       final choices = textChoices.map((String choice) => TextChoice(text: choice, value: choice)).toList();
