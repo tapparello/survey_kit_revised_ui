@@ -1,6 +1,7 @@
 library survery_kit;
 
 export 'src/configuration/survey_configuration.dart';
+export 'src/configuration/survey_registries.dart';
 export 'src/controller/survey_controller.dart';
 export 'src/model/answer/answer_format.dart';
 export 'src/model/answer/boolean_answer_format.dart';
@@ -20,6 +21,7 @@ export 'src/model/answer/text_choice.dart';
 export 'src/model/answer/time_answer_format.dart';
 //Content
 export 'src/model/content/audio_content.dart';
+export 'src/model/content/conditional_content.dart';
 export 'src/model/content/content.dart';
 export 'src/model/content/html_content.dart';
 export 'src/model/content/image_content.dart';
@@ -39,7 +41,9 @@ export 'src/model/result/survey_result.dart';
 export 'src/model/step.dart';
 export 'src/navigator/navigable_task_navigator.dart';
 export 'src/navigator/ordered_task_navigator.dart';
+export 'src/navigator/rules/action_navigation_rule.dart';
 export 'src/navigator/rules/conditional_navigation_rule.dart';
+export 'src/navigator/rules/custom_navigation_rule.dart';
 export 'src/navigator/rules/direct_navigation_rule.dart';
 export 'src/navigator/rules/navigation_rule.dart';
 export 'src/navigator/rules/rule_not_defined_exception.dart';
@@ -53,6 +57,7 @@ export 'src/task/ordered_task.dart';
 export 'src/task/task.dart';
 export 'src/task/task_not_defined_exception.dart';
 export 'src/util/measure_date_state_mixin.dart';
+export 'src/util/template_resolver.dart';
 export 'src/view/widget/answer/answer_mixin.dart';
 export 'src/view/widget/answer/date_answer_view.dart';
 export 'src/view/widget/answer/double_answer_view.dart';
