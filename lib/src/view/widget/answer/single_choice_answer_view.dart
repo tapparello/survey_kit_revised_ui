@@ -38,7 +38,8 @@ class _SingleChoiceAnswerViewState extends State<SingleChoiceAnswerView> with Me
     _singleChoiceAnswerFormat = answer as SingleChoiceAnswerFormat;
 
     if (_singleChoiceAnswerFormat.choicesFromVariable != null) {
-      getTextChoices();
+      // getTextChoices() is called in didChangeDependencies() because it
+      // needs SurveyConfiguration.of(context) which isn't available in initState()
     } else {
       _textChoices = _singleChoiceAnswerFormat.textChoices;
     }
@@ -64,6 +65,14 @@ class _SingleChoiceAnswerViewState extends State<SingleChoiceAnswerView> with Me
         super.onChange(_selectedChoice);
       }
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_singleChoiceAnswerFormat.choicesFromVariable != null) {
+      getTextChoices();
+    }
   }
 
   void getTextChoices() {

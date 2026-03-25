@@ -44,7 +44,8 @@ class _MultipleChoiceAnswerWithFeedbackView extends State<MultipleChoiceAnswerWi
     _multipleChoiceAnswer = answer as MultipleChoiceAnswerWithFeedbackFormat;
 
     if (_multipleChoiceAnswer.choicesFromVariable != null) {
-      getTextChoices();
+      // getTextChoices() is called in didChangeDependencies() because it
+      // needs SurveyConfiguration.of(context) which isn't available in initState()
     } else {
       _textChoices = _multipleChoiceAnswer.textChoices;
     }
@@ -60,6 +61,14 @@ class _MultipleChoiceAnswerWithFeedbackView extends State<MultipleChoiceAnswerWi
       text: _multipleChoiceAnswer.noneOptionText ?? 'None of the above',
       value: _multipleChoiceAnswer.noneOptionText ?? 'None of the above',
     );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_multipleChoiceAnswer.choicesFromVariable != null) {
+      getTextChoices();
+    }
   }
 
   void getTextChoices() {

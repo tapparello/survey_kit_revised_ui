@@ -43,7 +43,8 @@ class _MultipleChoiceAnswerView extends State<MultipleChoiceAnswerView> with Mea
     _multipleChoiceAnswer = answer as MultipleChoiceAnswerFormat;
 
     if (_multipleChoiceAnswer.choicesFromVariable != null) {
-      getTextChoices();
+      // getTextChoices() is called in didChangeDependencies() because it
+      // needs SurveyConfiguration.of(context) which isn't available in initState()
       _selectedChoices = [];
     } else {
       _textChoices = _multipleChoiceAnswer.textChoices;
@@ -75,6 +76,14 @@ class _MultipleChoiceAnswerView extends State<MultipleChoiceAnswerView> with Mea
     Future.delayed(Duration.zero, () {
       super.onChange(_selectedChoices);
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_multipleChoiceAnswer.choicesFromVariable != null) {
+      getTextChoices();
+    }
   }
 
   void getTextChoices() {
