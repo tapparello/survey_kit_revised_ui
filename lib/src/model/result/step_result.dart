@@ -37,8 +37,16 @@ class StepResult<T> {
     );
   }
 
-  factory StepResult.fromJson(Map<String, dynamic> json) =>
-      _$StepResultFromJson(json, (json) => json as T);
+  factory StepResult.fromJson(Map<String, dynamic> json) {
+    // Normalize id: old format stored {"id": "..."}, new format is plain string
+    final rawId = json['id'];
+    var normalized = json;
+    if (rawId is Map<String, dynamic>) {
+      normalized = Map<String, dynamic>.from(json);
+      normalized['id'] = rawId['id'] as String;
+    }
+    return _$StepResultFromJson(normalized, (json) => json as T);
+  }
 
   Map<String, dynamic> toJson() => _$StepResultToJson(this, (result) => result);
 
