@@ -57,6 +57,14 @@ class _MultipleChoiceAnswerWithFeedbackView extends State<MultipleChoiceAnswerWi
 
     _selectedChoices = _safeTextChoiceList(widget.result?.result);
 
+    // Populate QuestionAnswer with pre-filled result so Next gets the correct data
+    WidgetsFlutterBinding.ensureInitialized();
+    Future.delayed(Duration.zero, () {
+      if (_selectedChoices.isNotEmpty) {
+        super.onChange(_selectedChoices);
+      }
+    });
+
     _noneOfTheAboveOption = TextChoice(
       id: 'None',
       text: _multipleChoiceAnswer.noneOptionText ?? 'None of the above',
