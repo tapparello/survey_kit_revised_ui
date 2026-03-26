@@ -8,7 +8,7 @@ part of 'separator_content.dart';
 
 SeparatorContent _$SeparatorContentFromJson(Map<String, dynamic> json) =>
     SeparatorContent(
-      height: (json['height'] as num).toDouble(),
+      height: (json['height'] as num?)?.toDouble() ?? 14,
       id: json['id'] as String?,
     );
 

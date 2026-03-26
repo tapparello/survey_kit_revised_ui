@@ -14,7 +14,7 @@ class SeparatorContent extends Content {
   final double height;
 
   const SeparatorContent({
-    required this.height,
+    this.height = 14,
     super.id,
   }) : super(contentType: type);
 
