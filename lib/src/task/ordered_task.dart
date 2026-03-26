@@ -14,11 +14,13 @@ class OrderedTask extends Task {
     required List<Step> steps,
     String? initialStepId,
     Map<String, dynamic>? variables,
+    int? stepCount,
   }) : super(
           id: id,
           steps: steps,
           initialStep: steps.firstWhereOrNull((step) => step.id == initialStepId),
           variables: variables,
+          stepCount: stepCount,
         );
 
   factory OrderedTask.fromJson(Map<String, dynamic> json, {SurveyRegistries? registries}) {
@@ -34,6 +36,7 @@ class OrderedTask extends Task {
           : [],
       initialStepId: json['initialStepId'] as String?,
       variables: variables,
+      stepCount: json['stepCount'] as int?,
     );
   }
 

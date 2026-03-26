@@ -17,12 +17,14 @@ class NavigableTask extends Task {
     String? initialStepId,
     Map<String, NavigationRule>? navigationRules,
     Map<String, dynamic>? variables,
+    int? stepCount,
   })  : navigationRules = navigationRules ?? {},
         super(
           id: id,
           steps: steps,
           initialStep: steps.firstWhereOrNull((step) => step.id == initialStepId),
           variables: variables,
+          stepCount: stepCount,
         );
 
   /// Adds a [NavigationRule] to the [navigationRule] Map
@@ -69,6 +71,7 @@ class NavigableTask extends Task {
       initialStepId: json['initialStepId'] as String?,
       navigationRules: navigationRules,
       variables: variables,
+      stepCount: json['stepCount'] as int?,
     );
   }
 

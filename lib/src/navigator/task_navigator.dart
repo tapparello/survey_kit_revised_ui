@@ -52,8 +52,13 @@ abstract class TaskNavigator {
     history.add(step);
   }
 
-  int get countSteps => task.steps.length;
+  int get countSteps => task.stepCount ?? task.steps.length;
   int currentStepIndex(Step step) {
+    if (task.stepCount != null) {
+      // When stepCount is overridden (variant branching), use history length
+      // so the index reflects the user's actual position in the flow.
+      return history.length;
+    }
     return task.steps.indexOf(step);
   }
 }

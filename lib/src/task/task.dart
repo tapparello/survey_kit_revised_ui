@@ -21,11 +21,16 @@ abstract class Task {
   @JsonKey(defaultValue: <String, dynamic>{})
   final Map<String, dynamic> variables;
 
+  /// Optional override for the total step count shown in the progress bar.
+  /// When null, defaults to `steps.length`.
+  final int? stepCount;
+
   Task({
     String? id,
     this.steps = const [],
     this.initialStep,
     Map<String, dynamic>? variables,
+    this.stepCount,
   })  : id = id ?? const Uuid().v4(),
         variables = variables ?? {};
 
