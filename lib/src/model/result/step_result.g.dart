@@ -27,7 +27,7 @@ Map<String, dynamic> _$StepResultToJson<T>(
 ) {
   final val = <String, dynamic>{
     'id': instance.id,
-    'step': instance.step,
+    'step': instance.step.toJson(),
     'result': _$nullableGenericToJson(instance.result, toJsonT),
     'startTime': const CustomDateTimeConverter().toJson(instance.startTime),
     'endTime': const CustomDateTimeConverter().toJson(instance.endTime),

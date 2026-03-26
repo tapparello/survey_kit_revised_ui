@@ -22,7 +22,7 @@ Map<String, dynamic> _$StepToJson(Step instance) {
   final val = <String, dynamic>{
     'id': instance.id,
     'isMandatory': instance.isMandatory,
-    'answerFormat': instance.answerFormat,
+    'answerFormat': instance.answerFormat?.toJson(),
   };
 
   void writeNotNull(String key, dynamic value) {
@@ -32,6 +32,6 @@ Map<String, dynamic> _$StepToJson(Step instance) {
   }
 
   writeNotNull('buttonText', instance.buttonText);
-  val['content'] = instance.content;
+  val['content'] = instance.content.map((e) => e.toJson()).toList();
   return val;
 }

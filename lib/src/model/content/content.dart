@@ -74,6 +74,8 @@ abstract class Content {
     }
   }
 
+  Map<String, dynamic> toJson();
+
   Widget createWidget({
     Map<String, dynamic> variables = const {},
     Map<String, StyledTextContent>? contentStyles,

@@ -25,6 +25,8 @@ abstract class AnswerFormat {
   @JsonKey(name: 'type')
   final String? answerType;
 
+  Map<String, dynamic> toJson();
+
   Widget createView(Step step, StepResult? stepResult);
 
   factory AnswerFormat.fromJson(Map<String, dynamic> json) {
