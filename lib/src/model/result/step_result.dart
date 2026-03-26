@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' hide Step;
 import 'package:json_annotation/json_annotation.dart';
+import 'package:survey_kit/src/model/answer/date_answer_format.dart';
 import 'package:survey_kit/src/model/step.dart';
 import 'package:survey_kit/src/util/datetime_convert.dart';
 
@@ -45,10 +46,35 @@ class StepResult<T> {
       normalized = Map<String, dynamic>.from(json);
       normalized['id'] = rawId['id'] as String;
     }
-    return _$StepResultFromJson(normalized, (json) => json as T);
+
+    final answerType = (normalized['step']
+        as Map<String, dynamic>?)?['answerFormat']?['type'] as String?;
+
+    return _$StepResultFromJson(normalized, (value) {
+      // Date results are serialized as ISO strings — parse back to DateTime
+      if (answerType == DateAnswerFormat.type && value is String) {
+        return DateTime.parse(value) as T;
+      }
+      return value as T;
+    });
   }
 
-  Map<String, dynamic> toJson() => _$StepResultToJson(this, (result) => result);
+  Map<String, dynamic> toJson() => _$StepResultToJson(this, _encodeResult);
+
+  static Object? _encodeResult(dynamic value) {
+    if (value == null) return null;
+    if (value is num || value is String || value is bool) return value;
+    if (value is DateTime) return const CustomDateTimeConverter().toJson(value);
+    if (value is List) return value.map(_encodeResult).toList();
+    if (value is Map) {
+      return value.map((k, v) => MapEntry(k.toString(), _encodeResult(v)));
+    }
+    try {
+      return (value as dynamic).toJson();
+    } catch (_) {
+      return value.toString();
+    }
+  }
 
   @override
   int get hashCode => id.hashCode ^ startTime.hashCode ^ endTime.hashCode;

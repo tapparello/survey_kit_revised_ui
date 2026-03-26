@@ -84,11 +84,6 @@ class _SingleChoiceAnswerViewState extends State<SingleChoiceAnswerWithFeedbackV
   Widget build(BuildContext context) {
     final questionText = widget.questionStep.answerFormat?.question;
 
-    // // Handle results from previous runs of the survey
-    // if (_selectedChoice != null) {
-    //   onValidationChanged = isValid(_selectedChoice);
-    // }
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 14.0),
       child: Column(
