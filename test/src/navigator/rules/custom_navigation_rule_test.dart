@@ -4,7 +4,7 @@ import 'package:survey_kit/src/navigator/rules/custom_navigation_rule.dart';
 void main() {
   group('CustomNavigationRule', () {
     test('stores ruleId', () {
-      final rule = CustomNavigationRule(ruleId: 'my_rule');
+      const rule = CustomNavigationRule(ruleId: 'my_rule');
       expect(rule.ruleId, 'my_rule');
     });
 
@@ -14,7 +14,7 @@ void main() {
     });
 
     test('serializes to JSON', () {
-      final rule = CustomNavigationRule(ruleId: 'my_rule');
+      const rule = CustomNavigationRule(ruleId: 'my_rule');
       final json = rule.toJson();
       expect(json['type'], 'custom');
       expect(json['ruleId'], 'my_rule');

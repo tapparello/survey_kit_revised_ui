@@ -23,9 +23,9 @@ class ImageContent extends Content {
     this.height,
   }) : super(contentType: type);
 
-  factory ImageContent.fromJson(Map<String, dynamic> json) =>
-      _$ImageContentFromJson(json);
+  factory ImageContent.fromJson(Map<String, dynamic> json) => _$ImageContentFromJson(json);
 
+  @override
   Map<String, dynamic> toJson() => _$ImageContentToJson(this);
 
   @override

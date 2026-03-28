@@ -28,23 +28,17 @@ class DateAnswerFormat extends AnswerFormat {
           'mindate must be before maxdate',
         ),
         assert(
-          defaultDate == null ||
-              minDate == null ||
-              defaultDate.isAtSameMomentAs(minDate) ||
-              defaultDate.isAfter(minDate),
+          defaultDate == null || minDate == null || defaultDate.isAtSameMomentAs(minDate) || defaultDate.isAfter(minDate),
           'defaultDate must be after minDate',
         ),
         assert(
-          defaultDate == null ||
-              maxDate == null ||
-              defaultDate.isAtSameMomentAs(maxDate) ||
-              defaultDate.isBefore(maxDate),
+          defaultDate == null || maxDate == null || defaultDate.isAtSameMomentAs(maxDate) || defaultDate.isBefore(maxDate),
           'defaultDate must be before maxDate',
         ),
         super();
 
-  factory DateAnswerFormat.fromJson(Map<String, dynamic> json) =>
-      _$DateAnswerFormatFromJson(json);
+  factory DateAnswerFormat.fromJson(Map<String, dynamic> json) => _$DateAnswerFormatFromJson(json);
+  @override
   Map<String, dynamic> toJson() => _$DateAnswerFormatToJson(this);
 
   @override

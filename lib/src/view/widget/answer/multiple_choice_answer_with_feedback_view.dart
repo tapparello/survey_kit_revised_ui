@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart' hide Step;
 import 'package:flutter_html/flutter_html.dart' hide Content;
 import 'package:survey_kit/src/configuration/survey_configuration.dart';
-import 'package:survey_kit/src/presenter/survey_state_provider.dart';
 import 'package:survey_kit/src/model/answer/multiple_choice_answer_with_feedback_format.dart';
 import 'package:survey_kit/src/model/answer/text_choice.dart';
 import 'package:survey_kit/src/model/result/step_result.dart';
 import 'package:survey_kit/src/model/step.dart';
+import 'package:survey_kit/src/presenter/survey_state_provider.dart';
 import 'package:survey_kit/src/util/measure_date_state_mixin.dart';
 import 'package:survey_kit/src/view/widget/answer/answer_mixin.dart';
 import 'package:survey_kit/src/view/widget/answer/answer_question_text.dart';
@@ -85,7 +85,7 @@ class _MultipleChoiceAnswerWithFeedbackView extends State<MultipleChoiceAnswerWi
     final variables = SurveyConfiguration.of(context).variables;
     final variableValue = variables[variableKey];
 
-    List<TextChoice> choices = [];
+    var choices = <TextChoice>[];
 
     if (variableValue is List<String>) {
       choices = variableValue.map((String choice) => TextChoice(text: choice, value: choice)).toList();

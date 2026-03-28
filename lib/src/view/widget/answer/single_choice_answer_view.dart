@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart' hide Step;
 import 'package:survey_kit/src/configuration/survey_configuration.dart';
-import 'package:survey_kit/src/presenter/survey_state_provider.dart';
 import 'package:survey_kit/src/model/answer/single_choice_answer_format.dart';
 import 'package:survey_kit/src/model/answer/text_choice.dart';
 import 'package:survey_kit/src/model/result/step_result.dart';
 import 'package:survey_kit/src/model/step.dart';
+import 'package:survey_kit/src/presenter/survey_state_provider.dart';
 import 'package:survey_kit/src/util/measure_date_state_mixin.dart';
 import 'package:survey_kit/src/view/widget/answer/answer_mixin.dart';
 import 'package:survey_kit/src/view/widget/answer/answer_question_text.dart';
@@ -81,7 +81,7 @@ class _SingleChoiceAnswerViewState extends State<SingleChoiceAnswerView> with Me
     final variables = SurveyConfiguration.of(context).variables;
     final variableValue = variables[variableKey];
 
-    List<TextChoice> choices = [];
+    var choices = <TextChoice>[];
 
     if (variableValue is List<String>) {
       choices = variableValue.map((String choice) => TextChoice(text: choice, value: choice)).toList();

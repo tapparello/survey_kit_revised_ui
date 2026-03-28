@@ -33,8 +33,8 @@ class MultipleChoiceAutoCompleteAnswerFormat extends AnswerFormat {
     Map<String, dynamic> json,
   ) =>
       _$MultipleChoiceAutoCompleteAnswerFormatFromJson(json);
-  Map<String, dynamic> toJson() =>
-      _$MultipleChoiceAutoCompleteAnswerFormatToJson(this);
+  @override
+  Map<String, dynamic> toJson() => _$MultipleChoiceAutoCompleteAnswerFormatToJson(this);
 
   @override
   Widget createView(Step step, StepResult? stepResult) {

@@ -17,8 +17,8 @@ class TimeAnswerFormat extends AnswerFormat {
     super.answerType = type,
   }) : super();
 
-  factory TimeAnswerFormat.fromJson(Map<String, dynamic> json) =>
-      _$TimeAnswerFormatFromJson(json);
+  factory TimeAnswerFormat.fromJson(Map<String, dynamic> json) => _$TimeAnswerFormatFromJson(json);
+  @override
   Map<String, dynamic> toJson() => _$TimeAnswerFormatToJson(this);
 
   @override
@@ -30,8 +30,7 @@ class TimeAnswerFormat extends AnswerFormat {
   }
 }
 
-class _TimeOfDayJsonConverter
-    implements JsonConverter<TimeOfDay?, Map<String, dynamic>> {
+class _TimeOfDayJsonConverter implements JsonConverter<TimeOfDay?, Map<String, dynamic>> {
   const _TimeOfDayJsonConverter();
 
   @override

@@ -47,8 +47,9 @@ class StepResult<T> {
       normalized['id'] = rawId['id'] as String;
     }
 
-    final answerType = (normalized['step']
-        as Map<String, dynamic>?)?['answerFormat']?['type'] as String?;
+    final step = normalized['step'] as Map<String, dynamic>?;
+    final answerFormat = step?['answerFormat'] as Map<String, dynamic>?;
+    final answerType = answerFormat?['type'] as String?;
 
     return _$StepResultFromJson(normalized, (value) {
       // Date results are serialized as ISO strings — parse back to DateTime
@@ -82,10 +83,6 @@ class StepResult<T> {
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
-        other is StepResult &&
-            runtimeType == other.runtimeType &&
-            id == other.id &&
-            startTime == other.startTime &&
-            endTime == other.endTime;
+        other is StepResult && runtimeType == other.runtimeType && id == other.id && startTime == other.startTime && endTime == other.endTime;
   }
 }

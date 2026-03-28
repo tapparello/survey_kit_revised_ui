@@ -23,9 +23,9 @@ class MultipleDoubleAnswerFormat extends AnswerFormat {
     super.answerType = type,
   }) : super();
 
-  factory MultipleDoubleAnswerFormat.fromJson(Map<String, dynamic> json) =>
-      _$MultipleDoubleAnswerFormatFromJson(json);
+  factory MultipleDoubleAnswerFormat.fromJson(Map<String, dynamic> json) => _$MultipleDoubleAnswerFormatFromJson(json);
 
+  @override
   Map<String, dynamic> toJson() => _$MultipleDoubleAnswerFormatToJson(this);
 
   @override

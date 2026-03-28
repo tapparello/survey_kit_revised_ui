@@ -25,6 +25,7 @@ class ConditionalContent extends Content {
     );
   }
 
+  @override
   Map<String, dynamic> toJson() => {
         'type': type,
         'variable': variable,

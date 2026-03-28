@@ -28,8 +28,8 @@ class TextAnswerFormat extends AnswerFormat {
     super.answerType = type,
   }) : super();
 
-  factory TextAnswerFormat.fromJson(Map<String, dynamic> json) =>
-      _$TextAnswerFormatFromJson(json);
+  factory TextAnswerFormat.fromJson(Map<String, dynamic> json) => _$TextAnswerFormatFromJson(json);
+  @override
   Map<String, dynamic> toJson() => _$TextAnswerFormatToJson(this);
 
   @override

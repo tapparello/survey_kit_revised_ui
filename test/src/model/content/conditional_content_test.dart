@@ -20,23 +20,23 @@ void main() {
     });
 
     test('resolves correct option from variables', () {
-      final content = ConditionalContent(
+      const content = ConditionalContent(
         variable: 'child_name',
         options: {
-          'Aidan': const HtmlContent(html: '<p>Aidan</p>'),
-          'Brayden': const HtmlContent(html: '<p>Brayden</p>'),
+          'Aidan': HtmlContent(html: '<p>Aidan</p>'),
+          'Brayden': HtmlContent(html: '<p>Brayden</p>'),
         },
       );
       final resolved = content.resolveContent({'child_name': 'Brayden'});
       expect(resolved, isA<HtmlContent>());
-      expect((resolved as HtmlContent).html, '<p>Brayden</p>');
+      expect((resolved! as HtmlContent).html, '<p>Brayden</p>');
     });
 
     test('returns null when variable not in map', () {
-      final content = ConditionalContent(
+      const content = ConditionalContent(
         variable: 'child_name',
         options: {
-          'Aidan': const HtmlContent(html: '<p>Aidan</p>'),
+          'Aidan': HtmlContent(html: '<p>Aidan</p>'),
         },
       );
       final resolved = content.resolveContent({});
@@ -44,10 +44,10 @@ void main() {
     });
 
     test('returns null when value not in options', () {
-      final content = ConditionalContent(
+      const content = ConditionalContent(
         variable: 'child_name',
         options: {
-          'Aidan': const HtmlContent(html: '<p>Aidan</p>'),
+          'Aidan': HtmlContent(html: '<p>Aidan</p>'),
         },
       );
       final resolved = content.resolveContent({'child_name': 'Unknown'});

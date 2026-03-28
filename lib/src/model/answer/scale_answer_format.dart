@@ -30,8 +30,8 @@ class ScaleAnswerFormat extends AnswerFormat {
     super.answerType = type,
   }) : super();
 
-  factory ScaleAnswerFormat.fromJson(Map<String, dynamic> json) =>
-      _$ScaleAnswerFormatFromJson(json);
+  factory ScaleAnswerFormat.fromJson(Map<String, dynamic> json) => _$ScaleAnswerFormatFromJson(json);
+  @override
   Map<String, dynamic> toJson() => _$ScaleAnswerFormatToJson(this);
 
   @override

@@ -5,7 +5,7 @@ import 'package:survey_kit/survey_kit.dart';
 part 'multiple_choice_answer_with_feedback_format.g.dart';
 
 @JsonSerializable()
-class MultipleChoiceAnswerWithFeedbackFormat extends AnswerFormat  {
+class MultipleChoiceAnswerWithFeedbackFormat extends AnswerFormat {
   static const String type = 'multi_with_feedback';
 
   final List<TextChoice> textChoices;
@@ -40,9 +40,9 @@ class MultipleChoiceAnswerWithFeedbackFormat extends AnswerFormat  {
     super.answerType = type,
   }) : super();
 
-  factory MultipleChoiceAnswerWithFeedbackFormat.fromJson(Map<String, dynamic> json) =>
-      _$MultipleChoiceAnswerWithFeedbackFormatFromJson(json);
+  factory MultipleChoiceAnswerWithFeedbackFormat.fromJson(Map<String, dynamic> json) => _$MultipleChoiceAnswerWithFeedbackFormatFromJson(json);
 
+  @override
   Map<String, dynamic> toJson() => _$MultipleChoiceAnswerWithFeedbackFormatToJson(this);
 
   @override

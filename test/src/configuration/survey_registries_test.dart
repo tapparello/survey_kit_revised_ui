@@ -1,16 +1,15 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:survey_kit/src/configuration/survey_registries.dart';
-import 'package:survey_kit/src/model/content/content.dart';
 import 'package:survey_kit/src/model/content/html_content.dart';
-import 'package:survey_kit/src/model/step.dart';
 import 'package:survey_kit/src/model/result/step_result.dart';
+import 'package:survey_kit/src/model/step.dart';
 
 void main() {
   group('SurveyRegistries', () {
     test('resolves registered custom content type', () {
-      final registries = SurveyRegistries(
+      const registries = SurveyRegistries(
         customContentTypes: {
-          'custom_html': (json) => HtmlContent.fromJson(json),
+          'custom_html': HtmlContent.fromJson,
         },
       );
       final json = {'type': 'custom_html', 'html': '<p>test</p>'};
@@ -19,15 +18,15 @@ void main() {
     });
 
     test('returns null for unregistered content type', () {
-      final registries = SurveyRegistries();
+      const registries = SurveyRegistries();
       final content = registries.resolveContent({'type': 'unknown'});
       expect(content, isNull);
     });
 
     test('resolves registered custom step type', () {
-      final registries = SurveyRegistries(
+      const registries = SurveyRegistries(
         customStepTypes: {
-          'custom_step': (json) => Step.fromJson(json),
+          'custom_step': Step.fromJson,
         },
       );
       final json = {
@@ -40,7 +39,7 @@ void main() {
     });
 
     test('stores and retrieves action handler', () {
-      handler(List<StepResult> r, Map<String, dynamic> v) {}
+      void handler(List<StepResult> r, Map<String, dynamic> v) {}
       final registries = SurveyRegistries(
         actionHandlers: {'my_action': handler},
       );

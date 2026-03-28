@@ -90,14 +90,14 @@ class _MultipleDoubleAnswerViewState extends State<MultipleDoubleAnswerView>
               ),
               controller: _controller[md.key],
               onChanged: (String value) {
-                value = value.replaceAll(',', '.');
-                if (double.tryParse(value) == null) {
+                final sanitizedValue = value.replaceAll(',', '.');
+                if (double.tryParse(sanitizedValue) == null) {
                   questionAnswer.setIsValid(false);
                   return;
                 }
                 _insertedValues[md.key] = MultiDouble(
                   text: md.value,
-                  value: double.parse(value),
+                  value: double.parse(sanitizedValue),
                 );
                 onChange(_insertedValues);
               },

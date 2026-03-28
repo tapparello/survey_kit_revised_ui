@@ -20,6 +20,7 @@ class SeparatorContent extends Content {
 
   factory SeparatorContent.fromJson(Map<String, dynamic> json) => _$SeparatorContentFromJson(json);
 
+  @override
   Map<String, dynamic> toJson() => _$SeparatorContentToJson(this);
 
   @override

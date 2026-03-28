@@ -21,9 +21,9 @@ class HtmlContent extends Content {
     super.id,
   }) : super(contentType: type);
 
-  factory HtmlContent.fromJson(Map<String, dynamic> json) =>
-      _$HtmlContentFromJson(json);
+  factory HtmlContent.fromJson(Map<String, dynamic> json) => _$HtmlContentFromJson(json);
 
+  @override
   Map<String, dynamic> toJson() => _$HtmlContentToJson(this);
 
   @override

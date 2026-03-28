@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart' hide Step;
-import 'package:survey_kit/src/model/content/conditional_content.dart';
 import 'package:survey_kit/src/util/extension.dart';
 import 'package:survey_kit/survey_kit.dart';
 
@@ -37,10 +36,8 @@ class _ContentWidgetState extends State<ContentWidget> {
       width: double.infinity,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
-        children: resolvedContent
-            .map((e) => e.createWidget(variables: variables, contentStyles: contentStyles))
-            .withSeparator(const _Separator(height: 14))
-            .toList(),
+        children:
+            resolvedContent.map((e) => e.createWidget(variables: variables, contentStyles: contentStyles)).withSeparator(const _Separator(height: 14)).toList(),
       ),
     );
 
