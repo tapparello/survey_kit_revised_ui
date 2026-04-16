@@ -178,12 +178,16 @@ class _SurveyPageState extends State<SurveyPage>
         decoration: widget.decoration,
         child: Navigator(
           key: widget.navigatorKey,
-          onGenerateRoute: (settings) => SurveyKitPageRouteBuilder<Widget>(
+          onGenerateRoute: (settings) {
+            final isPrevious =
+                settings.arguments is PresentingSurveyState &&
+                (settings.arguments! as PresentingSurveyState).isPreviousStep;
+            return SurveyKitPageRouteBuilder<Widget>(
             transitionsBuilder:
                 (context, animation, secondaryAnimation, child) =>
                     SlideTransition(
               position: Tween<Offset>(
-                begin: const Offset(1.0, 0.0),
+                begin: Offset(isPrevious ? -1.0 : 1.0, 0.0),
                 end: Offset.zero,
               ).animate(animation),
               child: child,
@@ -209,7 +213,8 @@ class _SurveyPageState extends State<SurveyPage>
                 ),
               );
             },
-          ),
+          );
+          },
         ),
       ),
     );
