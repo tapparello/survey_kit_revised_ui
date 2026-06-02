@@ -51,7 +51,7 @@ class _StepViewState extends State<StepView> {
 
     if (!surveyConfiguration.taskNavigator.hasNextStep(widget.step, SurveyStateProvider.of(context).results.toList())) {
       // if (!surveyConfiguration.taskNavigator.hasNextStep(widget.step)) {
-      nextStepButtonText = toBeginningOfSentenceCase(surveyConfiguration.localizations?['done']) ?? 'Done';
+      nextStepButtonText = widget.step.buttonText ?? toBeginningOfSentenceCase(surveyConfiguration.localizations?['done']) ?? 'Done';
       saveAndCloseButton = const SizedBox.shrink();
     }
 

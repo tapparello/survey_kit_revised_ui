@@ -77,10 +77,13 @@ class SurveyAppBar extends StatelessWidget implements PreferredSizeWidget {
             }
 
             final state = snapshot.data!;
+            final label = progressbarConfiguration.label;
 
-            if (state is PresentingSurveyState) {
-              return progressbarConfiguration.label!(
-                (state.currentStepIndex+1).toString(),
+            if (state is PresentingSurveyState &&
+                progressbarConfiguration.showLabel &&
+                label != null) {
+              return label(
+                (state.currentStepIndex + 1).toString(),
                 state.stepCount.toString(),
               );
             } else {
