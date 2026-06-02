@@ -5,7 +5,10 @@ class CustomDateTimeConverter implements JsonConverter<DateTime, String> {
 
   @override
   DateTime fromJson(String json) {
-    return DateTime.parse(json);
+    // toJson stores the value in UTC; convert back to local time so a
+    // round-tripped DateTime compares equal to the original. Dart's
+    // DateTime.== also requires a matching isUtc flag, not just the instant.
+    return DateTime.parse(json).toLocal();
   }
 
   @override

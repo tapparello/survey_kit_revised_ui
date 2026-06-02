@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart' hide Step;
 import 'package:json_annotation/json_annotation.dart';
-import 'package:survey_kit/src/model/answer/date_answer_format.dart';
+import 'package:survey_kit/src/model/answer/boolean_answer_format.dart';
+import 'package:survey_kit/src/model/answer/multi_double.dart';
+import 'package:survey_kit/src/model/answer/text_choice.dart';
+import 'package:survey_kit/src/model/result/time_result.dart';
 import 'package:survey_kit/src/model/step.dart';
 import 'package:survey_kit/src/util/datetime_convert.dart';
 
@@ -47,17 +50,49 @@ class StepResult<T> {
       normalized['id'] = rawId['id'] as String;
     }
 
-    final step = normalized['step'] as Map<String, dynamic>?;
-    final answerFormat = step?['answerFormat'] as Map<String, dynamic>?;
-    final answerType = answerFormat?['type'] as String?;
+    return _$StepResultFromJson<T>(
+      normalized,
+      (value) => _decodeResult<T>(value),
+    );
+  }
 
-    return _$StepResultFromJson(normalized, (value) {
-      // Date results are serialized as ISO strings — parse back to DateTime
-      if (answerType == DateAnswerFormat.type && value is String) {
-        return DateTime.parse(value) as T;
+  /// Reverses [_encodeResult] for every result type the library uses.
+  ///
+  /// Results are serialized type-erased (enums as their name, objects via
+  /// `toJson`, dates as ISO strings), so deserialization reconstructs the
+  /// concrete type from the reified type argument [S].
+  static S _decodeResult<S>(Object? value) {
+    if (value is S) return value;
+
+    // JSON numbers decode as int; widen when a double is expected.
+    if (value is num && S == double) return value.toDouble() as S;
+
+    if (value is String) {
+      if (S == DateTime) return DateTime.parse(value).toLocal() as S;
+      if (S == BooleanResult) return BooleanResult.values.byName(value) as S;
+    }
+
+    if (value is Map) {
+      final map = Map<String, dynamic>.from(value);
+      if (S == TimeResult) return TimeResult.fromJson(map) as S;
+      if (S == TextChoice) return TextChoice.fromJson(map) as S;
+      if (S == MultiDouble) return MultiDouble.fromJson(map) as S;
+    }
+
+    if (value is List) {
+      if (S == List<TextChoice>) {
+        return value
+            .map((e) => TextChoice.fromJson(Map<String, dynamic>.from(e as Map)))
+            .toList() as S;
       }
-      return value as T;
-    });
+      if (S == List<MultiDouble>) {
+        return value
+            .map((e) => MultiDouble.fromJson(Map<String, dynamic>.from(e as Map)))
+            .toList() as S;
+      }
+    }
+
+    return value as S;
   }
 
   Map<String, dynamic> toJson() => _$StepResultToJson(this, _encodeResult);
@@ -65,6 +100,7 @@ class StepResult<T> {
   static Object? _encodeResult(dynamic value) {
     if (value == null) return null;
     if (value is num || value is String || value is bool) return value;
+    if (value is Enum) return value.name;
     if (value is DateTime) return const CustomDateTimeConverter().toJson(value);
     if (value is List) return value.map(_encodeResult).toList();
     if (value is Map) {

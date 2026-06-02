@@ -11,6 +11,11 @@ class TimeResult {
   const TimeResult({
     required this.timeOfDay,
   });
+
+  factory TimeResult.fromJson(Map<String, dynamic> json) =>
+      _$TimeResultFromJson(json);
+
+  Map<String, dynamic> toJson() => _$TimeResultToJson(this);
 }
 
 class _TimeOfDayConverter extends JsonConverter<TimeOfDay, String?> {
