@@ -79,9 +79,11 @@ class SurveyAppBar extends StatelessWidget implements PreferredSizeWidget {
             final state = snapshot.data!;
             final label = progressbarConfiguration.label;
 
-            if (state is PresentingSurveyState &&
-                progressbarConfiguration.showLabel &&
-                label != null) {
+            // The app bar action label is independent of `showLabel`, which
+            // only controls the label rendered above the bar by
+            // SurveyProgress. Render it whenever a label builder is provided
+            // (the null check guards the default config where label == null).
+            if (state is PresentingSurveyState && label != null) {
               return label(
                 (state.currentStepIndex + 1).toString(),
                 state.stepCount.toString(),

@@ -60,4 +60,44 @@ void main() {
     expect(completeButtom, findsOneWidget);
     await tester.tap(completeButtom);
   });
+
+  testWidgets(
+      'progress label renders in the app bar when label is set but showLabel '
+      'is false', (WidgetTester tester) async {
+    // Mirrors how fmf_connect_flutter configures the progress bar: a custom
+    // label with showLabel: false to show the step count next to the bar
+    // without rendering a label above it.
+    final surveyWidget = MaterialApp(
+      home: Scaffold(
+        body: SurveyKit(
+          surveyProgressbarConfiguration: SurveyProgressConfiguration(
+            showLabel: false,
+            label: (from, to) => Text('$from of $to'),
+          ),
+          task: OrderedTask(
+            id: '1',
+            steps: [
+              InstructionStep(
+                title: 'Welcome',
+                text: 'Random questions ahead!',
+                buttonText: "Let's go!",
+              ),
+              CompletionStep(
+                text: 'Thanks!',
+                title: 'Done!',
+                buttonText: 'Submit survey',
+              ),
+            ],
+          ),
+          onResult: (result) {},
+        ),
+      ),
+    );
+
+    await tester.pumpWidget(surveyWidget);
+    await tester.pumpAndSettle();
+
+    // First step of two: the app bar should show "1 of 2".
+    expect(find.text('1 of 2'), findsOneWidget);
+  });
 }
