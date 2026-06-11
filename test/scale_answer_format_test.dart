@@ -46,6 +46,22 @@ void main() {
     });
   });
 
+  group('ScaleAnswerFormat.hasAcceptedRange', () {
+    test('false when no/partial range, true when both bounds set', () {
+      expect(buildFormat().hasAcceptedRange, isFalse);
+      expect(buildFormat(acceptedMin: 6).hasAcceptedRange, isFalse);
+      expect(buildFormat(acceptedMax: 9).hasAcceptedRange, isFalse);
+      expect(buildFormat(acceptedMin: 6, acceptedMax: 9).hasAcceptedRange, isTrue);
+    });
+
+    test('inverted range (min > max) matches no value', () {
+      final format = buildFormat(acceptedMin: 9, acceptedMax: 6);
+      expect(format.isWithinAcceptedRange(7), isFalse);
+      expect(format.isWithinAcceptedRange(6), isFalse);
+      expect(format.isWithinAcceptedRange(9), isFalse);
+    });
+  });
+
   group('ScaleAnswerFormat JSON round-trip', () {
     test('parses bare int accepted-range literals into doubles', () {
       final format = ScaleAnswerFormat.fromJson(<String, dynamic>{

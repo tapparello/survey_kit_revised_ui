@@ -40,9 +40,16 @@ class ScaleAnswerFormat extends AnswerFormat {
     super.answerType = type,
   }) : super();
 
+  /// Whether a complete accepted sub-range is configured (both bounds set).
+  bool get hasAcceptedRange =>
+      acceptedMinimumValue != null && acceptedMaximumValue != null;
+
   /// Whether [value] falls within the inclusive accepted sub-range, if one is
   /// configured. Returns true when no accepted range is set (either bound null)
   /// — preserving the un-gated default behavior for every existing scale step.
+  ///
+  /// Bounds must satisfy `acceptedMinimumValue <= acceptedMaximumValue`; an
+  /// inverted range matches no value (the step can never be satisfied).
   bool isWithinAcceptedRange(double value) {
     final min = acceptedMinimumValue;
     final max = acceptedMaximumValue;
