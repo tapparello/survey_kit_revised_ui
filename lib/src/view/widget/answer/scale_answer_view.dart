@@ -273,6 +273,7 @@ class _ScaleAnswerViewState extends State<ScaleAnswerView> with MeasureDateState
 
   @override
   bool isValid(double? result) {
-    return true;
+    if (result == null) return !_scaleAnswerFormat.hasAcceptedRange;
+    return _scaleAnswerFormat.isWithinAcceptedRange(result);
   }
 }

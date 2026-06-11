@@ -16,6 +16,8 @@ ScaleAnswerFormat _$ScaleAnswerFormatFromJson(Map<String, dynamic> json) =>
       minimumValueDescription: json['minimumValueDescription'] as String? ?? '',
       isVertical: json['isVertical'] as bool? ?? false,
       isAge: json['isAge'] as bool? ?? false,
+      acceptedMinimumValue: (json['acceptedMinimumValue'] as num?)?.toDouble(),
+      acceptedMaximumValue: (json['acceptedMaximumValue'] as num?)?.toDouble(),
       question: json['question'] as String?,
       answerType: json['type'] as String?,
     );
@@ -32,4 +34,6 @@ Map<String, dynamic> _$ScaleAnswerFormatToJson(ScaleAnswerFormat instance) =>
       'isAge': instance.isAge,
       'maximumValueDescription': instance.maximumValueDescription,
       'minimumValueDescription': instance.minimumValueDescription,
+      'acceptedMinimumValue': instance.acceptedMinimumValue,
+      'acceptedMaximumValue': instance.acceptedMaximumValue,
     };
