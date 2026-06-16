@@ -96,103 +96,19 @@ class _ScaleAnswerViewState extends State<ScaleAnswerView> with MeasureDateState
                   showLabels: true,
                   tooltipPosition: SliderTooltipPosition.right,
                   tooltipTextFormatterCallback: (dynamic actualValue, String formattedText) {
-                    switch (actualValue) {
-                      case 1:
-                        if (_scaleAnswerFormat.isAge) {
-                          return 'Acts Younger Than Age in Years';
-                        }
-                        return 'Well below average for age';
-                      case 2:
-                        if (_scaleAnswerFormat.isAge) {
-                          return 'Acts Younger Than Age in Years';
-                        }
-                        return 'Below average for age';
-                      case 3:
-                        if (_scaleAnswerFormat.isAge) {
-                          return 'Acts Younger Than Age in Years';
-                        }
-                        return 'Below average for age';
-                      case 4:
-                        if (_scaleAnswerFormat.isAge) {
-                          return 'Acts Younger Than Age in Years';
-                        }
-                        return 'Low average for age';
-                      case 5:
-                        if (_scaleAnswerFormat.isAge) {
-                          return 'Acts Younger Than Age in Years';
-                        }
-                        return 'Low average for age';
-                      case >= 6 && < 10:
-                        if (_scaleAnswerFormat.isAge) {
-                          return 'Acts Own Age in Years';
-                        }
-                        return 'Average for age';
-                      case 10:
-                        if (_scaleAnswerFormat.isAge) {
-                          return 'Acts Older Than Age in Years';
-                        }
-                        return 'High average for age';
-                      case 11:
-                        if (_scaleAnswerFormat.isAge) {
-                          return 'Acts Older Than Age in Years';
-                        }
-                        return 'High average for age';
-                      case 12:
-                        if (_scaleAnswerFormat.isAge) {
-                          return 'Acts Older Than Age in Years';
-                        }
-                        return 'Above average for age';
-                      default:
-                        return formattedText;
-                    }
+                    return _scaleAnswerFormat.tooltipName((actualValue as num).toDouble()) ?? formattedText;
                   },
                   labelFormatterCallback: (dynamic actualValue, String formattedText) {
-                    switch (actualValue) {
-                      case 1:
-                        if (_scaleAnswerFormat.isAge) {
-                          return '';
-                        }
-                        return 'Well below average for age';
-                      case 2:
-                        return '';
-                      case 3:
-                        if (_scaleAnswerFormat.isAge) {
-                          return '';
-                        }
-                        return 'Below average for age';
-                      case 4:
-                        if (_scaleAnswerFormat.isAge) {
-                          return 'Acts Younger Than Age in Years';
-                        }
-                        return 'Low average for age';
-                      case 5:
-                        return '';
-                      case 6:
-                        return '';
-                      case 7:
-                        if (_scaleAnswerFormat.isAge) {
-                          return 'Acts Own Age in Years';
-                        }
-                        return 'Average for age';
-                      case 8:
-                        return '';
-                      case 9:
-                        return '';
-                      case 10:
-                        if (_scaleAnswerFormat.isAge) {
-                          return 'Acts Older Than Age in Years';
-                        }
-                        return 'High average for age';
-                      case 11:
-                        return '';
-                      case 12:
-                        if (_scaleAnswerFormat.isAge) {
-                          return '';
-                        }
-                        return 'Above average for age';
-                      default:
-                        return formattedText;
-                    }
+                    final value = (actualValue as num).toDouble();
+                    final name = _scaleAnswerFormat.labelName(value);
+                    if (name != null) return name;
+                    // Non-labelAt ticks are blank when bands are configured;
+                    // fall back to the numeric label only when un-banded.
+                    // (Parity note: with step:1 the slider emits integer ticks,
+                    // so this matches the old switch value-for-value. A transient
+                    // fractional drag value now resolves to its covering band
+                    // instead of the raw number — an intentional, benign change.)
+                    return _scaleAnswerFormat.bands.isEmpty ? formattedText : '';
                   },
                   enableTooltip: true,
                   minorTicksPerInterval: 0,
