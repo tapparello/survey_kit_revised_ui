@@ -25,6 +25,10 @@ class ScaleAnswerFormat extends AnswerFormat {
   /// step is un-gated.
   final double? acceptedMaximumValue;
 
+  /// The localizable bands driving the vertical slider tooltip and static
+  /// labels. Empty when not configured (e.g. horizontal sliders).
+  final List<ScaleBand> bands;
+
   const ScaleAnswerFormat({
     required this.maximumValue,
     required this.minimumValue,
@@ -36,6 +40,7 @@ class ScaleAnswerFormat extends AnswerFormat {
     this.isAge = false,
     this.acceptedMinimumValue,
     this.acceptedMaximumValue,
+    this.bands = const [],
     super.question,
     super.answerType = type,
   }) : super();

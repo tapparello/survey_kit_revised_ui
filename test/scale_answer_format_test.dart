@@ -92,4 +92,34 @@ void main() {
       expect(format.isWithinAcceptedRange(12), isTrue);
     });
   });
+
+  group('ScaleAnswerFormat.bands JSON', () {
+    test('parses a bands array', () {
+      final format = ScaleAnswerFormat.fromJson(<String, dynamic>{
+        'type': 'scale',
+        'minimumValue': 1,
+        'maximumValue': 12,
+        'defaultValue': 1,
+        'step': 1,
+        'bands': [
+          {'min': 1, 'max': 1, 'name': 'Well below average for age', 'labelAt': 1},
+          {'min': 6, 'max': 9, 'name': 'Average for age', 'labelAt': 7},
+        ],
+      });
+      expect(format.bands.length, 2);
+      expect(format.bands.first.name, 'Well below average for age');
+      expect(format.bands[1].labelAt, 7.0);
+    });
+
+    test('defaults to empty list when bands key is absent', () {
+      final format = ScaleAnswerFormat.fromJson(<String, dynamic>{
+        'type': 'scale',
+        'minimumValue': 1,
+        'maximumValue': 12,
+        'defaultValue': 1,
+        'step': 1,
+      });
+      expect(format.bands, isEmpty);
+    });
+  });
 }
