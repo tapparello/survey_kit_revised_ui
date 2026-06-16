@@ -62,6 +62,24 @@ class ScaleAnswerFormat extends AnswerFormat {
     return value >= min && value <= max;
   }
 
+  /// The band name to show in the tooltip for [value], or null if no band
+  /// covers it (including when [bands] is empty).
+  String? tooltipName(double value) {
+    for (final band in bands) {
+      if (value >= band.min && value <= band.max) return band.name;
+    }
+    return null;
+  }
+
+  /// The static-label name for [value] — only the band whose [labelAt] tick
+  /// matches (within a 0.5 tolerance) shows its name; null otherwise.
+  String? labelName(double value) {
+    for (final band in bands) {
+      if ((value - band.labelAt).abs() < 0.5) return band.name;
+    }
+    return null;
+  }
+
   factory ScaleAnswerFormat.fromJson(Map<String, dynamic> json) => _$ScaleAnswerFormatFromJson(json);
   @override
   Map<String, dynamic> toJson() => _$ScaleAnswerFormatToJson(this);

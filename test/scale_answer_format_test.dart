@@ -122,4 +122,49 @@ void main() {
       expect(format.bands, isEmpty);
     });
   });
+
+  group('ScaleAnswerFormat band lookup', () {
+    ScaleAnswerFormat standard() => const ScaleAnswerFormat(
+          minimumValue: 1, maximumValue: 12, defaultValue: 1, step: 1,
+          bands: [
+            ScaleBand(min: 1, max: 1, name: 'Well below average for age', labelAt: 1),
+            ScaleBand(min: 2, max: 3, name: 'Below average for age', labelAt: 3),
+            ScaleBand(min: 4, max: 5, name: 'Low average for age', labelAt: 4),
+            ScaleBand(min: 6, max: 9, name: 'Average for age', labelAt: 7),
+            ScaleBand(min: 10, max: 11, name: 'High average for age', labelAt: 10),
+            ScaleBand(min: 12, max: 12, name: 'Above average for age', labelAt: 12),
+          ],
+        );
+
+    test('tooltipName returns the band covering a value, incl. boundaries', () {
+      final f = standard();
+      expect(f.tooltipName(1.0), 'Well below average for age');
+      expect(f.tooltipName(3.0), 'Below average for age');
+      expect(f.tooltipName(4.0), 'Low average for age');
+      expect(f.tooltipName(6.0), 'Average for age');
+      expect(f.tooltipName(9.0), 'Average for age');
+      expect(f.tooltipName(10.0), 'High average for age');
+      expect(f.tooltipName(12.0), 'Above average for age');
+    });
+
+    test('tooltipName returns null when no bands', () {
+      const f = ScaleAnswerFormat(minimumValue: 1, maximumValue: 12, defaultValue: 1, step: 1);
+      expect(f.tooltipName(5.0), isNull);
+    });
+
+    test('labelName returns the name only at the labelAt tick', () {
+      final f = standard();
+      expect(f.labelName(1.0), 'Well below average for age');
+      expect(f.labelName(3.0), 'Below average for age');
+      expect(f.labelName(7.0), 'Average for age');
+      expect(f.labelName(2.0), isNull); // not a labelAt tick
+      expect(f.labelName(5.0), isNull);
+      expect(f.labelName(11.0), isNull);
+    });
+
+    test('labelName returns null when no bands', () {
+      const f = ScaleAnswerFormat(minimumValue: 1, maximumValue: 12, defaultValue: 1, step: 1);
+      expect(f.labelName(7.0), isNull);
+    });
+  });
 }
