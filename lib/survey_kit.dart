@@ -14,6 +14,7 @@ export 'src/model/answer/multiple_choice_answer_with_feedback_format.dart';
 export 'src/model/answer/multiple_choice_auto_complete_answer_format.dart';
 export 'src/model/answer/multiple_double_answer_format.dart';
 export 'src/model/answer/scale_answer_format.dart';
+export 'src/model/answer/scale_band.dart';
 export 'src/model/answer/single_choice_answer_format.dart';
 export 'src/model/answer/single_choice_answer_with_feedback_format.dart';
 export 'src/model/answer/text_answer_format.dart';
