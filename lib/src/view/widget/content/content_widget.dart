@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart' hide Step;
+import 'package:survey_kit/src/util/content_variables.dart';
 import 'package:survey_kit/src/util/extension.dart';
 import 'package:survey_kit/survey_kit.dart';
 
@@ -21,8 +22,17 @@ class _ContentWidgetState extends State<ContentWidget> {
   @override
   Widget build(BuildContext context) {
     final config = SurveyConfiguration.of(context);
-    final variables = config.variables;
     final contentStyles = config.contentStyles;
+
+    // Overlay current-section step answers (keyed by step id) UNDER the
+    // pre-populated config variables, so {{stepId}} / conditional variable:"stepId"
+    // resolve to prior in-section answers. Config variables win on collisions.
+    final stepAnswers = <String, dynamic>{};
+    for (final r in SurveyStateProvider.of(context).results) {
+      final value = extractAnswerValue(r.result);
+      if (value != null) stepAnswers[r.id] = value;
+    }
+    final variables = mergeContentVariables(stepAnswers, config.variables);
 
     final resolvedContent = widget.content.expand((content) {
       if (content is ConditionalContent) {
