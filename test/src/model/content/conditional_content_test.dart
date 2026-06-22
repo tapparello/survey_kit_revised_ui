@@ -53,5 +53,58 @@ void main() {
       final resolved = content.resolveContent({'child_name': 'Unknown'});
       expect(resolved, isNull);
     });
+
+    test('returns default option when variable absent', () {
+      const content = ConditionalContent(
+        variable: 'child_name',
+        options: {
+          'Aidan': HtmlContent(html: '<p>Aidan</p>'),
+          'Brayden': HtmlContent(html: '<p>Brayden</p>'),
+        },
+        defaultOption: 'Aidan',
+      );
+      expect((content.resolveContent({})! as HtmlContent).html, '<p>Aidan</p>');
+    });
+
+    test('returns default option when value not in options', () {
+      const content = ConditionalContent(
+        variable: 'child_name',
+        options: {'Aidan': HtmlContent(html: '<p>Aidan</p>')},
+        defaultOption: 'Aidan',
+      );
+      expect((content.resolveContent({'child_name': 'X'})! as HtmlContent).html, '<p>Aidan</p>');
+    });
+
+    test('matched value still wins over default', () {
+      const content = ConditionalContent(
+        variable: 'child_name',
+        options: {
+          'Aidan': HtmlContent(html: '<p>Aidan</p>'),
+          'Brayden': HtmlContent(html: '<p>Brayden</p>'),
+        },
+        defaultOption: 'Aidan',
+      );
+      expect((content.resolveContent({'child_name': 'Brayden'})! as HtmlContent).html, '<p>Brayden</p>');
+    });
+
+    test('deserializes default from JSON and round-trips', () {
+      final json = {
+        'type': 'conditional',
+        'variable': 'child_name',
+        'default': 'Aidan',
+        'options': {'Aidan': {'type': 'html', 'html': '<p>A</p>'}},
+      };
+      final c = ConditionalContent.fromJson(json);
+      expect(c.defaultOption, 'Aidan');
+      expect(c.toJson()['default'], 'Aidan');
+    });
+
+    test('toJson omits default when null', () {
+      const c = ConditionalContent(
+        variable: 'v',
+        options: {'a': HtmlContent(html: '<p>a</p>')},
+      );
+      expect(c.toJson().containsKey('default'), isFalse);
+    });
   });
 }
