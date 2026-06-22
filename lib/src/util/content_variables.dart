@@ -6,11 +6,19 @@ import 'package:survey_kit/src/model/answer/text_choice.dart';
 /// (`value ?? text`) so cross-section and in-section answers agree.
 dynamic extractAnswerValue(dynamic result) {
   if (result is TextChoice) return result.value ?? result.text;
+  // Restored single-choice answer (StepResult<dynamic> from initialResults)
+  // arrives as a raw Map. 4_11-style choices have no 'value' (only 'text'),
+  // so match on either key and return value ?? text.
+  if (result is Map && (result.containsKey('value') || result.containsKey('text'))) {
+    return (result['value'] ?? result['text'])?.toString();
+  }
   if (result is List) {
     return <String>[
       for (final item in result)
         if (item is TextChoice)
           (item.value ?? item.text)
+        else if (item is Map && (item.containsKey('value') || item.containsKey('text')))
+          ((item['value'] ?? item['text'])?.toString() ?? '')
         else if (item != null)
           item.toString(),
     ];
