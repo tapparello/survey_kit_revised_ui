@@ -57,30 +57,43 @@ class SurveyStateProvider extends InheritedWidget {
     } else if (event is NextStep) {
       if (state is PresentingSurveyState) {
         final currentState = state as PresentingSurveyState;
+        _addResult(event.questionResult);
 
-        final newState = _handleNextStep(event, state as PresentingSurveyState);
-        updateState(newState);
+        final nextStep = taskNavigator.nextStep(
+          step: currentState.currentStep,
+          previousResults: results.toList(),
+          questionResult: event.questionResult,
+        );
 
-        // Check if we need to show a dialog
-        if (currentState.currentStep.answerFormat is SingleChoiceAnswerWithFeedbackFormat) {
-          final answerFormat = currentState.currentStep.answerFormat as SingleChoiceAnswerWithFeedbackFormat?;
-
-          final selectedChoice = event.questionResult?.result as TextChoice?; //getStepResultById(currentState.currentStep.id)?.result as TextChoice?;
-
-          if (selectedChoice?.value == 'correct') {
-            Future.delayed(const Duration(seconds: 1), () {
-              Navigator.of(navigatorKey.currentContext!, rootNavigator: true).pop();
-              navigatorKey.currentState?.pushNamed(
-                '/',
-                arguments: newState,
-              );
-            });
-            _showDialog(answerFormat?.feedbackCorrect ?? 'You selected the correct answer!', newState, false, Colors.green);
+        // Advance the survey once any feedback has been acknowledged: present the
+        // next step, or — when there is none — finish the survey. Finishing
+        // (which calls onResult and pops the host) is deferred into this callback
+        // so a feedback dialog on the TERMINAL step is shown and dismissed BEFORE
+        // the survey closes, instead of stranding over the screen behind it.
+        void proceed() {
+          if (nextStep == null) {
+            final finished = _handleSurveyFinished(currentState);
+            updateState(finished);
+            navigatorKey.currentState?.pushNamed('/', arguments: finished);
           } else {
-            _showDialog(answerFormat?.feedbackWrong ?? 'You selected the incorrect answer!', newState, true, Colors.red);
+            final presenting = _presentStep(nextStep);
+            updateState(presenting);
+            navigatorKey.currentState?.pushNamed('/', arguments: presenting);
           }
-        } else if (currentState.currentStep.answerFormat is MultipleChoiceAnswerWithFeedbackFormat) {
-          final answerFormat = currentState.currentStep.answerFormat as MultipleChoiceAnswerWithFeedbackFormat?;
+        }
+
+        final answerFormat = currentState.currentStep.answerFormat;
+        if (answerFormat is SingleChoiceAnswerWithFeedbackFormat) {
+          final selectedChoice = event.questionResult?.result as TextChoice?;
+          final isCorrect = selectedChoice?.value == 'correct';
+          _showFeedbackDialog(
+            message: (isCorrect ? answerFormat.feedbackCorrect : answerFormat.feedbackWrong) ??
+                (isCorrect ? 'You selected the correct answer!' : 'You selected the incorrect answer!'),
+            backgroundColor: isCorrect ? Colors.green : Colors.red,
+            autoDismiss: isCorrect,
+            onContinue: proceed,
+          );
+        } else if (answerFormat is MultipleChoiceAnswerWithFeedbackFormat) {
           final rawChoices = event.questionResult?.result;
           final selectedChoices = rawChoices is List<TextChoice>
               ? rawChoices
@@ -92,38 +105,19 @@ class SurveyStateProvider extends InheritedWidget {
                     }).toList()
                   : <TextChoice>[];
 
-          final answers = selectedChoices.map((choice) => choice.value).toList();
-
-          if (answers.contains('wrong')) {
-            Color? backgroundColor;
-            if (answerFormat!.coloredFeedback) {
-              backgroundColor = Colors.red;
-            }
-
-            _showDialog(answerFormat.feedbackWrong ?? 'You selected the incorrect answers!', newState, true, backgroundColor);
-          } else {
-            Color? backgroundColor;
-            if (answerFormat!.coloredFeedback) {
-              backgroundColor = Colors.green;
-
-              Future.delayed(const Duration(seconds: 1), () {
-                Navigator.of(navigatorKey.currentContext!, rootNavigator: true).pop();
-                navigatorKey.currentState?.pushNamed(
-                  '/',
-                  arguments: newState,
-                );
-              });
-
-              _showDialog(answerFormat.feedbackCorrect ?? 'You selected the correct answers!', newState, false, backgroundColor);
-            } else {
-              _showDialog(answerFormat.feedbackCorrect ?? 'You selected the correct answers!', newState, true, backgroundColor);
-            }
-          }
-        } else {
-          navigatorKey.currentState?.pushNamed(
-            '/',
-            arguments: newState,
+          final hasWrong = selectedChoices.any((choice) => choice.value == 'wrong');
+          final colored = answerFormat.coloredFeedback;
+          _showFeedbackDialog(
+            message: (hasWrong ? answerFormat.feedbackWrong : answerFormat.feedbackCorrect) ??
+                (hasWrong ? 'You selected the incorrect answers!' : 'You selected the correct answers!'),
+            backgroundColor: colored ? (hasWrong ? Colors.red : Colors.green) : null,
+            // Auto-dismiss only the all-correct coloured case (matches prior
+            // behaviour); every other case shows a tappable "Next" button.
+            autoDismiss: colored && !hasWrong,
+            onContinue: proceed,
           );
+        } else {
+          proceed();
         }
       }
     } else if (event is StepBack) {
@@ -213,21 +207,7 @@ class SurveyStateProvider extends InheritedWidget {
     );
   }
 
-  SurveyState _handleNextStep(
-    NextStep event,
-    PresentingSurveyState currentState,
-  ) {
-    _addResult(event.questionResult);
-    final nextStep = taskNavigator.nextStep(
-      step: currentState.currentStep,
-      previousResults: results.toList(),
-      questionResult: event.questionResult,
-    );
-
-    if (nextStep == null) {
-      return _handleSurveyFinished(currentState);
-    }
-
+  PresentingSurveyState _presentStep(Step nextStep) {
     final questionResult = _getResultByStepIdentifier(nextStep.id);
 
     return PresentingSurveyState(
@@ -337,7 +317,17 @@ class SurveyStateProvider extends InheritedWidget {
     return results.firstWhereOrNull((element) => element.id == id);
   }
 
-  void _showDialog(String feedbackMessage, SurveyState newState, bool showNextButton, Color? backgroundColor) {
+  /// Shows the answer feedback dialog. When [autoDismiss] is true the dialog
+  /// closes itself after a short delay and then calls [onContinue]; otherwise it
+  /// shows a "Next" button that closes the dialog and calls [onContinue] on tap.
+  /// [onContinue] is what advances or finishes the survey, so the survey only
+  /// moves on (or closes) AFTER the feedback has been acknowledged.
+  void _showFeedbackDialog({
+    required String message,
+    required Color? backgroundColor,
+    required bool autoDismiss,
+    required VoidCallback onContinue,
+  }) {
     final htmlStyle = <String, Style>{
       'p': Style(
         textAlign: TextAlign.center,
@@ -361,16 +351,13 @@ class SurveyStateProvider extends InheritedWidget {
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                Html(data: '<strong>$feedbackMessage</strong>', style: htmlStyle),
+                Html(data: '<strong>$message</strong>', style: htmlStyle),
                 const SizedBox(height: 15),
-                if (showNextButton)
+                if (!autoDismiss)
                   TextButton(
                     onPressed: () {
                       Navigator.of(context).pop();
-                      navigatorKey.currentState?.pushNamed(
-                        '/',
-                        arguments: newState,
-                      );
+                      onContinue();
                     },
                     child: Text(
                       'Next',
@@ -385,5 +372,12 @@ class SurveyStateProvider extends InheritedWidget {
         );
       },
     );
+
+    if (autoDismiss) {
+      Future.delayed(const Duration(seconds: 1), () {
+        Navigator.of(navigatorKey.currentContext!, rootNavigator: true).pop();
+        onContinue();
+      });
+    }
   }
 }
