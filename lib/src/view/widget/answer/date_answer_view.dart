@@ -53,6 +53,31 @@ class _DateAnswerViewState extends State<DateAnswerView>
     super.onChange(result);
   }
 
+  /// Lowest selectable date. [futureOnly] forces today as the floor when no
+  /// explicit [minDate] is given; otherwise null means "no lower bound".
+  DateTime? _minBound() => _dateAnswerFormat.futureOnly
+      ? (_dateAnswerFormat.minDate ?? DateTime.now())
+      : _dateAnswerFormat.minDate;
+
+  /// Highest selectable date (+1h to satisfy the picker's max>init assert).
+  /// Defaults to "now" (past-only) when unset, unless [futureOnly], which
+  /// removes the upper cap so future dates can be picked.
+  DateTime? _maxBound() =>
+      _dateAnswerFormat.maxDate?.add(const Duration(hours: 1)) ??
+      (_dateAnswerFormat.futureOnly
+          ? null
+          : DateTime.now().add(const Duration(hours: 1)));
+
+  /// Initial selection, clamped within the active bounds.
+  DateTime _clampedInitial() {
+    final base = _result ?? _dateAnswerFormat.defaultDate ?? DateTime.now();
+    final min = _minBound();
+    final max = _maxBound();
+    if (min != null && base.isBefore(min)) return min;
+    if (max != null && base.isAfter(max)) return max;
+    return base;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -99,14 +124,9 @@ class _DateAnswerViewState extends State<DateAnswerView>
           width: double.infinity,
           height: 300.0,
           child: CalendarDatePicker(
-            firstDate: _dateAnswerFormat.minDate ?? DateTime.utc(1900),
-            lastDate: _dateAnswerFormat.maxDate?.add(
-                  const Duration(hours: 1),
-                ) ??
-                DateTime.now().add(
-                  const Duration(hours: 1),
-                ),
-            initialDate: _result ?? DateTime.now(),
+            firstDate: _minBound() ?? DateTime.utc(1900),
+            lastDate: _maxBound() ?? DateTime.utc(2100),
+            initialDate: _clampedInitial(),
             currentDate: _result,
             onDateChanged: onChange,
           ),
@@ -121,15 +141,12 @@ class _DateAnswerViewState extends State<DateAnswerView>
       height: 300,
       child: CupertinoDatePicker(
         mode: CupertinoDatePickerMode.date,
-        minimumDate: _dateAnswerFormat.minDate,
+        minimumDate: _minBound(),
         //We have to add an hour to to met the assert maxDate > initDate
-        maximumDate: _dateAnswerFormat.maxDate?.add(
-              const Duration(hours: 1),
-            ) ??
-            DateTime.now().add(
-              const Duration(hours: 1),
-            ),
-        initialDateTime: _dateAnswerFormat.defaultDate,
+        maximumDate: _maxBound(),
+        initialDateTime: _dateAnswerFormat.futureOnly
+            ? _clampedInitial()
+            : _dateAnswerFormat.defaultDate,
         onDateTimeChanged: onChange,
       ),
     );

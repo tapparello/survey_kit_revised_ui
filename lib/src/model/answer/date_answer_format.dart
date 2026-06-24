@@ -17,10 +17,16 @@ class DateAnswerFormat extends AnswerFormat {
   /// Highest date which can be selected via the datepicker
   final DateTime? maxDate;
 
+  /// When true, only today and future dates can be selected (e.g. a reminder
+  /// date). Without an explicit [maxDate] the picker otherwise defaults to a
+  /// past-only range, so this opts a step into a future range instead.
+  final bool futureOnly;
+
   DateAnswerFormat({
     this.defaultDate,
     this.minDate,
     this.maxDate,
+    this.futureOnly = false,
     super.question,
     super.answerType = type,
   })  : assert(
