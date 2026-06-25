@@ -2,13 +2,14 @@ import 'package:flutter/material.dart' hide Step;
 import 'package:intl/intl.dart' show toBeginningOfSentenceCase;
 import 'package:survey_kit/survey_kit.dart';
 
-typedef StepShell = Widget Function({
-  required Step step,
-  required Widget child,
-  StepResult Function()? resultFunction,
-  bool isValid,
-  SurveyController? controller,
-});
+typedef StepShell =
+    Widget Function({
+      required Step step,
+      required Widget child,
+      StepResult Function()? resultFunction,
+      bool isValid,
+      SurveyController? controller,
+    });
 
 class StepView extends StatefulWidget {
   final Step step;
@@ -32,26 +33,32 @@ class _StepViewState extends State<StepView> {
   @override
   Widget build(BuildContext context) {
     final surveyConfiguration = SurveyConfiguration.of(context);
-    final _surveyController = widget.controller ?? surveyConfiguration.surveyController;
+    final _surveyController =
+        widget.controller ?? surveyConfiguration.surveyController;
 
     final questionAnswer = QuestionAnswer.of(context);
 
     Widget? saveAndCloseButton = OutlinedButton(
-      onPressed: () => _surveyController.closeSurvey(
-        context: context,
-      ),
-      child: Text(
-        surveyConfiguration.localizations?['cancel'] ?? 'Cancel',
-      ),
+      onPressed: () => _surveyController.closeSurvey(context: context),
+      child: Text(surveyConfiguration.localizations?['cancel'] ?? 'Cancel'),
     );
 
-    // TODO(Cristiano): Replace below with a check for the last step
-    // if (widget.step.buttonText == 'Done') saveAndCloseButton = const SizedBox.shrink();
-    var nextStepButtonText = widget.step.buttonText ?? toBeginningOfSentenceCase(surveyConfiguration.localizations?['next']) ?? 'Next';
+    var nextStepButtonText =
+        widget.step.buttonText ??
+        toBeginningOfSentenceCase(surveyConfiguration.localizations?['next']) ??
+        'Next';
 
-    if (!surveyConfiguration.taskNavigator.hasNextStep(widget.step, SurveyStateProvider.of(context).results.toList())) {
+    if (!surveyConfiguration.taskNavigator.hasNextStep(
+      widget.step,
+      SurveyStateProvider.of(context).results.toList(),
+    )) {
       // if (!surveyConfiguration.taskNavigator.hasNextStep(widget.step)) {
-      nextStepButtonText = widget.step.buttonText ?? toBeginningOfSentenceCase(surveyConfiguration.localizations?['done']) ?? 'Done';
+      nextStepButtonText =
+          widget.step.buttonText ??
+          toBeginningOfSentenceCase(
+            surveyConfiguration.localizations?['done'],
+          ) ??
+          'Done';
       saveAndCloseButton = const SizedBox.shrink();
     }
 
@@ -69,12 +76,15 @@ class _StepViewState extends State<StepView> {
                   animation: questionAnswer.isValid,
                   builder: (context, child) {
                     return ElevatedButton(
-                      onPressed: questionAnswer.isValid.value || !widget.step.isMandatory
-                          ? () => _surveyController.nextStep(context, questionAnswer.stepResult)
+                      onPressed:
+                          questionAnswer.isValid.value ||
+                              !widget.step.isMandatory
+                          ? () => _surveyController.nextStep(
+                              context,
+                              questionAnswer.stepResult,
+                            )
                           : null,
-                      child: Text(
-                        nextStepButtonText,
-                      ),
+                      child: Text(nextStepButtonText),
                     );
                   },
                 ),
@@ -99,15 +109,17 @@ class _StepViewState extends State<StepView> {
                 return Scrollbar(
                   // thumbVisibility: true,
                   child: Padding(
-                    padding: const EdgeInsets.only(top: 16.0, left: 16.0, right: 16.0),
+                    padding: const EdgeInsets.only(
+                      top: 16.0,
+                      left: 16.0,
+                      right: 16.0,
+                    ),
                     child: SingleChildScrollView(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          ContentWidget(
-                            content: widget.step.content,
-                          ),
+                          ContentWidget(content: widget.step.content),
                           if (widget.answerView != null) widget.answerView!,
                           // AnimatedBuilder(
                           //   animation: questionAnswer.isValid,
