@@ -69,6 +69,22 @@ void main() {
     expect(tester.takeException(), isNull,
         reason: 'single-choice render must not emit the ListTile ink/background warning');
 
+    // ADO #961 follow-up: the selectable rows must disable ink so the
+    // previously-hidden ripple stays hidden (flat look: blue text + check only).
+    // Robust to extra Theme layers / ancestor ordering: assert SOME Theme
+    // ancestor of the answer ListTile disables ink (NoSplash + transparent
+    // highlight) — only SelectionListTile's override sets both.
+    final answerTileThemes = tester.widgetList<Theme>(
+      find.ancestor(of: find.byType(ListTile).first, matching: find.byType(Theme)),
+    );
+    expect(
+      answerTileThemes.any((t) =>
+          t.data.splashFactory == NoSplash.splashFactory &&
+          t.data.highlightColor == Colors.transparent),
+      isTrue,
+      reason: 'answer rows must be wrapped in a Theme that disables ink (no ripple)',
+    );
+
     // Selecting an option rebuilds the answer view — the rebuild that fires the
     // warning in production.
     await tester.tap(find.text('Boy?'));
