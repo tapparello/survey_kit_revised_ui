@@ -96,9 +96,8 @@ class _StepViewState extends State<StepView> {
       ],
       body: SizedBox.expand(
         child: Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            border: const Border(
+          decoration: const BoxDecoration(
+            border: Border(
               // top: BorderSide(width: 1.0, color: Colors.blue),
               bottom: BorderSide(width: 0.2, color: Colors.black),
             ),
