@@ -49,7 +49,12 @@ class NavigableTaskNavigator extends TaskNavigator {
       return _evaluateCustomRule(step, rule, previousResults, questionResult);
     }
     if (rule is ActionNavigationRule) {
-      return _evaluateActionRule(step, rule, previousResults);
+      // recordStep is false for the read-only hasNextStep probe (step_view
+      // evaluates the next step to pick the Next/Done label). Do not fire the
+      // side-effecting action handler during that probe — the destination is
+      // fixed regardless, so only fire it on real forward navigation (#976).
+      return _evaluateActionRule(step, rule, previousResults,
+          fireAction: recordStep);
     }
     return nextInList(step);
   }
@@ -119,26 +124,30 @@ class NavigableTaskNavigator extends TaskNavigator {
   Step? _evaluateActionRule(
     Step step,
     ActionNavigationRule rule,
-    List<StepResult> previousResults,
-  ) {
-    final handler = _registries?.actionHandlers[rule.actionId];
-    if (handler != null) {
-      // ADO #969: action handlers (e.g. exercise-PDF generation) aggregate step
-      // results. The action fires mid-survey, before completion pruning, so feed
-      // the handler only results for steps on the path actually taken (history)
-      // — otherwise answers seeded from a prior run for off-path steps leak into
-      // the PDF. Routing below uses rule.nextStepIdentifier (fixed), so pruning
-      // the handler's input cannot change navigation.
-      final visitedStepIds = history.map((s) => s.id).toSet();
-      final onPathResults =
-          previousResults.where((r) => visitedStepIds.contains(r.id)).toList();
-      try {
-        handler(onPathResults, task.variables);
-      } catch (e) {
-        SurveyKitLogger.d('Action handler "${rule.actionId}" threw: $e');
+    List<StepResult> previousResults, {
+    bool fireAction = true,
+  }) {
+    if (fireAction) {
+      final handler = _registries?.actionHandlers[rule.actionId];
+      if (handler != null) {
+        // ADO #969: action handlers (e.g. exercise-PDF generation) aggregate
+        // step results. The action fires mid-survey, before completion pruning,
+        // so feed the handler only results for steps on the path actually taken
+        // (history) — otherwise answers seeded from a prior run for off-path
+        // steps leak into the PDF. Routing below uses rule.nextStepIdentifier
+        // (fixed), so pruning the handler's input cannot change navigation.
+        final visitedStepIds = history.map((s) => s.id).toSet();
+        final onPathResults = previousResults
+            .where((r) => visitedStepIds.contains(r.id))
+            .toList();
+        try {
+          handler(onPathResults, task.variables);
+        } catch (e) {
+          SurveyKitLogger.d('Action handler "${rule.actionId}" threw: $e');
+        }
+      } else {
+        SurveyKitLogger.d('No action handler registered for: ${rule.actionId}');
       }
-    } else {
-      SurveyKitLogger.d('No action handler registered for: ${rule.actionId}');
     }
     if (rule.nextStepIdentifier == 'end_task') return null;
     return task.steps.firstWhereOrNull((s) => s.id == rule.nextStepIdentifier);
