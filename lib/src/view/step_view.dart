@@ -52,18 +52,23 @@ class _StepViewState extends State<StepView> {
       widget.step,
       SurveyStateProvider.of(context).results.toList(),
     )) {
-      // if (!surveyConfiguration.taskNavigator.hasNextStep(widget.step)) {
       // ADO #968: a "forward-chrome" label (no explicit label, the literal
       // 'Next' default, or a resolved @next == the localized 'next') is not a
       // deliberate completion label — on a terminal step show the localized
       // 'Done'. A deliberate label (e.g. 'Submit survey') is still honored.
-      final localizedNext =
-          toBeginningOfSentenceCase(surveyConfiguration.localizations?['next']);
+      final localizedNext = toBeginningOfSentenceCase(
+        surveyConfiguration.localizations?['next'],
+      );
       final buttonText = widget.step.buttonText;
       final isForwardChrome =
-          buttonText == null || buttonText == 'Next' || buttonText == localizedNext;
+          buttonText == null ||
+          buttonText == 'Next' ||
+          buttonText == localizedNext;
       nextStepButtonText = isForwardChrome
-          ? (toBeginningOfSentenceCase(surveyConfiguration.localizations?['done']) ?? 'Done')
+          ? (toBeginningOfSentenceCase(
+                  surveyConfiguration.localizations?['done'],
+                ) ??
+                'Done')
           : buttonText;
       saveAndCloseButton = const SizedBox.shrink();
     }
