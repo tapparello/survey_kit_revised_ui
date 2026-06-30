@@ -37,7 +37,7 @@ class Step {
       answerFormat: json['answerFormat'] == null
           ? null
           : AnswerFormat.fromJson(json['answerFormat'] as Map<String, dynamic>),
-      buttonText: json['buttonText'] as String? ?? 'Next',
+      buttonText: json['buttonText'] as String?,
     );
   }
 
