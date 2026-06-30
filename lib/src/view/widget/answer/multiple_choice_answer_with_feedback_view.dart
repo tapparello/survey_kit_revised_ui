@@ -9,6 +9,7 @@ import 'package:survey_kit/src/presenter/survey_state_provider.dart';
 import 'package:survey_kit/src/util/measure_date_state_mixin.dart';
 import 'package:survey_kit/src/view/widget/answer/answer_mixin.dart';
 import 'package:survey_kit/src/view/widget/answer/answer_question_text.dart';
+import 'package:survey_kit/src/view/widget/answer/none_option_selection.dart';
 import 'package:survey_kit/src/view/widget/answer/selection_list_tile.dart';
 import 'package:survey_kit/src/view/widget/question_answer.dart';
 
@@ -44,6 +45,12 @@ class _MultipleChoiceAnswerWithFeedbackView extends State<MultipleChoiceAnswerWi
     }
     _multipleChoiceAnswer = answer as MultipleChoiceAnswerWithFeedbackFormat;
 
+    _noneOfTheAboveOption = TextChoice(
+      id: 'None',
+      text: _multipleChoiceAnswer.noneOptionText ?? 'None of the above',
+      value: _multipleChoiceAnswer.noneOptionText ?? 'None of the above',
+    );
+
     if (_multipleChoiceAnswer.choicesFromVariable != null) {
       // getTextChoices() is called in didChangeDependencies() because it
       // needs SurveyConfiguration.of(context) which isn't available in initState()
@@ -55,7 +62,13 @@ class _MultipleChoiceAnswerWithFeedbackView extends State<MultipleChoiceAnswerWi
       _multipleChoiceAnswer.textChoices.shuffle();
     }
 
-    _selectedChoices = _safeTextChoiceList(widget.result?.result);
+    // ADO #977: when the None option is enabled, a fresh question (no prior
+    // result) defaults to "None of these" so there is always one selection.
+    _selectedChoices = NoneOptionSelection.initial(
+      _safeTextChoiceList(widget.result?.result),
+      none: _noneOfTheAboveOption,
+      hasNoneOption: _multipleChoiceAnswer.noneOption,
+    );
 
     // Populate QuestionAnswer with pre-filled result so Next gets the correct data
     WidgetsFlutterBinding.ensureInitialized();
@@ -64,12 +77,6 @@ class _MultipleChoiceAnswerWithFeedbackView extends State<MultipleChoiceAnswerWi
         super.onChange(_selectedChoices);
       }
     });
-
-    _noneOfTheAboveOption = TextChoice(
-      id: 'None',
-      text: _multipleChoiceAnswer.noneOptionText ?? 'None of the above',
-      value: _multipleChoiceAnswer.noneOptionText ?? 'None of the above',
-    );
   }
 
   @override
@@ -129,6 +136,12 @@ class _MultipleChoiceAnswerWithFeedbackView extends State<MultipleChoiceAnswerWi
 
     final currentResult = QuestionAnswer.of(context).stepResult?.result;
     _selectedChoices = currentResult != null ? _safeTextChoiceList(currentResult) : _safeTextChoiceList(widget.result?.result);
+    // ADO #977: keep the always-one-selection invariant after re-reading state.
+    _selectedChoices = NoneOptionSelection.ensureNotEmpty(
+      _selectedChoices,
+      none: _noneOfTheAboveOption,
+      hasNoneOption: _multipleChoiceAnswer.noneOption,
+    );
 
     // Handle results from previous runs of the survey
     if (_selectedChoices.isNotEmpty) {
@@ -150,6 +163,13 @@ class _MultipleChoiceAnswerWithFeedbackView extends State<MultipleChoiceAnswerWi
                   onTap: () {
                     if (_selectedChoices.contains(tc)) {
                       _selectedChoices.remove(tc);
+                      // ADO #977: deselecting the last real option falls back to
+                      // "None of these" so there is always one selection.
+                      _selectedChoices = NoneOptionSelection.ensureNotEmpty(
+                        _selectedChoices,
+                        none: _noneOfTheAboveOption,
+                        hasNoneOption: _multipleChoiceAnswer.noneOption,
+                      );
                     } else {
                       if (_selectedChoices.contains(_noneOfTheAboveOption)) {
                         _selectedChoices.remove(_noneOfTheAboveOption);
@@ -177,13 +197,12 @@ class _MultipleChoiceAnswerWithFeedbackView extends State<MultipleChoiceAnswerWi
             SelectionListTile(
               text: _noneOfTheAboveOption.text,
               onTap: () {
-                if (_selectedChoices.contains(_noneOfTheAboveOption)) {
-                  _selectedChoices.remove(_noneOfTheAboveOption);
-                } else {
-                  _selectedChoices
-                    ..clear()
-                    ..add(_noneOfTheAboveOption);
-                }
+                // ADO #977: tapping "None of these" makes it the sole selection.
+                // It is not deselectable to empty — there is always one
+                // selection, so re-tapping it is a no-op.
+                _selectedChoices
+                  ..clear()
+                  ..add(_noneOfTheAboveOption);
                 setState(() {});
                 super.onChange(_selectedChoices);
               },

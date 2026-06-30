@@ -10,6 +10,7 @@ import 'package:survey_kit/src/presenter/survey_state_provider.dart';
 import 'package:survey_kit/src/util/measure_date_state_mixin.dart';
 import 'package:survey_kit/src/view/widget/answer/answer_mixin.dart';
 import 'package:survey_kit/src/view/widget/answer/answer_question_text.dart';
+import 'package:survey_kit/src/view/widget/answer/none_option_selection.dart';
 import 'package:survey_kit/src/view/widget/answer/selection_list_tile.dart';
 
 class MultipleChoiceAnswerView extends StatefulWidget {
@@ -43,10 +44,20 @@ class _MultipleChoiceAnswerView extends State<MultipleChoiceAnswerView> with Mea
     }
     _multipleChoiceAnswer = answer as MultipleChoiceAnswerFormat;
 
+    _noneOfTheAboveOption = TextChoice(
+      id: 'None',
+      text: _multipleChoiceAnswer.noneOptionText ?? 'None of the above',
+      value: _multipleChoiceAnswer.noneOptionText ?? 'None of the above',
+    );
+
     if (_multipleChoiceAnswer.choicesFromVariable != null) {
       // getTextChoices() is called in didChangeDependencies() because it
       // needs SurveyConfiguration.of(context) which isn't available in initState()
-      _selectedChoices = [];
+      _selectedChoices = NoneOptionSelection.initial(
+        null,
+        none: _noneOfTheAboveOption,
+        hasNoneOption: _multipleChoiceAnswer.noneOption,
+      );
     } else {
       _textChoices = _multipleChoiceAnswer.textChoices;
       List<TextChoice>? previousChoices;
@@ -57,20 +68,18 @@ class _MultipleChoiceAnswerView extends State<MultipleChoiceAnswerView> with Mea
         previousChoices = (widget.result?.result as List<dynamic>).map((e) => TextChoice.fromJson(e as Map<String, dynamic>)).toList();
       }
 
-      _selectedChoices = previousChoices ?? [];
+      // ADO #977: when the None option is enabled, a fresh question (no prior
+      // result) defaults to "None of these" so there is always one selection.
+      _selectedChoices = NoneOptionSelection.initial(
+        previousChoices,
+        none: _noneOfTheAboveOption,
+        hasNoneOption: _multipleChoiceAnswer.noneOption,
+      );
     }
 
     if (_multipleChoiceAnswer.shuffleChoices) {
       _multipleChoiceAnswer.textChoices.shuffle();
     }
-
-    // _selectedChoices = widget.result?.result as List<TextChoice>? ?? [];
-
-    _noneOfTheAboveOption = TextChoice(
-      id: 'None',
-      text: _multipleChoiceAnswer.noneOptionText ?? 'None of the above',
-      value: _multipleChoiceAnswer.noneOptionText ?? 'None of the above',
-    );
 
     // Handle results from previous runs of the survey
     WidgetsFlutterBinding.ensureInitialized();
@@ -159,6 +168,13 @@ class _MultipleChoiceAnswerView extends State<MultipleChoiceAnswerView> with Mea
                   onTap: () {
                     if (_selectedChoices.contains(tc)) {
                       _selectedChoices.remove(tc);
+                      // ADO #977: deselecting the last real option falls back to
+                      // "None of these" so there is always one selection.
+                      _selectedChoices = NoneOptionSelection.ensureNotEmpty(
+                        _selectedChoices,
+                        none: _noneOfTheAboveOption,
+                        hasNoneOption: _multipleChoiceAnswer.noneOption,
+                      );
                     } else {
                       if (_selectedChoices.contains(_noneOfTheAboveOption)) {
                         _selectedChoices.remove(_noneOfTheAboveOption);
@@ -208,10 +224,21 @@ class _MultipleChoiceAnswerView extends State<MultipleChoiceAnswerView> with Mea
                     setState(() {
                       if (v.isEmpty && otherTextChoice != null) {
                         _selectedChoices.remove(otherTextChoice);
+                        // ADO #977: clearing the last selection falls back to None.
+                        _selectedChoices = NoneOptionSelection.ensureNotEmpty(
+                          _selectedChoices,
+                          none: _noneOfTheAboveOption,
+                          hasNoneOption: _multipleChoiceAnswer.noneOption,
+                        );
                       } else if (v.isNotEmpty) {
                         final updatedTextChoice = TextChoice(id: 'Other', value: v, text: v);
                         if (otherTextChoice == null) {
-                          _selectedChoices.add(updatedTextChoice);
+                          // Typing "Other" is a real selection; it clears None
+                          // (ADO #977). Done before adding so the index below is
+                          // unaffected (currentIndex is only set once Other exists).
+                          _selectedChoices
+                            ..remove(_noneOfTheAboveOption)
+                            ..add(updatedTextChoice);
                         } else if (currentIndex != null) {
                           _selectedChoices[currentIndex!] = updatedTextChoice;
                         }
@@ -237,13 +264,12 @@ class _MultipleChoiceAnswerView extends State<MultipleChoiceAnswerView> with Mea
             SelectionListTile(
               text: _noneOfTheAboveOption.text,
               onTap: () {
-                if (_selectedChoices.contains(_noneOfTheAboveOption)) {
-                  _selectedChoices.remove(_noneOfTheAboveOption);
-                } else {
-                  _selectedChoices
-                    ..clear()
-                    ..add(_noneOfTheAboveOption);
-                }
+                // ADO #977: tapping "None of these" makes it the sole selection.
+                // It is not deselectable to empty — there is always one
+                // selection, so re-tapping it is a no-op.
+                _selectedChoices
+                  ..clear()
+                  ..add(_noneOfTheAboveOption);
                 setState(() {});
                 super.onChange(_selectedChoices);
               },
