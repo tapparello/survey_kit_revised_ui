@@ -123,8 +123,17 @@ class NavigableTaskNavigator extends TaskNavigator {
   ) {
     final handler = _registries?.actionHandlers[rule.actionId];
     if (handler != null) {
+      // ADO #969: action handlers (e.g. exercise-PDF generation) aggregate step
+      // results. The action fires mid-survey, before completion pruning, so feed
+      // the handler only results for steps on the path actually taken (history)
+      // — otherwise answers seeded from a prior run for off-path steps leak into
+      // the PDF. Routing below uses rule.nextStepIdentifier (fixed), so pruning
+      // the handler's input cannot change navigation.
+      final visitedStepIds = history.map((s) => s.id).toSet();
+      final onPathResults =
+          previousResults.where((r) => visitedStepIds.contains(r.id)).toList();
       try {
-        handler(previousResults, task.variables);
+        handler(onPathResults, task.variables);
       } catch (e) {
         SurveyKitLogger.d('Action handler "${rule.actionId}" threw: $e');
       }

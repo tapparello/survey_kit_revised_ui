@@ -122,6 +122,58 @@ void main() {
         reason: 'orphaned branch A answer must be pruned');
   });
 
+  testWidgets('action handlers receive only on-path results (seeded orphans pruned)',
+      (WidgetTester tester) async {
+    final s1 = QuestionStep(
+      id: 's1',
+      title: 'Step 1',
+      answerFormat: SingleChoiceAnswerFormat(
+        textChoices: [TextChoice(text: 'Yes', value: 'yes')],
+      ),
+      buttonText: 'Next',
+    );
+    final endStep = InstructionStep(id: 'endStep', title: 'Done', text: '', buttonText: 'Submit');
+    final task = NavigableTask(id: 'ta', steps: [s1, endStep])
+      ..addNavigationRule(
+        forTriggerStepIdentifier: 's1',
+        navigationRule:
+            const ActionNavigationRule(actionId: 'capture', nextStepIdentifier: 'endStep'),
+      );
+
+    // A step that is NOT on the path; its result is seeded (as if from a prior run).
+    final orphanStep = InstructionStep(id: 'orphan', title: 'Orphan', text: '', buttonText: 'x');
+    List<StepResult>? captured;
+    final registries = SurveyRegistries(
+      actionHandlers: {'capture': (results, variables) => captured = results},
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SurveyKit(
+            task: task,
+            registries: registries,
+            initialResults: {seed('orphan', orphanStep, 'stale-orphan')},
+            onResult: (_) {},
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Yes'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Next')); // leave s1 -> Action 'capture' fires -> endStep
+    await tester.pumpAndSettle();
+
+    expect(captured, isNotNull, reason: 'action handler should have run');
+    final ids = captured!.map((r) => r.id).toSet();
+    expect(ids.contains('orphan'), isFalse,
+        reason: 'seeded off-path result must not reach the action handler (PDF)');
+    expect(ids.contains('s1'), isTrue,
+        reason: 'on-path answer should still reach the handler');
+  });
+
   testWidgets('linear path keeps every answer (no over-pruning)',
       (WidgetTester tester) async {
     // Both steps are QuestionSteps so they both produce a StepResult.
