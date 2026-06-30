@@ -280,7 +280,17 @@ class SurveyStateProvider extends InheritedWidget {
 
   //Currently we are only handling one question per step
   SurveyState _handleSurveyFinished(PresentingSurveyState currentState) {
-    final stepResults = results.map((e) => e).toList();
+    // ADO #969: `results` may carry seeded answers (initialResults) for steps
+    // NOT on the path just taken (a different branch on re-completion, or a
+    // branch abandoned via back-navigation). Persist only the steps actually
+    // visited — taskNavigator.history is the recorded path — plus the terminal
+    // step defensively. Pruning here (completion) only; _handleClose keeps the
+    // full set so a partial save can resume with prior answers intact.
+    final visitedStepIds = taskNavigator.history.map((step) => step.id).toSet()
+      ..add(currentState.currentStep.id);
+    final stepResults =
+        results.where((result) => visitedStepIds.contains(result.id)).toList();
+
     final taskResult = SurveyResult(
       id: taskNavigator.task.id,
       startTime: startDate,
