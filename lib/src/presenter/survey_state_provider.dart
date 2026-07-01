@@ -16,6 +16,7 @@ class SurveyStateProvider extends InheritedWidget {
     required this.navigatorKey,
     this.stepShell,
     required this.results,
+    this.localizations,
   })  : _state = LoadingSurveyState(),
         startDate = DateTime.now();
 
@@ -23,6 +24,7 @@ class SurveyStateProvider extends InheritedWidget {
   final Function(SurveyResult) onResult;
   final StepShell? stepShell;
   final GlobalKey<NavigatorState> navigatorKey;
+  final Map<String, String>? localizations;
 
   late SurveyState _state;
   SurveyState get state => _state;
@@ -370,7 +372,7 @@ class SurveyStateProvider extends InheritedWidget {
                       onContinue();
                     },
                     child: Text(
-                      'Next',
+                      localizations?['next'] ?? 'Next',
                       style: TextStyle(fontSize: 16.0, color: (backgroundColor != null) ? Colors.white : Colors.blueAccent, fontWeight: FontWeight.bold),
                     ),
                   )

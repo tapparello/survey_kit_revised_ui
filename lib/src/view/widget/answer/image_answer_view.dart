@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' hide Step;
 import 'package:image_picker/image_picker.dart';
+import 'package:survey_kit/src/configuration/survey_configuration.dart';
 import 'package:survey_kit/src/model/answer/image_answer_format.dart';
 import 'package:survey_kit/src/model/result/step_result.dart';
 import 'package:survey_kit/src/model/step.dart';
@@ -89,6 +90,9 @@ class _ImageAnswerViewState extends State<ImageAnswerView>
   }
 
   Future<void> _optionsDialogBox() {
+    final localizations = SurveyConfiguration.of(context).localizations;
+    final takeLabel = localizations?['take_a_picture'] ?? 'Take a picture';
+    final galleryLabel = localizations?['select_from_gallery'] ?? 'Select from Gallery';
     return showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -98,12 +102,12 @@ class _ImageAnswerViewState extends State<ImageAnswerView>
               children: <Widget>[
                 GestureDetector(
                   onTap: _openCamera,
-                  child: const Text('Take a picture'),
+                  child: Text(takeLabel),
                 ),
                 const Padding(padding: EdgeInsets.all(8.0)),
                 GestureDetector(
                   onTap: _openGallery,
-                  child: const Text('Select from Gallery'),
+                  child: Text(galleryLabel),
                 ),
               ],
             ),
