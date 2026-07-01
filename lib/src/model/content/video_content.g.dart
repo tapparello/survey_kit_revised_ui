@@ -16,6 +16,7 @@ VideoContent _$VideoContentFromJson(Map<String, dynamic> json) => VideoContent(
       title: json['title'] as String?,
       subtitle: json['subtitle'] as String?,
       externalLink: json['externalLink'] as String?,
+      separatorAfter: json['separatorAfter'] as bool? ?? true,
     );
 
 Map<String, dynamic> _$VideoContentToJson(VideoContent instance) {
@@ -36,6 +37,7 @@ Map<String, dynamic> _$VideoContentToJson(VideoContent instance) {
   val['title'] = instance.title;
   val['subtitle'] = instance.subtitle;
   val['externalLink'] = instance.externalLink;
+  val['separatorAfter'] = instance.separatorAfter;
   val['type'] = 'video';
   return val;
 }

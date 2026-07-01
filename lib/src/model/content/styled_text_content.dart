@@ -26,6 +26,7 @@ class StyledTextContent extends Content {
     this.underlined = false,
     this.center = false,
     this.style,
+    super.separatorAfter,
   }) : super(contentType: type);
 
   factory StyledTextContent.fromJson(Map<String, dynamic> json) => _$StyledTextContentFromJson(json);

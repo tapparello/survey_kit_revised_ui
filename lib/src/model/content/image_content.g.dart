@@ -12,6 +12,7 @@ ImageContent _$ImageContentFromJson(Map<String, dynamic> json) => ImageContent(
       fit: $enumDecodeNullable(_$BoxFitEnumMap, json['fit']),
       width: (json['width'] as num?)?.toDouble(),
       height: (json['height'] as num?)?.toDouble(),
+      separatorAfter: json['separatorAfter'] as bool? ?? true,
     );
 
 Map<String, dynamic> _$ImageContentToJson(ImageContent instance) {
@@ -28,6 +29,7 @@ Map<String, dynamic> _$ImageContentToJson(ImageContent instance) {
   val['fit'] = _$BoxFitEnumMap[instance.fit];
   val['width'] = instance.width;
   val['height'] = instance.height;
+  val['separatorAfter'] = instance.separatorAfter;
   val['type'] = 'image';
   return val;
 }

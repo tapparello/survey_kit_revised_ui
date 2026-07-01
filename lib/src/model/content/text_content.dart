@@ -20,6 +20,7 @@ class TextContent extends Content {
     this.fontSize = 16,
     this.textAlign = TextAlign.center,
     super.id,
+    super.separatorAfter,
   }) : super(contentType: type);
 
   factory TextContent.fromJson(Map<String, dynamic> json) => _$TextContentFromJson(json);
