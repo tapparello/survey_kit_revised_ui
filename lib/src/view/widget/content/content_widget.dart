@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart' hide Step;
 import 'package:survey_kit/src/util/content_variables.dart';
-import 'package:survey_kit/src/util/extension.dart';
 import 'package:survey_kit/survey_kit.dart';
 
 class ContentWidget extends StatefulWidget {
@@ -42,12 +41,24 @@ class _ContentWidgetState extends State<ContentWidget> {
       return [content];
     }).toList();
 
+    final children = <Widget>[];
+    for (final content in resolvedContent) {
+      children.add(
+        content.createWidget(variables: variables, contentStyles: contentStyles),
+      );
+      // Append the 14px separator AFTER each content unless it opts out.
+      // Default separatorAfter==true reproduces the previous behavior exactly
+      // (including the trailing separator after the last content).
+      if (content.separatorAfter) {
+        children.add(const ContentSeparator(height: 14));
+      }
+    }
+
     final contentView = SizedBox(
       width: double.infinity,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
-        children:
-            resolvedContent.map((e) => e.createWidget(variables: variables, contentStyles: contentStyles)).withSeparator(const _Separator(height: 14)).toList(),
+        children: children,
       ),
     );
 
@@ -55,8 +66,9 @@ class _ContentWidgetState extends State<ContentWidget> {
   }
 }
 
-class _Separator extends StatelessWidget {
-  const _Separator({
+class ContentSeparator extends StatelessWidget {
+  const ContentSeparator({
+    super.key,
     required this.height,
   });
 
@@ -64,8 +76,6 @@ class _Separator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: height,
-    );
+    return SizedBox(height: height);
   }
 }

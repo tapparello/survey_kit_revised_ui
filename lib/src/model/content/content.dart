@@ -19,9 +19,15 @@ abstract class Content {
   @JsonKey(name: 'type')
   final String contentType;
 
+  /// Whether a default 14px separator is rendered AFTER this content in
+  /// ContentWidget. Default true = existing behavior. Set false to make the
+  /// next content block hug this one. See ADO #972.
+  final bool separatorAfter;
+
   const Content({
     this.id,
     required this.contentType,
+    this.separatorAfter = true,
   });
 
   factory Content.fromJson(Map<String, dynamic> json, {SurveyRegistries? registries}) {
