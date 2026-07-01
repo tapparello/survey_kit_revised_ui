@@ -126,6 +126,7 @@ class _SurveyKitState extends State<SurveyKit> {
         stepShell: widget.stepShell,
         results: widget.initialResults ?? {},
         navigatorKey: _navigatorKey,
+        localizations: widget.localizations,
         child: SurveyPage(
           length: widget.task.steps.length,
           onResult: widget.onResult,
