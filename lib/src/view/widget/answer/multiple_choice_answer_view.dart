@@ -301,6 +301,7 @@ class _MultipleChoiceAnswerView extends State<MultipleChoiceAnswerView> with Mea
   }
 
   Future<void> _dialogBuilder(BuildContext context, String message) {
+    final okLabel = SurveyConfiguration.of(context).localizations?['ok'] ?? 'OK';
     final htmlStyle = <String, Style>{
       'p': Style(
         textAlign: TextAlign.center,
@@ -328,7 +329,7 @@ class _MultipleChoiceAnswerView extends State<MultipleChoiceAnswerView> with Mea
                   onPressed: () {
                     Navigator.pop(context);
                   },
-                  child: const Text('OK'),
+                  child: Text(okLabel),
                 ),
               ],
             ),
