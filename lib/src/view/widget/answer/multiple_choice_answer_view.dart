@@ -33,6 +33,7 @@ class _MultipleChoiceAnswerView extends State<MultipleChoiceAnswerView> with Mea
   List<TextChoice> _selectedChoices = [];
   late List<TextChoice> _textChoices = [];
   late final TextChoice _noneOfTheAboveOption;
+  final TextEditingController _otherController = TextEditingController();
 
   @override
   void initState() {
@@ -81,11 +82,28 @@ class _MultipleChoiceAnswerView extends State<MultipleChoiceAnswerView> with Mea
       _multipleChoiceAnswer.textChoices.shuffle();
     }
 
+    // ADO #978: restore the "Other" write-in text so it is shown when the
+    // question is revisited (a new widget instance on back-nav or a new run).
+    // The value survives in the result but the field needs to be seeded.
+    if (_multipleChoiceAnswer.otherField) {
+      final existingOther =
+          _selectedChoices.firstWhereOrNull((c) => c.id == 'Other');
+      if (existingOther != null) {
+        _otherController.text = existingOther.value ?? existingOther.text;
+      }
+    }
+
     // Handle results from previous runs of the survey
     WidgetsFlutterBinding.ensureInitialized();
     Future.delayed(Duration.zero, () {
       super.onChange(_selectedChoices);
     });
+  }
+
+  @override
+  void dispose() {
+    _otherController.dispose();
+    super.dispose();
   }
 
   @override
@@ -209,6 +227,7 @@ class _MultipleChoiceAnswerView extends State<MultipleChoiceAnswerView> with Mea
                       )
                     : Icon(Icons.check, size: 32, color: Theme.of(context).listTileTheme.selectedColor),
                 title: TextField(
+                  controller: _otherController,
                   onChanged: (v) {
                     int? currentIndex;
                     final otherTextChoice = _selectedChoices.firstWhereIndexedOrNull((index, element) {
