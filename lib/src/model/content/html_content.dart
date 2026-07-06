@@ -19,6 +19,7 @@ class HtmlContent extends Content {
   const HtmlContent({
     required this.html,
     super.id,
+    super.separatorAfter,
   }) : super(contentType: type);
 
   factory HtmlContent.fromJson(Map<String, dynamic> json) => _$HtmlContentFromJson(json);

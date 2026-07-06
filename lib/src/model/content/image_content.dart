@@ -21,6 +21,7 @@ class ImageContent extends Content {
     this.fit,
     this.width,
     this.height,
+    super.separatorAfter,
   }) : super(contentType: type);
 
   factory ImageContent.fromJson(Map<String, dynamic> json) => _$ImageContentFromJson(json);

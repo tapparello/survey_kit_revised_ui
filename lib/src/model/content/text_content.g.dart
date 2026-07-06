@@ -12,6 +12,7 @@ TextContent _$TextContentFromJson(Map<String, dynamic> json) => TextContent(
       textAlign: $enumDecodeNullable(_$TextAlignEnumMap, json['textAlign']) ??
           TextAlign.center,
       id: json['id'] as String?,
+      separatorAfter: json['separatorAfter'] as bool? ?? true,
     );
 
 Map<String, dynamic> _$TextContentToJson(TextContent instance) {
@@ -27,6 +28,7 @@ Map<String, dynamic> _$TextContentToJson(TextContent instance) {
   val['text'] = instance.text;
   val['fontSize'] = instance.fontSize;
   val['textAlign'] = _$TextAlignEnumMap[instance.textAlign]!;
+  val['separatorAfter'] = instance.separatorAfter;
   val['type'] = 'text';
   return val;
 }

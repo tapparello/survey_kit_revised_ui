@@ -29,6 +29,7 @@ class VideoContent extends Content {
     this.title,
     this.subtitle,
     this.externalLink,
+    super.separatorAfter,
   }) : super(contentType: type);
 
   factory VideoContent.fromJson(Map<String, dynamic> json) => _$VideoContentFromJson(json);
