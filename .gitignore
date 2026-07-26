@@ -35,6 +35,14 @@
 # Web related
 lib/generated_plugin_registrant.dart
 
+# Local tooling scratch space
+.superpowers/
+
+# Private planning docs - specs and implementation plans stay local only.
+# They contain absolute paths, internal project names, and other details that
+# must not be published to this public repository.
+docs/
+
 # Symbolication related
 app.*.symbols
 
