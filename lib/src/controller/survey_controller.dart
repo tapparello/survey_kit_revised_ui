@@ -52,11 +52,6 @@ class SurveyController {
     this.onCloseSurvey,
   });
 
-  bool hasNextStep(){
-
-    return true;
-  }
-
   void nextStep(
     BuildContext context,
     StepResult? stepResult,

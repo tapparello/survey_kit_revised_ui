@@ -30,17 +30,6 @@ class StepResult<T> {
     this.valueIdentifier,
   });
 
-  factory StepResult.fromQuestion({required StepResult questionResult}) {
-    return StepResult(
-      id: questionResult.id,
-      step: questionResult.step,
-      startTime: questionResult.startTime,
-      endTime: questionResult.endTime,
-      result: questionResult as T?,
-      valueIdentifier: questionResult.valueIdentifier,
-    );
-  }
-
   factory StepResult.fromJson(Map<String, dynamic> json) {
     // Normalize id: old format stored {"id": "..."}, new format is plain string
     final rawId = json['id'];
