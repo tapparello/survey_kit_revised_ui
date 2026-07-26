@@ -102,7 +102,9 @@ class SurveyStateProvider extends InheritedWidget {
               : rawChoices is List
                   ? rawChoices.map((item) {
                       if (item is TextChoice) return item;
-                      if (item is Map<String, dynamic>) return TextChoice.fromJson(item);
+                      if (item is Map<String, dynamic>) {
+                        return TextChoice.fromJson(item);
+                      }
                       return TextChoice(text: item.toString(), value: item.toString());
                     }).toList()
                   : <TextChoice>[];
