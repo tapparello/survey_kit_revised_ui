@@ -35,6 +35,9 @@
 # Web related
 lib/generated_plugin_registrant.dart
 
+# Test coverage output
+coverage/
+
 # Local tooling scratch space
 .superpowers/
 

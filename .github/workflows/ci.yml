@@ -1,0 +1,44 @@
+name: ci
+
+# The replaced workflow used a bare `on: push:`, which ran on every branch.
+# This runs on the long-lived branches plus every PR, so feature branches are
+# covered once a PR exists - which Task 6 Step 7 creates before waiting on CI.
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.44.7
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+
+      # Hand-written Dart only. Generated .g.dart files are owned by their
+      # generator, not the format gate - see ADO #1001.
+      - name: Verify formatting
+        run: |
+          git ls-files -z '*.dart' \
+            | grep -zv '\.g\.dart$' \
+            | xargs -0 --no-run-if-empty \
+                dart format --output=none --set-exit-if-changed
+
+      - name: Analyze
+        run: flutter analyze --fatal-infos
+
+      - name: Test
+        run: flutter test --coverage
+
+      - name: Upload coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage/lcov.info
