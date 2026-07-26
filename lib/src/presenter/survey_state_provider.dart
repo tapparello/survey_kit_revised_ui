@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart' hide Step;
 import 'package:flutter_html/flutter_html.dart' hide Content;
-import 'package:survey_kit/src/util/survey_kit_logger.dart';
 import 'package:survey_kit/survey_kit.dart';
 
 // ignore: must_be_immutable

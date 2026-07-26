@@ -1,5 +1,13 @@
 import 'package:logger/logger.dart';
 
+/// Log severity for [SurveyKitLogger].
+///
+/// Aliases `package:logger`'s `Level` so consumers need not take a direct
+/// dependency on `logger`, and so the bare name `Level` never enters their
+/// namespace — it collides with `package:logging`, which the FMF Connect app
+/// imports in 60 files.
+typedef SurveyKitLogLevel = Level;
+
 /// Centralized logger for SurveyKit
 ///
 /// This logger is used internally by SurveyKit for debugging and diagnostic information.
@@ -10,9 +18,9 @@ import 'package:logger/logger.dart';
 /// import 'package:survey_kit/survey_kit.dart';
 ///
 /// // Control SurveyKit's internal logging level
-/// SurveyKitLogger.setLevel(Level.warning); // Only show warnings and errors
-/// SurveyKitLogger.setLevel(Level.off);     // Turn off all SurveyKit logs
-/// SurveyKitLogger.setLevel(Level.debug);   // Show all SurveyKit debug info
+/// SurveyKitLogger.setLevel(SurveyKitLogLevel.warning); // warnings and errors
+/// SurveyKitLogger.setLevel(SurveyKitLogLevel.off);     // no SurveyKit logs
+/// SurveyKitLogger.setLevel(SurveyKitLogLevel.debug);   // all debug info
 /// ```
 ///
 /// Available log levels (from most to least verbose):
