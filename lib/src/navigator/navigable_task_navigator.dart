@@ -85,22 +85,6 @@ class NavigableTaskNavigator extends TaskNavigator {
       return null;
     }
 
-    // log(json.encode(questionResult.toJson()));
-    // final dynamic result = questionResult.result;
-    // if (result == null) {
-    //   return nextInList(step);
-    // }
-    // log(json.encode(result.toJson()));
-    // String? value;
-    // switch (result.runtimeType){
-    //   case TextChoice:
-    //     value = (result as TextChoice).value;
-    // }
-    // final nextStepIdentifier =
-    //     rule.resultToStepIdentifierMapper(value);
-    // if (nextStepIdentifier == null) {
-    //   return nextInList(step);
-    // }
     return task.steps.firstWhereOrNull((element) => element.id == nextStepIdentifier);
   }
 
@@ -156,41 +140,6 @@ class NavigableTaskNavigator extends TaskNavigator {
   @override
   Step? firstStep() {
     final previousStep = peekHistory();
-
-    //
-    // if (previousStep == null) {
-    //   if (task.initialStep != null && task.initialStep!.id != task.steps.first.id) {
-    //     // Re-generate the history in case the task is restarted from a different initial step
-    //     var currentStep = task.steps.first;
-    //     Step? step;
-    //     SurveyKitLogger.d('Recorded step: ${currentStep.id}');
-    //     while (currentStep.id != task.initialStep!.id) {
-    //       step = nextStep(
-    //         step: currentStep,
-    //         previousResults: [],
-    //         questionResult: null,
-    //       );
-    //
-    //       SurveyKitLogger.d('Recorded step: ${step?.id}');
-    //       if (step == null) {
-    //         break;
-    //       }
-    //
-    //       currentStep = step;
-    //     }
-    //
-    //     return task.initialStep;
-    //   } else {
-    //     return task.steps.first;
-    //   }
-    //
-    // } else { // There is a previous step in the history
-    //   return nextStep(
-    //     step: previousStep,
-    //     previousResults: [],
-    //     questionResult: null,
-    //   );
-    // }
 
     return previousStep == null
         ? task.initialStep ?? task.steps.first

@@ -2,15 +2,6 @@ import 'package:flutter/material.dart' hide Step;
 import 'package:intl/intl.dart' show toBeginningOfSentenceCase;
 import 'package:survey_kit/survey_kit.dart';
 
-typedef StepShell =
-    Widget Function({
-      required Step step,
-      required Widget child,
-      StepResult Function()? resultFunction,
-      bool isValid,
-      SurveyController? controller,
-    });
-
 class StepView extends StatefulWidget {
   final Step step;
   final Widget? answerView;
@@ -131,26 +122,6 @@ class _StepViewState extends State<StepView> {
                         children: [
                           ContentWidget(content: widget.step.content),
                           if (widget.answerView != null) widget.answerView!,
-                          // AnimatedBuilder(
-                          //   animation: questionAnswer.isValid,
-                          //   builder: (context, child) {
-                          //     return OutlinedButton(
-                          //       onPressed: questionAnswer.isValid.value ||
-                          //               !widget.step.isMandatory
-                          //           ? () => _surveyController.nextStep(
-                          //                 context,
-                          //                 questionAnswer.stepResult,
-                          //               )
-                          //           : null,
-                          //       child: Text(
-                          //         widget.step.buttonText ??
-                          //             surveyConfiguration.localizations?['next']
-                          //                 ?.toUpperCase() ??
-                          //             'Next',
-                          //       ),
-                          //     );
-                          //   },
-                          // ),
                         ],
                       ),
                     ),

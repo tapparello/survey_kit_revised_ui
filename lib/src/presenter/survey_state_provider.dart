@@ -127,18 +127,6 @@ class SurveyStateProvider extends InheritedWidget {
         final newState = _handleStepBack(event, state as PresentingSurveyState);
         updateState(newState);
 
-        // original code:
-        // navigatorKey.currentState?.pop();
-        // This should handle starting from a generic step in the list
-        // if (navigatorKey.currentState?.canPop() == true) {
-        //   navigatorKey.currentState?.pop();
-        // } else {
-        //   navigatorKey.currentState?.pushReplacementNamed(
-        //       '/',
-        //       arguments: newState,
-        //   );
-        // }
-
         navigatorKey.currentState?.pushReplacementNamed(
           '/',
           arguments: newState,

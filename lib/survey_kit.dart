@@ -1,5 +1,3 @@
-library survery_kit;
-
 export 'src/configuration/survey_configuration.dart';
 export 'src/configuration/survey_registries.dart';
 export 'src/controller/survey_controller.dart';
