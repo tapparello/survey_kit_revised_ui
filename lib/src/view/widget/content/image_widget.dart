@@ -2,16 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:survey_kit/src/model/content/image_content.dart';
 
 class ImageWidget extends StatelessWidget {
-  const ImageWidget({
-    super.key,
-    required this.imageContent,
-  });
+  const ImageWidget({super.key, required this.imageContent});
 
   final ImageContent imageContent;
 
   @override
   Widget build(BuildContext context) {
-
     if (imageContent.url.contains('http')) {
       return Container(
         width: imageContent.width,
@@ -35,8 +31,5 @@ class ImageWidget extends StatelessWidget {
         ),
       );
     }
-
-
-
   }
 }

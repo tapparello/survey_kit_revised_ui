@@ -30,7 +30,12 @@ void main() {
       ),
       buttonText: 'Next',
     );
-    final aStep = InstructionStep(id: 'aStep', title: 'Branch A', text: '', buttonText: 'Next');
+    final aStep = InstructionStep(
+      id: 'aStep',
+      title: 'Branch A',
+      text: '',
+      buttonText: 'Next',
+    );
     final bStep = QuestionStep(
       id: 'bStep',
       title: 'Branch B',
@@ -42,7 +47,12 @@ void main() {
       ),
       buttonText: 'Next',
     );
-    final endStep = InstructionStep(id: 'endStep', title: 'Done', text: '', buttonText: 'Submit');
+    final endStep = InstructionStep(
+      id: 'endStep',
+      title: 'Done',
+      text: '',
+      buttonText: 'Submit',
+    );
 
     final task = NavigableTask(id: 't1', steps: [q1, aStep, bStep, endStep])
       ..addNavigationRule(
@@ -68,11 +78,18 @@ void main() {
 
   StepResult seed(String id, Step step, dynamic result) {
     final t = DateTime.now();
-    return StepResult(id: id, result: result, step: step, startTime: t, endTime: t);
+    return StepResult(
+      id: id,
+      result: result,
+      step: step,
+      startTime: t,
+      endTime: t,
+    );
   }
 
-  testWidgets('re-completing a different branch prunes the orphaned branch result',
-      (WidgetTester tester) async {
+  testWidgets('re-completing a different branch prunes the orphaned branch result', (
+    WidgetTester tester,
+  ) async {
     final task = buildBranchingTask();
     final q1 = task.steps.firstWhere((s) => s.id == 'q1');
     final aStep = task.steps.firstWhere((s) => s.id == 'aStep');
@@ -118,64 +135,91 @@ void main() {
     final ids = captured!.results.map((r) => r.id).toSet();
     expect(ids.contains('bStep'), isTrue, reason: 'new branch B answer kept');
     expect(ids.contains('q1'), isTrue, reason: 'revisited q1 answer kept');
-    expect(ids.contains('aStep'), isFalse,
-        reason: 'orphaned branch A answer must be pruned');
+    expect(
+      ids.contains('aStep'),
+      isFalse,
+      reason: 'orphaned branch A answer must be pruned',
+    );
   });
 
-  testWidgets('action handlers receive only on-path results (seeded orphans pruned)',
-      (WidgetTester tester) async {
-    final s1 = QuestionStep(
-      id: 's1',
-      title: 'Step 1',
-      answerFormat: SingleChoiceAnswerFormat(
-        textChoices: [TextChoice(text: 'Yes', value: 'yes')],
-      ),
-      buttonText: 'Next',
-    );
-    final endStep = InstructionStep(id: 'endStep', title: 'Done', text: '', buttonText: 'Submit');
-    final task = NavigableTask(id: 'ta', steps: [s1, endStep])
-      ..addNavigationRule(
-        forTriggerStepIdentifier: 's1',
-        navigationRule:
-            const ActionNavigationRule(actionId: 'capture', nextStepIdentifier: 'endStep'),
+  testWidgets(
+    'action handlers receive only on-path results (seeded orphans pruned)',
+    (WidgetTester tester) async {
+      final s1 = QuestionStep(
+        id: 's1',
+        title: 'Step 1',
+        answerFormat: SingleChoiceAnswerFormat(
+          textChoices: [TextChoice(text: 'Yes', value: 'yes')],
+        ),
+        buttonText: 'Next',
+      );
+      final endStep = InstructionStep(
+        id: 'endStep',
+        title: 'Done',
+        text: '',
+        buttonText: 'Submit',
+      );
+      final task = NavigableTask(id: 'ta', steps: [s1, endStep])
+        ..addNavigationRule(
+          forTriggerStepIdentifier: 's1',
+          navigationRule: const ActionNavigationRule(
+            actionId: 'capture',
+            nextStepIdentifier: 'endStep',
+          ),
+        );
+
+      // A step that is NOT on the path; its result is seeded (as if from a prior run).
+      final orphanStep = InstructionStep(
+        id: 'orphan',
+        title: 'Orphan',
+        text: '',
+        buttonText: 'x',
+      );
+      List<StepResult>? captured;
+      final registries = SurveyRegistries(
+        actionHandlers: {'capture': (results, variables) => captured = results},
       );
 
-    // A step that is NOT on the path; its result is seeded (as if from a prior run).
-    final orphanStep = InstructionStep(id: 'orphan', title: 'Orphan', text: '', buttonText: 'x');
-    List<StepResult>? captured;
-    final registries = SurveyRegistries(
-      actionHandlers: {'capture': (results, variables) => captured = results},
-    );
-
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: SurveyKit(
-            task: task,
-            registries: registries,
-            initialResults: {seed('orphan', orphanStep, 'stale-orphan')},
-            onResult: (_) {},
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SurveyKit(
+              task: task,
+              registries: registries,
+              initialResults: {seed('orphan', orphanStep, 'stale-orphan')},
+              onResult: (_) {},
+            ),
           ),
         ),
-      ),
-    );
-    await tester.pumpAndSettle();
+      );
+      await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Yes'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Next')); // leave s1 -> Action 'capture' fires -> endStep
-    await tester.pumpAndSettle();
+      await tester.tap(find.text('Yes'));
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.text('Next'),
+      ); // leave s1 -> Action 'capture' fires -> endStep
+      await tester.pumpAndSettle();
 
-    expect(captured, isNotNull, reason: 'action handler should have run');
-    final ids = captured!.map((r) => r.id).toSet();
-    expect(ids.contains('orphan'), isFalse,
-        reason: 'seeded off-path result must not reach the action handler (PDF)');
-    expect(ids.contains('s1'), isTrue,
-        reason: 'on-path answer should still reach the handler');
-  });
+      expect(captured, isNotNull, reason: 'action handler should have run');
+      final ids = captured!.map((r) => r.id).toSet();
+      expect(
+        ids.contains('orphan'),
+        isFalse,
+        reason:
+            'seeded off-path result must not reach the action handler (PDF)',
+      );
+      expect(
+        ids.contains('s1'),
+        isTrue,
+        reason: 'on-path answer should still reach the handler',
+      );
+    },
+  );
 
-  testWidgets('linear path keeps every answer (no over-pruning)',
-      (WidgetTester tester) async {
+  testWidgets('linear path keeps every answer (no over-pruning)', (
+    WidgetTester tester,
+  ) async {
     // Both steps are QuestionSteps so they both produce a StepResult.
     // InstructionStep is avoided because it has no answer and therefore no
     // StepResult is ever added to the results set (see _addResult null-guard).
@@ -225,7 +269,10 @@ void main() {
 
     expect(captured, isNotNull);
     final ids = captured!.results.map((r) => r.id).toSet();
-    expect(ids.containsAll({'l1', 'l2'}), isTrue,
-        reason: 'linear path: all answers retained');
+    expect(
+      ids.containsAll({'l1', 'l2'}),
+      isTrue,
+      reason: 'linear path: all answers retained',
+    );
   });
 }

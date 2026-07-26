@@ -22,7 +22,8 @@ class ScaleAnswerView extends StatefulWidget {
   _ScaleAnswerViewState createState() => _ScaleAnswerViewState();
 }
 
-class _ScaleAnswerViewState extends State<ScaleAnswerView> with MeasureDateStateMixin, AnswerMixin<ScaleAnswerView, double> {
+class _ScaleAnswerViewState extends State<ScaleAnswerView>
+    with MeasureDateStateMixin, AnswerMixin<ScaleAnswerView, double> {
   late final ScaleAnswerFormat _scaleAnswerFormat;
 
   double _value = 0.0;
@@ -95,9 +96,13 @@ class _ScaleAnswerViewState extends State<ScaleAnswerView> with MeasureDateState
                   showTicks: true,
                   showLabels: true,
                   tooltipPosition: SliderTooltipPosition.right,
-                  tooltipTextFormatterCallback: (dynamic actualValue, String formattedText) {
-                    return _scaleAnswerFormat.tooltipName((actualValue as num).toDouble()) ?? formattedText;
-                  },
+                  tooltipTextFormatterCallback:
+                      (dynamic actualValue, String formattedText) {
+                        return _scaleAnswerFormat.tooltipName(
+                              (actualValue as num).toDouble(),
+                            ) ??
+                            formattedText;
+                      },
                   labelFormatterCallback: (dynamic actualValue, String formattedText) {
                     final value = (actualValue as num).toDouble();
                     final name = _scaleAnswerFormat.labelName(value);
@@ -108,7 +113,9 @@ class _ScaleAnswerViewState extends State<ScaleAnswerView> with MeasureDateState
                     // so this matches the old switch value-for-value. A transient
                     // fractional drag value now resolves to its covering band
                     // instead of the raw number — an intentional, benign change.)
-                    return _scaleAnswerFormat.bands.isEmpty ? formattedText : '';
+                    return _scaleAnswerFormat.bands.isEmpty
+                        ? formattedText
+                        : '';
                   },
                   enableTooltip: true,
                   minorTicksPerInterval: 0,
@@ -144,7 +151,10 @@ class _ScaleAnswerViewState extends State<ScaleAnswerView> with MeasureDateState
                         min: _scaleAnswerFormat.minimumValue,
                         max: _scaleAnswerFormat.maximumValue,
                         // activeColor: Theme.of(context).sliderTheme.activeTrackColor,
-                        divisions: (_scaleAnswerFormat.maximumValue - _scaleAnswerFormat.minimumValue) ~/ _scaleAnswerFormat.step,
+                        divisions:
+                            (_scaleAnswerFormat.maximumValue -
+                                _scaleAnswerFormat.minimumValue) ~/
+                            _scaleAnswerFormat.step,
                         label: _value.toString(),
                       ),
                     ),

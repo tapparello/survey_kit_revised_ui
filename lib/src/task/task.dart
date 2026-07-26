@@ -31,13 +31,16 @@ abstract class Task {
     this.initialStep,
     Map<String, dynamic>? variables,
     this.stepCount,
-  })  : id = id ?? const Uuid().v4(),
-        variables = variables ?? {};
+  }) : id = id ?? const Uuid().v4(),
+       variables = variables ?? {};
 
   /// Creates a task from a Map. The task needs to have a type definition of
   /// either 'ordered' - [OrderedTask] or 'navigable' - [NavigableTask].
   /// If not it will throw a [TaskNotDefinedException].
-  factory Task.fromJson(Map<String, dynamic> json, {SurveyRegistries? registries}) {
+  factory Task.fromJson(
+    Map<String, dynamic> json, {
+    SurveyRegistries? registries,
+  }) {
     final type = json['type'] as String;
     if (type == 'ordered') {
       return OrderedTask.fromJson(json, registries: registries);

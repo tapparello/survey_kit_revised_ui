@@ -13,8 +13,9 @@ class SurveyProgress extends StatefulWidget {
 class _SurveyProgressState extends State<SurveyProgress> {
   @override
   Widget build(BuildContext context) {
-    final progressbarConfiguration =
-        SurveyConfiguration.of(context).surveyProgressConfiguration;
+    final progressbarConfiguration = SurveyConfiguration.of(
+      context,
+    ).surveyProgressConfiguration;
     return StreamBuilder<SurveyState>(
       stream: SurveyStateProvider.of(context).surveyStateStream.stream,
       builder: (context, snapshot) {
@@ -33,13 +34,14 @@ class _SurveyProgressState extends State<SurveyProgress> {
               if (progressbarConfiguration.showLabel &&
                   progressbarConfiguration.label != null)
                 progressbarConfiguration.label!(
-                  (state.currentStepIndex+1).toString(),
+                  (state.currentStepIndex + 1).toString(),
                   state.stepCount.toString(),
                 )
               else
                 const SizedBox.shrink(),
               ClipRRect(
-                borderRadius: progressbarConfiguration.borderRadius ??
+                borderRadius:
+                    progressbarConfiguration.borderRadius ??
                     BorderRadius.circular(14.0),
                 child: Stack(
                   children: [
@@ -53,13 +55,14 @@ class _SurveyProgressState extends State<SurveyProgress> {
                         return AnimatedContainer(
                           duration: const Duration(milliseconds: 300),
                           curve: Curves.linear,
-                          width: (state.currentStepIndex + 1) /
+                          width:
+                              (state.currentStepIndex + 1) /
                               state.stepCount *
                               constraints.maxWidth,
                           height: progressbarConfiguration.height,
                           color:
                               progressbarConfiguration.valueProgressbarColor ??
-                                  Theme.of(context).primaryColor,
+                              Theme.of(context).primaryColor,
                         );
                       },
                     ),

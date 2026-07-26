@@ -27,7 +27,10 @@ class MultipleChoiceAnswerView extends StatefulWidget {
   _MultipleChoiceAnswerView createState() => _MultipleChoiceAnswerView();
 }
 
-class _MultipleChoiceAnswerView extends State<MultipleChoiceAnswerView> with MeasureDateStateMixin, AnswerMixin<MultipleChoiceAnswerView, List<TextChoice>> {
+class _MultipleChoiceAnswerView extends State<MultipleChoiceAnswerView>
+    with
+        MeasureDateStateMixin,
+        AnswerMixin<MultipleChoiceAnswerView, List<TextChoice>> {
   late final MultipleChoiceAnswerFormat _multipleChoiceAnswer;
 
   List<TextChoice> _selectedChoices = [];
@@ -66,7 +69,9 @@ class _MultipleChoiceAnswerView extends State<MultipleChoiceAnswerView> with Mea
       if (widget.result?.result is List<TextChoice>) {
         previousChoices = widget.result?.result as List<TextChoice>;
       } else if (widget.result?.result is List<dynamic>) {
-        previousChoices = (widget.result?.result as List<dynamic>).map((e) => TextChoice.fromJson(e as Map<String, dynamic>)).toList();
+        previousChoices = (widget.result?.result as List<dynamic>)
+            .map((e) => TextChoice.fromJson(e as Map<String, dynamic>))
+            .toList();
       }
 
       // ADO #977: when the None option is enabled, a fresh question (no prior
@@ -86,8 +91,9 @@ class _MultipleChoiceAnswerView extends State<MultipleChoiceAnswerView> with Mea
     // question is revisited (a new widget instance on back-nav or a new run).
     // The value survives in the result but the field needs to be seeded.
     if (_multipleChoiceAnswer.otherField) {
-      final existingOther =
-          _selectedChoices.firstWhereOrNull((c) => c.id == 'Other');
+      final existingOther = _selectedChoices.firstWhereOrNull(
+        (c) => c.id == 'Other',
+      );
       if (existingOther != null) {
         _otherController.text = existingOther.value ?? existingOther.text;
       }
@@ -122,7 +128,9 @@ class _MultipleChoiceAnswerView extends State<MultipleChoiceAnswerView> with Mea
     var choices = <TextChoice>[];
 
     if (variableValue is List<String>) {
-      choices = variableValue.map((String choice) => TextChoice(text: choice, value: choice)).toList();
+      choices = variableValue
+          .map((String choice) => TextChoice(text: choice, value: choice))
+          .toList();
     } else {
       // Fall back to looking up a previous step result by ID
       final provider = SurveyStateProvider.of(context);
@@ -151,7 +159,8 @@ class _MultipleChoiceAnswerView extends State<MultipleChoiceAnswerView> with Mea
   @override
   bool isValid(List<TextChoice>? result) {
     if (widget.questionStep.isMandatory) {
-      return _selectedChoices.length >= _multipleChoiceAnswer.minRequiredChoices;
+      return _selectedChoices.length >=
+          _multipleChoiceAnswer.minRequiredChoices;
       //return _selectedChoices.isNotEmpty ?? false;
     }
     return true;
@@ -176,9 +185,7 @@ class _MultipleChoiceAnswerView extends State<MultipleChoiceAnswerView> with Mea
       child: Column(
         children: [
           if (questionText != null) AnswerQuestionText(text: questionText),
-          const Divider(
-            color: Colors.grey,
-          ),
+          const Divider(color: Colors.grey),
           ..._textChoices //_multipleChoiceAnswer.textChoices
               .map(
                 (TextChoice tc) => SelectionListTile(
@@ -197,18 +204,19 @@ class _MultipleChoiceAnswerView extends State<MultipleChoiceAnswerView> with Mea
                       if (_selectedChoices.contains(_noneOfTheAboveOption)) {
                         _selectedChoices.remove(_noneOfTheAboveOption);
                       }
-                      if (_selectedChoices.length < _multipleChoiceAnswer.maxAllowedChoices) {
+                      if (_selectedChoices.length <
+                          _multipleChoiceAnswer.maxAllowedChoices) {
                         _selectedChoices.add(tc);
                       } else {
-                        final message = _multipleChoiceAnswer.maxAllowedChoicesErrorMessage ??
+                        final message =
+                            _multipleChoiceAnswer
+                                .maxAllowedChoicesErrorMessage ??
                             'You can only select up to ${_multipleChoiceAnswer.maxAllowedChoices} options from the list.</p><p>Remove one of the existing options before selecting a new one.';
                         _dialogBuilder(context, '<p>$message</p>');
                       }
                       // _selectedChoices.add(tc);
                     }
-                    setState(
-                      () {},
-                    );
+                    setState(() {});
                     //onChange([..._selectedChoices, tc]);
                     super.onChange(_selectedChoices);
                   },
@@ -220,25 +228,31 @@ class _MultipleChoiceAnswerView extends State<MultipleChoiceAnswerView> with Mea
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 2.0),
               child: ListTile(
-                trailing: (_selectedChoices.firstWhereOrNull((choice) => choice.id == 'Other') == null)
-                    ? Container(
-                        width: 32,
-                        height: 32,
-                      )
-                    : Icon(Icons.check, size: 32, color: Theme.of(context).listTileTheme.selectedColor),
+                trailing:
+                    (_selectedChoices.firstWhereOrNull(
+                          (choice) => choice.id == 'Other',
+                        ) ==
+                        null)
+                    ? Container(width: 32, height: 32)
+                    : Icon(
+                        Icons.check,
+                        size: 32,
+                        color: Theme.of(context).listTileTheme.selectedColor,
+                      ),
                 title: TextField(
                   controller: _otherController,
                   onChanged: (v) {
                     int? currentIndex;
-                    final otherTextChoice = _selectedChoices.firstWhereIndexedOrNull((index, element) {
-                      final isOtherField = element.id == 'Other';
+                    final otherTextChoice = _selectedChoices
+                        .firstWhereIndexedOrNull((index, element) {
+                          final isOtherField = element.id == 'Other';
 
-                      if (isOtherField) {
-                        currentIndex = index;
-                      }
+                          if (isOtherField) {
+                            currentIndex = index;
+                          }
 
-                      return isOtherField;
-                    });
+                          return isOtherField;
+                        });
 
                     setState(() {
                       if (v.isEmpty && otherTextChoice != null) {
@@ -250,7 +264,11 @@ class _MultipleChoiceAnswerView extends State<MultipleChoiceAnswerView> with Mea
                           hasNoneOption: _multipleChoiceAnswer.noneOption,
                         );
                       } else if (v.isNotEmpty) {
-                        final updatedTextChoice = TextChoice(id: 'Other', value: v, text: v);
+                        final updatedTextChoice = TextChoice(
+                          id: 'Other',
+                          value: v,
+                          text: v,
+                        );
                         if (otherTextChoice == null) {
                           // Typing "Other" is a real selection; it clears None
                           // (ADO #977). Done before adding so the index below is
@@ -268,16 +286,16 @@ class _MultipleChoiceAnswerView extends State<MultipleChoiceAnswerView> with Mea
                   decoration: InputDecoration(
                     // labelText: 'Other',
                     // labelStyle: Theme.of(context).textTheme.titleLarge,
-                    hintText: _multipleChoiceAnswer.otherHintText ?? 'Write more here...',
+                    hintText:
+                        _multipleChoiceAnswer.otherHintText ??
+                        'Write more here...',
                     hintStyle: Theme.of(context).textTheme.titleMedium,
                     // floatingLabelBehavior: FloatingLabelBehavior.always,
                   ),
                 ),
               ),
             ),
-            const Divider(
-              color: Colors.grey,
-            ),
+            const Divider(color: Colors.grey),
           ],
           if (_multipleChoiceAnswer.noneOption) ...[
             SelectionListTile(
@@ -301,16 +319,15 @@ class _MultipleChoiceAnswerView extends State<MultipleChoiceAnswerView> with Mea
   }
 
   Future<void> _dialogBuilder(BuildContext context, String message) {
-    final okLabel = SurveyConfiguration.of(context).localizations?['ok'] ?? 'OK';
+    final okLabel =
+        SurveyConfiguration.of(context).localizations?['ok'] ?? 'OK';
     final htmlStyle = <String, Style>{
       'p': Style(
         textAlign: TextAlign.center,
         fontWeight: FontWeight.bold,
         fontSize: FontSize(16.0),
       ),
-      'ul': Style(
-        fontSize: FontSize(16.0),
-      ),
+      'ul': Style(fontSize: FontSize(16.0)),
     };
 
     return showDialog<void>(

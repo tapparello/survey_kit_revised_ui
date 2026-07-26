@@ -8,40 +8,36 @@ import 'package:survey_kit/src/widget/survey_progress.dart';
 class SurveyAppBar extends StatelessWidget implements PreferredSizeWidget {
   final SurveyController? controller;
 
-  const SurveyAppBar({
-    super.key,
-    this.controller,
-  });
+  const SurveyAppBar({super.key, this.controller});
 
   @override
   Widget build(BuildContext context) {
-    final progressbarConfiguration =
-        SurveyConfiguration.of(context).surveyProgressConfiguration;
+    final progressbarConfiguration = SurveyConfiguration.of(
+      context,
+    ).surveyProgressConfiguration;
 
     final surveyController =
         controller ?? SurveyConfiguration.of(context).surveyController;
 
-    final surveyStream =
-        SurveyStateProvider.of(context).surveyStateStream.stream;
+    final surveyStream = SurveyStateProvider.of(
+      context,
+    ).surveyStateStream.stream;
 
     final cancelButton = TextButton(
       child: Text(
         SurveyConfiguration.of(context).localizations?['cancel'] ?? 'Cancel',
         style: TextStyle(
-          color: Theme.of(context).appBarTheme.toolbarTextStyle?.color ??
+          color:
+              Theme.of(context).appBarTheme.toolbarTextStyle?.color ??
               Theme.of(context).primaryColor,
         ),
       ),
-      onPressed: () => surveyController.closeSurvey(
-        context: context,
-      ),
+      onPressed: () => surveyController.closeSurvey(context: context),
     );
 
     final backButton = BackButton(
       onPressed: () {
-        surveyController.stepBack(
-          context: context,
-        );
+        surveyController.stepBack(context: context);
       },
     );
 
@@ -99,8 +95,5 @@ class SurveyAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => const Size(
-        double.infinity,
-        40,
-      );
+  Size get preferredSize => const Size(double.infinity, 40);
 }

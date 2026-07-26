@@ -29,8 +29,8 @@ class SurveyConfiguration extends InheritedWidget {
   final Map<String, dynamic> variables;
 
   static SurveyConfiguration of(BuildContext context) {
-    final result =
-        context.dependOnInheritedWidgetOfExactType<SurveyConfiguration>();
+    final result = context
+        .dependOnInheritedWidgetOfExactType<SurveyConfiguration>();
     assert(result != null, 'No SurveyConfiguration found in context');
     return result!;
   }

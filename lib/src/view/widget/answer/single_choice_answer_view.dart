@@ -24,7 +24,10 @@ class SingleChoiceAnswerView extends StatefulWidget {
   _SingleChoiceAnswerViewState createState() => _SingleChoiceAnswerViewState();
 }
 
-class _SingleChoiceAnswerViewState extends State<SingleChoiceAnswerView> with MeasureDateStateMixin, AnswerMixin<SingleChoiceAnswerView, TextChoice> {
+class _SingleChoiceAnswerViewState extends State<SingleChoiceAnswerView>
+    with
+        MeasureDateStateMixin,
+        AnswerMixin<SingleChoiceAnswerView, TextChoice> {
   late final SingleChoiceAnswerFormat _singleChoiceAnswerFormat;
   TextChoice? _selectedChoice;
   late List<TextChoice> _textChoices = [];
@@ -57,7 +60,8 @@ class _SingleChoiceAnswerViewState extends State<SingleChoiceAnswerView> with Me
       previousChoice = TextChoice.fromJson(widget.result?.result);
     }
 
-    _selectedChoice = previousChoice ?? _singleChoiceAnswerFormat.defaultSelection;
+    _selectedChoice =
+        previousChoice ?? _singleChoiceAnswerFormat.defaultSelection;
 
     // Handle results from previous runs of the survey
     WidgetsFlutterBinding.ensureInitialized();
@@ -84,7 +88,9 @@ class _SingleChoiceAnswerViewState extends State<SingleChoiceAnswerView> with Me
     var choices = <TextChoice>[];
 
     if (variableValue is List<String>) {
-      choices = variableValue.map((String choice) => TextChoice(text: choice, value: choice)).toList();
+      choices = variableValue
+          .map((String choice) => TextChoice(text: choice, value: choice))
+          .toList();
     } else {
       // Fall back to looking up a previous step result by ID
       final provider = SurveyStateProvider.of(context);
@@ -144,9 +150,7 @@ class _SingleChoiceAnswerViewState extends State<SingleChoiceAnswerView> with Me
       child: Column(
         children: [
           if (questionText != null) AnswerQuestionText(text: questionText),
-          const Divider(
-            color: Colors.grey,
-          ),
+          const Divider(color: Colors.grey),
           ..._textChoices.map(
             //_singleChoiceAnswerFormat.textChoices.map(
             (TextChoice tc) {

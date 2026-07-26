@@ -38,16 +38,14 @@ class MultipleChoiceAnswerFormat extends AnswerFormat {
     super.answerType = type,
   }) : super();
 
-  factory MultipleChoiceAnswerFormat.fromJson(Map<String, dynamic> json) => _$MultipleChoiceAnswerFormatFromJson(json);
+  factory MultipleChoiceAnswerFormat.fromJson(Map<String, dynamic> json) =>
+      _$MultipleChoiceAnswerFormatFromJson(json);
 
   @override
   Map<String, dynamic> toJson() => _$MultipleChoiceAnswerFormatToJson(this);
 
   @override
   Widget createView(Step step, StepResult? stepResult) {
-    return MultipleChoiceAnswerView(
-      questionStep: step,
-      result: stepResult,
-    );
+    return MultipleChoiceAnswerView(questionStep: step, result: stepResult);
   }
 }

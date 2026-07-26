@@ -71,13 +71,21 @@ class StepResult<T> {
     if (value is List) {
       if (S == List<TextChoice>) {
         return value
-            .map((e) => TextChoice.fromJson(Map<String, dynamic>.from(e as Map)))
-            .toList() as S;
+                .map(
+                  (e) =>
+                      TextChoice.fromJson(Map<String, dynamic>.from(e as Map)),
+                )
+                .toList()
+            as S;
       }
       if (S == List<MultiDouble>) {
         return value
-            .map((e) => MultiDouble.fromJson(Map<String, dynamic>.from(e as Map)))
-            .toList() as S;
+                .map(
+                  (e) =>
+                      MultiDouble.fromJson(Map<String, dynamic>.from(e as Map)),
+                )
+                .toList()
+            as S;
       }
     }
 
@@ -108,6 +116,10 @@ class StepResult<T> {
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
-        other is StepResult && runtimeType == other.runtimeType && id == other.id && startTime == other.startTime && endTime == other.endTime;
+        other is StepResult &&
+            runtimeType == other.runtimeType &&
+            id == other.id &&
+            startTime == other.startTime &&
+            endTime == other.endTime;
   }
 }

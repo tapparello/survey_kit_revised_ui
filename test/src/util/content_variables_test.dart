@@ -5,8 +5,14 @@ import 'package:survey_kit/src/util/content_variables.dart';
 void main() {
   group('extractAnswerValue', () {
     test('TextChoice -> value ?? text', () {
-      expect(extractAnswerValue(TextChoice(text: 'Aidan', value: 'Aidan')), 'Aidan');
-      expect(extractAnswerValue(TextChoice(text: 'My child is lazy')), 'My child is lazy');
+      expect(
+        extractAnswerValue(TextChoice(text: 'Aidan', value: 'Aidan')),
+        'Aidan',
+      );
+      expect(
+        extractAnswerValue(TextChoice(text: 'My child is lazy')),
+        'My child is lazy',
+      );
     });
 
     test('List<TextChoice> -> List<String> (strict typing for {{#list}})', () {
@@ -30,19 +36,28 @@ void main() {
 
     test('restored single-choice Map (resume path) -> value ?? text', () {
       // valueless choice (e.g. section 4_11 interpretations: only text present)
-      expect(extractAnswerValue({'id': 'x', 'text': 'My child is lazy'}), 'My child is lazy');
+      expect(
+        extractAnswerValue({'id': 'x', 'text': 'My child is lazy'}),
+        'My child is lazy',
+      );
       // choice with value (e.g. 5_6_2 child selection)
-      expect(extractAnswerValue({'id': 'x', 'text': 'Aidan', 'value': 'Aidan'}), 'Aidan');
+      expect(
+        extractAnswerValue({'id': 'x', 'text': 'Aidan', 'value': 'Aidan'}),
+        'Aidan',
+      );
     });
 
-    test('restored multi-choice List<Map> (resume path) -> List<String>, not Map-stringified', () {
-      final r = extractAnswerValue([
-        {'id': 'a', 'text': 'Morning routine'},
-        {'id': 'b', 'text': 'Bedtime routine', 'value': 'Bedtime routine'},
-      ]);
-      expect(r, isA<List<String>>());
-      expect(r, ['Morning routine', 'Bedtime routine']);
-    });
+    test(
+      'restored multi-choice List<Map> (resume path) -> List<String>, not Map-stringified',
+      () {
+        final r = extractAnswerValue([
+          {'id': 'a', 'text': 'Morning routine'},
+          {'id': 'b', 'text': 'Bedtime routine', 'value': 'Bedtime routine'},
+        ]);
+        expect(r, isA<List<String>>());
+        expect(r, ['Morning routine', 'Bedtime routine']);
+      },
+    );
   });
 
   group('mergeContentVariables', () {

@@ -22,7 +22,8 @@ class AudioContent extends Content {
     this.externalLink,
   }) : super(contentType: type);
 
-  factory AudioContent.fromJson(Map<String, dynamic> json) => _$AudioContentFromJson(json);
+  factory AudioContent.fromJson(Map<String, dynamic> json) =>
+      _$AudioContentFromJson(json);
 
   @override
   Map<String, dynamic> toJson() => _$AudioContentToJson(this);

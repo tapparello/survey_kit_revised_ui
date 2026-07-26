@@ -44,7 +44,10 @@ class _ContentWidgetState extends State<ContentWidget> {
     final children = <Widget>[];
     for (final content in resolvedContent) {
       children.add(
-        content.createWidget(variables: variables, contentStyles: contentStyles),
+        content.createWidget(
+          variables: variables,
+          contentStyles: contentStyles,
+        ),
       );
       // Append the 14px separator AFTER each content unless it opts out.
       // Default separatorAfter==true reproduces the previous behavior exactly
@@ -67,10 +70,7 @@ class _ContentWidgetState extends State<ContentWidget> {
 }
 
 class ContentSeparator extends StatelessWidget {
-  const ContentSeparator({
-    super.key,
-    required this.height,
-  });
+  const ContentSeparator({super.key, required this.height});
 
   final double height;
 

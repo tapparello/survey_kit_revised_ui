@@ -23,15 +23,13 @@ class IntegerAnswerFormat extends AnswerFormat {
     super.answerType = type,
   }) : super();
 
-  factory IntegerAnswerFormat.fromJson(Map<String, dynamic> json) => _$IntegerAnswerFormatFromJson(json);
+  factory IntegerAnswerFormat.fromJson(Map<String, dynamic> json) =>
+      _$IntegerAnswerFormatFromJson(json);
   @override
   Map<String, dynamic> toJson() => _$IntegerAnswerFormatToJson(this);
 
   @override
   Widget createView(Step step, StepResult? stepResult) {
-    return IntegerAnswerView(
-      questionStep: step,
-      result: stepResult,
-    );
+    return IntegerAnswerView(questionStep: step, result: stepResult);
   }
 }

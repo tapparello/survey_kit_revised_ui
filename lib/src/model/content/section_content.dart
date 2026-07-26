@@ -19,7 +19,8 @@ class SectionContent extends Content {
     required this.text,
   }) : super(contentType: type);
 
-  factory SectionContent.fromJson(Map<String, dynamic> json) => _$SectionContentFromJson(json);
+  factory SectionContent.fromJson(Map<String, dynamic> json) =>
+      _$SectionContentFromJson(json);
 
   @override
   Map<String, dynamic> toJson() => _$SectionContentToJson(this);
@@ -35,7 +36,14 @@ class SectionContent extends Content {
     // Pass variables and styles through to each child
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: toList.map((e) => e.createWidget(variables: variables, contentStyles: contentStyles)).toList(),
+      children: toList
+          .map(
+            (e) => e.createWidget(
+              variables: variables,
+              contentStyles: contentStyles,
+            ),
+          )
+          .toList(),
     );
   }
 }

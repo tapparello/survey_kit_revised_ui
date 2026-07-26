@@ -17,8 +17,8 @@ class SurveyStateProvider extends InheritedWidget {
     this.stepShell,
     required this.results,
     this.localizations,
-  })  : _state = LoadingSurveyState(),
-        startDate = DateTime.now();
+  }) : _state = LoadingSurveyState(),
+       startDate = DateTime.now();
 
   final TaskNavigator taskNavigator;
   final Function(SurveyResult) onResult;
@@ -33,17 +33,21 @@ class SurveyStateProvider extends InheritedWidget {
     surveyStateStream.add(_state);
   }
 
-  late StreamController<SurveyState> surveyStateStream = StreamController<SurveyState>.broadcast();
+  late StreamController<SurveyState> surveyStateStream =
+      StreamController<SurveyState>.broadcast();
 
   static SurveyStateProvider of(BuildContext context) {
-    final result = context.dependOnInheritedWidgetOfExactType<SurveyStateProvider>();
+    final result = context
+        .dependOnInheritedWidgetOfExactType<SurveyStateProvider>();
     assert(result != null, 'No SurveyPresenterInherited found in context');
     return result!;
   }
 
   @override
   bool updateShouldNotify(SurveyStateProvider oldWidget) =>
-      taskNavigator != oldWidget.taskNavigator || onResult != oldWidget.onResult || _state != oldWidget._state;
+      taskNavigator != oldWidget.taskNavigator ||
+      onResult != oldWidget.onResult ||
+      _state != oldWidget._state;
 
   Set<StepResult> results;
   late final DateTime startDate;
@@ -52,10 +56,7 @@ class SurveyStateProvider extends InheritedWidget {
     if (event is StartSurvey) {
       final newState = _handleInitialStep();
       updateState(newState);
-      navigatorKey.currentState?.pushNamed(
-        '/',
-        arguments: newState,
-      );
+      navigatorKey.currentState?.pushNamed('/', arguments: newState);
     } else if (event is NextStep) {
       if (state is PresentingSurveyState) {
         final currentState = state as PresentingSurveyState;
@@ -89,8 +90,13 @@ class SurveyStateProvider extends InheritedWidget {
           final selectedChoice = event.questionResult?.result as TextChoice?;
           final isCorrect = selectedChoice?.value == 'correct';
           _showFeedbackDialog(
-            message: (isCorrect ? answerFormat.feedbackCorrect : answerFormat.feedbackWrong) ??
-                (isCorrect ? 'You selected the correct answer!' : 'You selected the incorrect answer!'),
+            message:
+                (isCorrect
+                    ? answerFormat.feedbackCorrect
+                    : answerFormat.feedbackWrong) ??
+                (isCorrect
+                    ? 'You selected the correct answer!'
+                    : 'You selected the incorrect answer!'),
             backgroundColor: isCorrect ? Colors.green : Colors.red,
             autoDismiss: isCorrect,
             onContinue: proceed,
@@ -100,21 +106,33 @@ class SurveyStateProvider extends InheritedWidget {
           final selectedChoices = rawChoices is List<TextChoice>
               ? rawChoices
               : rawChoices is List
-                  ? rawChoices.map((item) {
-                      if (item is TextChoice) return item;
-                      if (item is Map<String, dynamic>) {
-                        return TextChoice.fromJson(item);
-                      }
-                      return TextChoice(text: item.toString(), value: item.toString());
-                    }).toList()
-                  : <TextChoice>[];
+              ? rawChoices.map((item) {
+                  if (item is TextChoice) return item;
+                  if (item is Map<String, dynamic>) {
+                    return TextChoice.fromJson(item);
+                  }
+                  return TextChoice(
+                    text: item.toString(),
+                    value: item.toString(),
+                  );
+                }).toList()
+              : <TextChoice>[];
 
-          final hasWrong = selectedChoices.any((choice) => choice.value == 'wrong');
+          final hasWrong = selectedChoices.any(
+            (choice) => choice.value == 'wrong',
+          );
           final colored = answerFormat.coloredFeedback;
           _showFeedbackDialog(
-            message: (hasWrong ? answerFormat.feedbackWrong : answerFormat.feedbackCorrect) ??
-                (hasWrong ? 'You selected the incorrect answers!' : 'You selected the correct answers!'),
-            backgroundColor: colored ? (hasWrong ? Colors.red : Colors.green) : null,
+            message:
+                (hasWrong
+                    ? answerFormat.feedbackWrong
+                    : answerFormat.feedbackCorrect) ??
+                (hasWrong
+                    ? 'You selected the incorrect answers!'
+                    : 'You selected the correct answers!'),
+            backgroundColor: colored
+                ? (hasWrong ? Colors.red : Colors.green)
+                : null,
             // Auto-dismiss only the all-correct coloured case (matches prior
             // behaviour); every other case shows a tappable "Next" button.
             autoDismiss: colored && !hasWrong,
@@ -193,10 +211,7 @@ class SurveyStateProvider extends InheritedWidget {
       results: const [],
     );
 
-    return SurveyResultState(
-      result: taskResult,
-      currentStep: null,
-    );
+    return SurveyResultState(result: taskResult, currentStep: null);
   }
 
   PresentingSurveyState _presentStep(Step nextStep) {
@@ -224,7 +239,9 @@ class SurveyStateProvider extends InheritedWidget {
     if (previousStep != null) {
       final questionResult = _getResultByStepIdentifier(previousStep.id);
 
-      SurveyKitLogger.d('Previous step result: ${questionResult?.toJson().toString()}');
+      SurveyKitLogger.d(
+        'Previous step result: ${questionResult?.toJson().toString()}',
+      );
 
       return PresentingSurveyState(
         currentStep: previousStep,
@@ -241,9 +258,7 @@ class SurveyStateProvider extends InheritedWidget {
   }
 
   StepResult? _getResultByStepIdentifier(String? identifier) {
-    return results.firstWhereOrNull(
-      (element) => element.id == identifier,
-    );
+    return results.firstWhereOrNull((element) => element.id == identifier);
   }
 
   SurveyState _handleClose(
@@ -280,8 +295,9 @@ class SurveyStateProvider extends InheritedWidget {
     // full set so a partial save can resume with prior answers intact.
     final visitedStepIds = taskNavigator.history.map((step) => step.id).toSet()
       ..add(currentState.currentStep.id);
-    final stepResults =
-        results.where((result) => visitedStepIds.contains(result.id)).toList();
+    final stepResults = results
+        .where((result) => visitedStepIds.contains(result.id))
+        .toList();
 
     final taskResult = SurveyResult(
       id: taskNavigator.task.id,
@@ -305,9 +321,7 @@ class SurveyStateProvider extends InheritedWidget {
     }
     results
       ..removeWhere((StepResult result) => result.id == questionResult.id)
-      ..add(
-        questionResult,
-      );
+      ..add(questionResult);
   }
 
   int get countSteps => taskNavigator.countSteps;
@@ -336,9 +350,7 @@ class SurveyStateProvider extends InheritedWidget {
         fontWeight: FontWeight.bold,
         fontSize: FontSize(16.0),
       ),
-      'ul': Style(
-        fontSize: FontSize(16.0),
-      ),
+      'ul': Style(fontSize: FontSize(16.0)),
     };
 
     showDialog(
@@ -363,7 +375,13 @@ class SurveyStateProvider extends InheritedWidget {
                     },
                     child: Text(
                       localizations?['next'] ?? 'Next',
-                      style: TextStyle(fontSize: 16.0, color: (backgroundColor != null) ? Colors.white : Colors.blueAccent, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 16.0,
+                        color: (backgroundColor != null)
+                            ? Colors.white
+                            : Colors.blueAccent,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   )
                 else

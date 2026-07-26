@@ -16,13 +16,11 @@ class HtmlContent extends Content {
   // final double fontSize;
   // final TextAlign textAlign;
 
-  const HtmlContent({
-    required this.html,
-    super.id,
-    super.separatorAfter,
-  }) : super(contentType: type);
+  const HtmlContent({required this.html, super.id, super.separatorAfter})
+    : super(contentType: type);
 
-  factory HtmlContent.fromJson(Map<String, dynamic> json) => _$HtmlContentFromJson(json);
+  factory HtmlContent.fromJson(Map<String, dynamic> json) =>
+      _$HtmlContentFromJson(json);
 
   @override
   Map<String, dynamic> toJson() => _$HtmlContentToJson(this);
@@ -33,6 +31,8 @@ class HtmlContent extends Content {
     Map<String, StyledTextContent>? contentStyles,
   }) {
     final resolvedHtml = TemplateResolver.resolve(html, variables);
-    return HtmlWidget(htmlContent: HtmlContent(html: resolvedHtml, id: id));
+    return HtmlWidget(
+      htmlContent: HtmlContent(html: resolvedHtml, id: id),
+    );
   }
 }

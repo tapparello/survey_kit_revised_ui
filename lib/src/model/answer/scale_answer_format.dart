@@ -80,15 +80,13 @@ class ScaleAnswerFormat extends AnswerFormat {
     return null;
   }
 
-  factory ScaleAnswerFormat.fromJson(Map<String, dynamic> json) => _$ScaleAnswerFormatFromJson(json);
+  factory ScaleAnswerFormat.fromJson(Map<String, dynamic> json) =>
+      _$ScaleAnswerFormatFromJson(json);
   @override
   Map<String, dynamic> toJson() => _$ScaleAnswerFormatToJson(this);
 
   @override
   Widget createView(Step step, StepResult? stepResult) {
-    return ScaleAnswerView(
-      questionStep: step,
-      result: stepResult,
-    );
+    return ScaleAnswerView(questionStep: step, result: stepResult);
   }
 }

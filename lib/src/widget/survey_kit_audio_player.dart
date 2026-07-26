@@ -7,16 +7,14 @@ import 'package:rxdart/rxdart.dart';
 class SurveyKitAudioPlayer extends StatefulWidget {
   final String audioUrl;
 
-  const SurveyKitAudioPlayer({
-    super.key,
-    required this.audioUrl,
-  });
+  const SurveyKitAudioPlayer({super.key, required this.audioUrl});
 
   @override
   _SurveyKitAudioPlayerState createState() => _SurveyKitAudioPlayerState();
 }
 
-class _SurveyKitAudioPlayerState extends State<SurveyKitAudioPlayer> with WidgetsBindingObserver {
+class _SurveyKitAudioPlayerState extends State<SurveyKitAudioPlayer>
+    with WidgetsBindingObserver {
   late final AudioPlayer _audioPlayer;
 
   @override
@@ -32,15 +30,13 @@ class _SurveyKitAudioPlayerState extends State<SurveyKitAudioPlayer> with Widget
     super.dispose();
   }
 
-  Stream<PositionData> get _positionDataStream => Rx.combineLatest3<Duration, Duration, Duration?, PositionData>(
+  Stream<PositionData> get _positionDataStream =>
+      Rx.combineLatest3<Duration, Duration, Duration?, PositionData>(
         _audioPlayer.positionStream,
         _audioPlayer.bufferedPositionStream,
         _audioPlayer.durationStream,
-        (position, bufferedPosition, duration) => PositionData(
-          position,
-          bufferedPosition,
-          duration ?? Duration.zero,
-        ),
+        (position, bufferedPosition, duration) =>
+            PositionData(position, bufferedPosition, duration ?? Duration.zero),
       );
 
   @override
@@ -73,7 +69,8 @@ class _SurveyKitAudioPlayerState extends State<SurveyKitAudioPlayer> with Widget
               final processingState = playerState?.processingState;
               final playing = playerState?.playing;
 
-              if (processingState == ProcessingState.loading || processingState == ProcessingState.buffering) {
+              if (processingState == ProcessingState.loading ||
+                  processingState == ProcessingState.buffering) {
                 return Container(
                   margin: const EdgeInsets.all(8.0),
                   width: 48,
@@ -108,7 +105,8 @@ class _SurveyKitAudioPlayerState extends State<SurveyKitAudioPlayer> with Widget
                 return SeekBar(
                   duration: positionData?.duration ?? Duration.zero,
                   position: positionData?.position ?? Duration.zero,
-                  bufferedPosition: positionData?.bufferedPosition ?? Duration.zero,
+                  bufferedPosition:
+                      positionData?.bufferedPosition ?? Duration.zero,
                   onChangeEnd: _audioPlayer.seek,
                 );
               },
@@ -118,16 +116,14 @@ class _SurveyKitAudioPlayerState extends State<SurveyKitAudioPlayer> with Widget
             stream: _positionDataStream,
             builder: (context, snapshot) {
               final positionData = snapshot.data;
-              final remaining = (positionData?.duration ?? Duration.zero) - (positionData?.position ?? Duration.zero);
+              final remaining =
+                  (positionData?.duration ?? Duration.zero) -
+                  (positionData?.position ?? Duration.zero);
 
-              return Text(
-                remaining.text,
-              );
+              return Text(remaining.text);
             },
           ),
-          const SizedBox(
-            width: 24,
-          ),
+          const SizedBox(width: 24),
         ],
       ),
     );
@@ -193,9 +189,7 @@ class SeekBarState extends State<SeekBar> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    _sliderThemeData = SliderTheme.of(context).copyWith(
-      trackHeight: 2.0,
-    );
+    _sliderThemeData = SliderTheme.of(context).copyWith(trackHeight: 2.0);
   }
 
   @override
@@ -207,8 +201,11 @@ class SeekBarState extends State<SeekBar> {
         SliderTheme(
           data: _sliderThemeData.copyWith(
             thumbShape: HiddenThumbComponentShape(),
-            activeTrackColor: _sliderThemeData.activeTrackColor ?? theme.primaryColor.withValues(alpha: 0.1),
-            inactiveTrackColor: _sliderThemeData.inactiveTrackColor ?? Colors.grey.shade300,
+            activeTrackColor:
+                _sliderThemeData.activeTrackColor ??
+                theme.primaryColor.withValues(alpha: 0.1),
+            inactiveTrackColor:
+                _sliderThemeData.inactiveTrackColor ?? Colors.grey.shade300,
           ),
           child: ExcludeSemantics(
             child: Slider(

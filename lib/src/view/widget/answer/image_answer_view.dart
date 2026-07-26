@@ -72,9 +72,7 @@ class _ImageAnswerViewState extends State<ImageAnswerView>
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
                           filePath.split('/')[filePath.split('/').length - 1],
-                          style: const TextStyle(
-                            fontSize: 12,
-                          ),
+                          style: const TextStyle(fontSize: 12),
                         ),
                       ),
                     )
@@ -92,7 +90,8 @@ class _ImageAnswerViewState extends State<ImageAnswerView>
   Future<void> _optionsDialogBox() {
     final localizations = SurveyConfiguration.of(context).localizations;
     final takeLabel = localizations?['take_a_picture'] ?? 'Take a picture';
-    final galleryLabel = localizations?['select_from_gallery'] ?? 'Select from Gallery';
+    final galleryLabel =
+        localizations?['select_from_gallery'] ?? 'Select from Gallery';
     return showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -100,15 +99,9 @@ class _ImageAnswerViewState extends State<ImageAnswerView>
           content: SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
-                GestureDetector(
-                  onTap: _openCamera,
-                  child: Text(takeLabel),
-                ),
+                GestureDetector(onTap: _openCamera, child: Text(takeLabel)),
                 const Padding(padding: EdgeInsets.all(8.0)),
-                GestureDetector(
-                  onTap: _openGallery,
-                  child: Text(galleryLabel),
-                ),
+                GestureDetector(onTap: _openGallery, child: Text(galleryLabel)),
               ],
             ),
           ),
@@ -118,9 +111,7 @@ class _ImageAnswerViewState extends State<ImageAnswerView>
   }
 
   Future<void> _openCamera() async {
-    final picture = await ImagePicker().pickImage(
-      source: ImageSource.camera,
-    );
+    final picture = await ImagePicker().pickImage(source: ImageSource.camera);
 
     Navigator.pop(context);
 
@@ -132,9 +123,7 @@ class _ImageAnswerViewState extends State<ImageAnswerView>
   }
 
   Future<void> _openGallery() async {
-    final picture = await ImagePicker().pickImage(
-      source: ImageSource.gallery,
-    );
+    final picture = await ImagePicker().pickImage(source: ImageSource.gallery);
 
     Navigator.pop(context);
 

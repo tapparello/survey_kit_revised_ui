@@ -22,11 +22,13 @@ class SingleChoiceAnswerWithFeedbackView extends StatefulWidget {
   _SingleChoiceAnswerViewState createState() => _SingleChoiceAnswerViewState();
 }
 
-class _SingleChoiceAnswerViewState extends State<SingleChoiceAnswerWithFeedbackView>
+class _SingleChoiceAnswerViewState
+    extends State<SingleChoiceAnswerWithFeedbackView>
     with
         MeasureDateStateMixin,
         AnswerMixin<SingleChoiceAnswerWithFeedbackView, TextChoice> {
-  late final SingleChoiceAnswerWithFeedbackFormat _singleChoiceAnswerWithFeedbackFormat;
+  late final SingleChoiceAnswerWithFeedbackFormat
+  _singleChoiceAnswerWithFeedbackFormat;
   TextChoice? _selectedChoice;
 
   @override
@@ -36,7 +38,8 @@ class _SingleChoiceAnswerViewState extends State<SingleChoiceAnswerWithFeedbackV
     if (answer == null) {
       throw Exception('SingleSelectAnswer is null');
     }
-    _singleChoiceAnswerWithFeedbackFormat = answer as SingleChoiceAnswerWithFeedbackFormat;
+    _singleChoiceAnswerWithFeedbackFormat =
+        answer as SingleChoiceAnswerWithFeedbackFormat;
 
     if (_singleChoiceAnswerWithFeedbackFormat.shuffleChoices) {
       _singleChoiceAnswerWithFeedbackFormat.textChoices.shuffle();
@@ -50,7 +53,9 @@ class _SingleChoiceAnswerViewState extends State<SingleChoiceAnswerWithFeedbackV
       previousChoice = TextChoice.fromJson(widget.result?.result);
     }
 
-    _selectedChoice = previousChoice ?? _singleChoiceAnswerWithFeedbackFormat.defaultSelection;
+    _selectedChoice =
+        previousChoice ??
+        _singleChoiceAnswerWithFeedbackFormat.defaultSelection;
 
     // Handle results from previous runs of the survey
     WidgetsFlutterBinding.ensureInitialized();
@@ -89,20 +94,18 @@ class _SingleChoiceAnswerViewState extends State<SingleChoiceAnswerWithFeedbackV
       child: Column(
         children: [
           if (questionText != null) AnswerQuestionText(text: questionText),
-          const Divider(
-            color: Colors.grey,
-          ),
-          ..._singleChoiceAnswerWithFeedbackFormat.textChoices.map(
-            (TextChoice tc) {
-              return SelectionListTile(
-                text: tc.text,
-                onTap: () {
-                  onChange(tc);
-                },
-                isSelected: _selectedChoice == tc,
-              );
-            },
-          ).toList(),
+          const Divider(color: Colors.grey),
+          ..._singleChoiceAnswerWithFeedbackFormat.textChoices.map((
+            TextChoice tc,
+          ) {
+            return SelectionListTile(
+              text: tc.text,
+              onTap: () {
+                onChange(tc);
+              },
+              isSelected: _selectedChoice == tc,
+            );
+          }).toList(),
         ],
       ),
     );

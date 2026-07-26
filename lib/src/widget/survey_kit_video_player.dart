@@ -27,9 +27,8 @@ class _SurveyKitVideoPlayerState extends State<SurveyKitVideoPlayer> {
   @override
   void initState() {
     super.initState();
-    _controller = VideoPlayerController.networkUrl(
-      Uri.parse(widget.videoUrl),
-    )..initialize().then((_) {
+    _controller = VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl))
+      ..initialize().then((_) {
         _chewieController = ChewieController(
           videoPlayerController: _controller,
           autoPlay: widget.autoPlay,
@@ -39,9 +38,7 @@ class _SurveyKitVideoPlayerState extends State<SurveyKitVideoPlayer> {
             DeviceOrientation.landscapeLeft,
             DeviceOrientation.landscapeRight,
           ],
-          deviceOrientationsAfterFullScreen: [
-            DeviceOrientation.portraitUp,
-          ],
+          deviceOrientationsAfterFullScreen: [DeviceOrientation.portraitUp],
         );
         setState(() {});
       });
@@ -59,16 +56,12 @@ class _SurveyKitVideoPlayerState extends State<SurveyKitVideoPlayer> {
                   _controller.pause();
                 }
               },
-              child: Chewie(
-                controller: _chewieController,
-              ),
+              child: Chewie(controller: _chewieController),
             ),
           )
         : Container(
             height: 200,
-            child: const Center(
-              child: CircularProgressIndicator.adaptive(),
-            ),
+            child: const Center(child: CircularProgressIndicator.adaptive()),
           );
 
     return videoWidget;

@@ -64,7 +64,10 @@ class SurveyKitLogger {
   static Level _getDefaultLevel() {
     // In debug mode, show all logs. In release mode, only show info and above
     var isDebugMode = false;
-    assert(isDebugMode = true, 'Debug mode detection'); // This only runs in debug mode
+    assert(
+      isDebugMode = true,
+      'Debug mode detection',
+    ); // This only runs in debug mode
     return isDebugMode ? Level.debug : Level.info;
   }
 

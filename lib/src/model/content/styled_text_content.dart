@@ -29,7 +29,8 @@ class StyledTextContent extends Content {
     super.separatorAfter,
   }) : super(contentType: type);
 
-  factory StyledTextContent.fromJson(Map<String, dynamic> json) => _$StyledTextContentFromJson(json);
+  factory StyledTextContent.fromJson(Map<String, dynamic> json) =>
+      _$StyledTextContentFromJson(json);
 
   @override
   Map<String, dynamic> toJson() => _$StyledTextContentToJson(this);
@@ -40,7 +41,9 @@ class StyledTextContent extends Content {
     Map<String, StyledTextContent>? contentStyles,
   }) {
     final resolvedText = TemplateResolver.resolve(text, variables);
-    if (style != null && contentStyles != null && contentStyles.containsKey(style)) {
+    if (style != null &&
+        contentStyles != null &&
+        contentStyles.containsKey(style)) {
       final namedStyle = contentStyles[style]!;
       return StyledTextWidget(
         content: StyledTextContent(

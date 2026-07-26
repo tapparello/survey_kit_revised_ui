@@ -11,7 +11,9 @@ class DirectNavigationRule implements NavigationRule {
 
   factory DirectNavigationRule.fromJson(Map<String, dynamic> json) {
     final raw = json['destinationStepIdentifier'];
-    final id = raw is Map<String, dynamic> ? raw['id'] as String : raw as String;
+    final id = raw is Map<String, dynamic>
+        ? raw['id'] as String
+        : raw as String;
     return DirectNavigationRule(id);
   }
   @override

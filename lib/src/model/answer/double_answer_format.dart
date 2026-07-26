@@ -23,15 +23,13 @@ class DoubleAnswerFormat extends AnswerFormat {
     super.answerType = type,
   }) : super();
 
-  factory DoubleAnswerFormat.fromJson(Map<String, dynamic> json) => _$DoubleAnswerFormatFromJson(json);
+  factory DoubleAnswerFormat.fromJson(Map<String, dynamic> json) =>
+      _$DoubleAnswerFormatFromJson(json);
   @override
   Map<String, dynamic> toJson() => _$DoubleAnswerFormatToJson(this);
 
   @override
   Widget createView(Step step, StepResult? stepResult) {
-    return DoubleAnswerView(
-      questionStep: step,
-      result: stepResult,
-    );
+    return DoubleAnswerView(questionStep: step, result: stepResult);
   }
 }

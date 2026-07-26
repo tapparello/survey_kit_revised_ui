@@ -28,15 +28,13 @@ class TextAnswerFormat extends AnswerFormat {
     super.answerType = type,
   }) : super();
 
-  factory TextAnswerFormat.fromJson(Map<String, dynamic> json) => _$TextAnswerFormatFromJson(json);
+  factory TextAnswerFormat.fromJson(Map<String, dynamic> json) =>
+      _$TextAnswerFormatFromJson(json);
   @override
   Map<String, dynamic> toJson() => _$TextAnswerFormatToJson(this);
 
   @override
   Widget createView(Step step, StepResult? stepResult) {
-    return TextAnswerView(
-      questionStep: step,
-      result: stepResult,
-    );
+    return TextAnswerView(questionStep: step, result: stepResult);
   }
 }
