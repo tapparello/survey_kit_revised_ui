@@ -1,0 +1,29 @@
+# Restricts codegen to the library's own sources. Without `sources`,
+# build_runner globs the whole package - including example/ios/.symlinks once
+# `pod install` has run. That symlink is absolute and points back at this
+# repository, so an unrestricted build walks 739 inputs instead of 111, fails on
+# plugin pigeon files, AND writes generated output into the real working tree
+# from any checkout. It has also been observed deleting every .g.dart file.
+# See ADO #1001.
+#
+# `$package$` is a synthetic asset build_runner requires; omitting it makes
+# every build warn. `test/**` is deliberately out of scope - no test currently
+# needs codegen, but a future @JsonSerializable under test/ will silently not
+# generate until it is added here.
+#
+# `explicit_to_json` forces nested `.toJson()` calls. Without it the generator
+# emits the raw object and relies on jsonEncode's toEncodable, which breaks the
+# in-memory toJson() -> fromJson() round trip and silently reverts ba3e6b7
+# ("make Step and StepResult fully JSON-encodable").
+#
+# Do not remove either setting.
+targets:
+  $default:
+    sources:
+      - $package$
+      - lib/**
+      - pubspec.yaml
+    builders:
+      json_serializable:
+        options:
+          explicit_to_json: true

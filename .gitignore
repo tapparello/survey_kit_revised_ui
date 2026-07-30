@@ -30,6 +30,11 @@
 .packages
 .pub-cache/
 .pub/
+# Absolute symlink back to this repo root, created by `pod install`. Already
+# covered by example/ios/.gitignore; listed here because an unrestricted
+# build_runner run traverses it and writes into this working tree. See ADO #1001
+# and build.yaml.
+example/ios/.symlinks/
 /build/
 
 # Web related
