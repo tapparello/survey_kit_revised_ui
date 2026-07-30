@@ -23,16 +23,14 @@ class BooleanAnswerFormat extends AnswerFormat {
     super.answerType = type,
   }) : super();
 
-  factory BooleanAnswerFormat.fromJson(Map<String, dynamic> json) => _$BooleanAnswerFormatFromJson(json);
+  factory BooleanAnswerFormat.fromJson(Map<String, dynamic> json) =>
+      _$BooleanAnswerFormatFromJson(json);
   @override
   Map<String, dynamic> toJson() => _$BooleanAnswerFormatToJson(this);
 
   @override
   Widget createView(Step step, StepResult? stepResult) {
-    return BooleanAnswerView(
-      questionStep: step,
-      result: stepResult,
-    );
+    return BooleanAnswerView(questionStep: step, result: stepResult);
   }
 }
 

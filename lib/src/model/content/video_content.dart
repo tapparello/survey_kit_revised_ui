@@ -32,7 +32,8 @@ class VideoContent extends Content {
     super.separatorAfter,
   }) : super(contentType: type);
 
-  factory VideoContent.fromJson(Map<String, dynamic> json) => _$VideoContentFromJson(json);
+  factory VideoContent.fromJson(Map<String, dynamic> json) =>
+      _$VideoContentFromJson(json);
 
   @override
   Map<String, dynamic> toJson() => _$VideoContentToJson(this);

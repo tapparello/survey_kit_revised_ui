@@ -24,7 +24,8 @@ class ImageContent extends Content {
     super.separatorAfter,
   }) : super(contentType: type);
 
-  factory ImageContent.fromJson(Map<String, dynamic> json) => _$ImageContentFromJson(json);
+  factory ImageContent.fromJson(Map<String, dynamic> json) =>
+      _$ImageContentFromJson(json);
 
   @override
   Map<String, dynamic> toJson() => _$ImageContentToJson(this);
@@ -34,8 +35,6 @@ class ImageContent extends Content {
     Map<String, dynamic> variables = const {},
     Map<String, StyledTextContent>? contentStyles,
   }) {
-    return ImageWidget(
-      imageContent: this,
-    );
+    return ImageWidget(imageContent: this);
   }
 }

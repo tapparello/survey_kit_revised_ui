@@ -30,7 +30,10 @@ abstract class Content {
     this.separatorAfter = true,
   });
 
-  factory Content.fromJson(Map<String, dynamic> json, {SurveyRegistries? registries}) {
+  factory Content.fromJson(
+    Map<String, dynamic> json, {
+    SurveyRegistries? registries,
+  }) {
     final type = json['type'] as String?;
 
     // Check custom registry first

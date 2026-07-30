@@ -24,11 +24,15 @@ class MultipleChoiceAnswerWithFeedbackView extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _MultipleChoiceAnswerWithFeedbackView createState() => _MultipleChoiceAnswerWithFeedbackView();
+  _MultipleChoiceAnswerWithFeedbackView createState() =>
+      _MultipleChoiceAnswerWithFeedbackView();
 }
 
-class _MultipleChoiceAnswerWithFeedbackView extends State<MultipleChoiceAnswerWithFeedbackView>
-    with MeasureDateStateMixin, AnswerMixin<MultipleChoiceAnswerWithFeedbackView, List<TextChoice>> {
+class _MultipleChoiceAnswerWithFeedbackView
+    extends State<MultipleChoiceAnswerWithFeedbackView>
+    with
+        MeasureDateStateMixin,
+        AnswerMixin<MultipleChoiceAnswerWithFeedbackView, List<TextChoice>> {
   late final MultipleChoiceAnswerWithFeedbackFormat _multipleChoiceAnswer;
 
   List<TextChoice> _selectedChoices = [];
@@ -95,7 +99,9 @@ class _MultipleChoiceAnswerWithFeedbackView extends State<MultipleChoiceAnswerWi
     var choices = <TextChoice>[];
 
     if (variableValue is List<String>) {
-      choices = variableValue.map((String choice) => TextChoice(text: choice, value: choice)).toList();
+      choices = variableValue
+          .map((String choice) => TextChoice(text: choice, value: choice))
+          .toList();
     } else {
       // Fall back to looking up a previous step result by ID
       final provider = SurveyStateProvider.of(context);
@@ -124,7 +130,8 @@ class _MultipleChoiceAnswerWithFeedbackView extends State<MultipleChoiceAnswerWi
   @override
   bool isValid(List<TextChoice>? result) {
     if (widget.questionStep.isMandatory) {
-      return _selectedChoices.length >= _multipleChoiceAnswer.minRequiredChoices;
+      return _selectedChoices.length >=
+          _multipleChoiceAnswer.minRequiredChoices;
       //return _selectedChoices.isNotEmpty ?? false;
     }
     return true;
@@ -135,7 +142,9 @@ class _MultipleChoiceAnswerWithFeedbackView extends State<MultipleChoiceAnswerWi
     final questionText = widget.questionStep.answerFormat?.question;
 
     final currentResult = QuestionAnswer.of(context).stepResult?.result;
-    _selectedChoices = currentResult != null ? _safeTextChoiceList(currentResult) : _safeTextChoiceList(widget.result?.result);
+    _selectedChoices = currentResult != null
+        ? _safeTextChoiceList(currentResult)
+        : _safeTextChoiceList(widget.result?.result);
     // ADO #977: keep the always-one-selection invariant after re-reading state.
     _selectedChoices = NoneOptionSelection.ensureNotEmpty(
       _selectedChoices,
@@ -153,9 +162,7 @@ class _MultipleChoiceAnswerWithFeedbackView extends State<MultipleChoiceAnswerWi
       child: Column(
         children: [
           if (questionText != null) AnswerQuestionText(text: questionText),
-          const Divider(
-            color: Colors.grey,
-          ),
+          const Divider(color: Colors.grey),
           ..._textChoices //_multipleChoiceAnswer.textChoices
               .map(
                 (TextChoice tc) => SelectionListTile(
@@ -174,18 +181,19 @@ class _MultipleChoiceAnswerWithFeedbackView extends State<MultipleChoiceAnswerWi
                       if (_selectedChoices.contains(_noneOfTheAboveOption)) {
                         _selectedChoices.remove(_noneOfTheAboveOption);
                       }
-                      if (_selectedChoices.length < _multipleChoiceAnswer.maxAllowedChoices) {
+                      if (_selectedChoices.length <
+                          _multipleChoiceAnswer.maxAllowedChoices) {
                         _selectedChoices.add(tc);
                       } else {
-                        final message = _multipleChoiceAnswer.maxAllowedChoicesErrorMessage ??
+                        final message =
+                            _multipleChoiceAnswer
+                                .maxAllowedChoicesErrorMessage ??
                             'You can only select up to ${_multipleChoiceAnswer.maxAllowedChoices} options from the list.</p><p>Remove one of the existing options before selecting a new one.';
                         _dialogBuilder(context, '<p>$message</p>');
                       }
                       // _selectedChoices.add(tc);
                     }
-                    setState(
-                      () {},
-                    );
+                    setState(() {});
                     //onChange([..._selectedChoices, tc]);
                     super.onChange(_selectedChoices);
                   },
@@ -227,16 +235,15 @@ class _MultipleChoiceAnswerWithFeedbackView extends State<MultipleChoiceAnswerWi
   }
 
   Future<void> _dialogBuilder(BuildContext context, String message) {
-    final okLabel = SurveyConfiguration.of(context).localizations?['ok'] ?? 'OK';
+    final okLabel =
+        SurveyConfiguration.of(context).localizations?['ok'] ?? 'OK';
     final htmlStyle = <String, Style>{
       'p': Style(
         textAlign: TextAlign.center,
         fontWeight: FontWeight.bold,
         fontSize: FontSize(16.0),
       ),
-      'ul': Style(
-        fontSize: FontSize(16.0),
-      ),
+      'ul': Style(fontSize: FontSize(16.0)),
     };
 
     return showDialog<void>(

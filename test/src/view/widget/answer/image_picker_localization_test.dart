@@ -5,22 +5,25 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:survey_kit/survey_kit.dart';
 
 Widget _app({Map<String, String>? localizations}) => MaterialApp(
-      home: Scaffold(
-        body: SurveyKit(
-          task: OrderedTask(id: 't', steps: [
-            QuestionStep(
-              id: 'q_img',
-              title: 'Photo',
-              answerFormat: const ImageAnswerFormat(buttonText: 'Choose'),
-              buttonText: 'Advance',
-            ),
-            CompletionStep(title: 'Done', text: 'Thanks', buttonText: 'Submit'),
-          ]),
-          localizations: localizations,
-          onResult: (_) {},
-        ),
+  home: Scaffold(
+    body: SurveyKit(
+      task: OrderedTask(
+        id: 't',
+        steps: [
+          QuestionStep(
+            id: 'q_img',
+            title: 'Photo',
+            answerFormat: const ImageAnswerFormat(buttonText: 'Choose'),
+            buttonText: 'Advance',
+          ),
+          CompletionStep(title: 'Done', text: 'Thanks', buttonText: 'Submit'),
+        ],
       ),
-    );
+      localizations: localizations,
+      onResult: (_) {},
+    ),
+  ),
+);
 
 Future<void> _openOptions(WidgetTester tester) async {
   await tester.tap(find.text('Choose')); // opens _optionsDialogBox
@@ -28,12 +31,17 @@ Future<void> _openOptions(WidgetTester tester) async {
 }
 
 void main() {
-  testWidgets('image option labels use localized values when provided',
-      (tester) async {
-    await tester.pumpWidget(_app(localizations: {
-      'take_a_picture': 'ZZ_CAM',
-      'select_from_gallery': 'ZZ_GAL',
-    }));
+  testWidgets('image option labels use localized values when provided', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _app(
+        localizations: {
+          'take_a_picture': 'ZZ_CAM',
+          'select_from_gallery': 'ZZ_GAL',
+        },
+      ),
+    );
     await tester.pumpAndSettle();
     await _openOptions(tester);
 
@@ -42,8 +50,9 @@ void main() {
     expect(find.text('Take a picture'), findsNothing);
   });
 
-  testWidgets('image option labels fall back to English when no map',
-      (tester) async {
+  testWidgets('image option labels fall back to English when no map', (
+    tester,
+  ) async {
     await tester.pumpWidget(_app());
     await tester.pumpAndSettle();
     await _openOptions(tester);

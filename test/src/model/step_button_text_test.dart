@@ -5,12 +5,12 @@ import 'package:survey_kit/survey_kit.dart';
 
 void main() {
   Map<String, dynamic> stepJson({String? buttonText}) => {
-        'id': 'x',
-        'content': [
-          {'type': 'text', 'text': 'hi'},
-        ],
-        if (buttonText != null) 'buttonText': buttonText,
-      };
+    'id': 'x',
+    'content': [
+      {'type': 'text', 'text': 'hi'},
+    ],
+    if (buttonText != null) 'buttonText': buttonText,
+  };
 
   test('absent buttonText parses to null', () {
     final step = Step.fromJson(stepJson());

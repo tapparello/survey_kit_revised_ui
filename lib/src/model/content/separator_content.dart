@@ -13,12 +13,11 @@ class SeparatorContent extends Content {
 
   final double height;
 
-  const SeparatorContent({
-    this.height = 14,
-    super.id,
-  }) : super(contentType: type);
+  const SeparatorContent({this.height = 14, super.id})
+    : super(contentType: type);
 
-  factory SeparatorContent.fromJson(Map<String, dynamic> json) => _$SeparatorContentFromJson(json);
+  factory SeparatorContent.fromJson(Map<String, dynamic> json) =>
+      _$SeparatorContentFromJson(json);
 
   @override
   Map<String, dynamic> toJson() => _$SeparatorContentToJson(this);

@@ -29,10 +29,10 @@ class SelectionListTile extends StatelessWidget {
               title: Text(
                 text,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      color: isSelected
-                          ? Theme.of(context).listTileTheme.selectedColor
-                          : Theme.of(context).textTheme.headlineSmall?.color,
-                    ),
+                  color: isSelected
+                      ? Theme.of(context).listTileTheme.selectedColor
+                      : Theme.of(context).textTheme.headlineSmall?.color,
+                ),
               ),
               contentPadding: EdgeInsets.zero,
               trailing: isSelected
@@ -43,17 +43,12 @@ class SelectionListTile extends StatelessWidget {
                           ? Theme.of(context).listTileTheme.selectedColor
                           : Colors.black,
                     )
-                  : Container(
-                      width: 32,
-                      height: 32,
-                    ),
+                  : Container(width: 32, height: 32),
               onTap: onTap,
             ),
           ),
         ),
-        const Divider(
-          color: Colors.grey,
-        ),
+        const Divider(color: Colors.grey),
       ],
     );
   }

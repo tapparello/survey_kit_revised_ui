@@ -40,10 +40,13 @@ class MultipleChoiceAnswerWithFeedbackFormat extends AnswerFormat {
     super.answerType = type,
   }) : super();
 
-  factory MultipleChoiceAnswerWithFeedbackFormat.fromJson(Map<String, dynamic> json) => _$MultipleChoiceAnswerWithFeedbackFormatFromJson(json);
+  factory MultipleChoiceAnswerWithFeedbackFormat.fromJson(
+    Map<String, dynamic> json,
+  ) => _$MultipleChoiceAnswerWithFeedbackFormatFromJson(json);
 
   @override
-  Map<String, dynamic> toJson() => _$MultipleChoiceAnswerWithFeedbackFormatToJson(this);
+  Map<String, dynamic> toJson() =>
+      _$MultipleChoiceAnswerWithFeedbackFormatToJson(this);
 
   @override
   Widget createView(Step step, StepResult? stepResult) {

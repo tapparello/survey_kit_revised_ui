@@ -24,10 +24,13 @@ class SingleChoiceAnswerWithFeedbackFormat extends AnswerFormat {
     super.answerType = type,
   }) : super();
 
-  factory SingleChoiceAnswerWithFeedbackFormat.fromJson(Map<String, dynamic> json) => _$SingleChoiceAnswerWithFeedbackFormatFromJson(json);
+  factory SingleChoiceAnswerWithFeedbackFormat.fromJson(
+    Map<String, dynamic> json,
+  ) => _$SingleChoiceAnswerWithFeedbackFormatFromJson(json);
 
   @override
-  Map<String, dynamic> toJson() => _$SingleChoiceAnswerWithFeedbackFormatToJson(this);
+  Map<String, dynamic> toJson() =>
+      _$SingleChoiceAnswerWithFeedbackFormatToJson(this);
 
   @override
   Widget createView(Step step, StepResult? stepResult) {

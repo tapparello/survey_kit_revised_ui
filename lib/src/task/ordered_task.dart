@@ -16,31 +16,37 @@ class OrderedTask extends Task {
     Map<String, dynamic>? variables,
     int? stepCount,
   }) : super(
-          id: id,
-          steps: steps,
-          initialStep: steps.firstWhereOrNull((step) => step.id == initialStepId),
-          variables: variables,
-          stepCount: stepCount,
-        );
+         id: id,
+         steps: steps,
+         initialStep: steps.firstWhereOrNull(
+           (step) => step.id == initialStepId,
+         ),
+         variables: variables,
+         stepCount: stepCount,
+       );
 
-  factory OrderedTask.fromJson(Map<String, dynamic> json, {SurveyRegistries? registries}) {
+  factory OrderedTask.fromJson(
+    Map<String, dynamic> json, {
+    SurveyRegistries? registries,
+  }) {
     final variables = (json['variables'] as Map<String, dynamic>?) ?? {};
     return OrderedTask(
       id: json['id'] as String,
       steps: json['steps'] != null
           ? (json['steps'] as List)
-              .map(
-                (dynamic step) => Step.fromJson(step as Map<String, dynamic>, registries: registries),
-              )
-              .toList()
+                .map(
+                  (dynamic step) => Step.fromJson(
+                    step as Map<String, dynamic>,
+                    registries: registries,
+                  ),
+                )
+                .toList()
           : [],
       initialStepId: json['initialStepId'] as String?,
       variables: variables,
       stepCount: json['stepCount'] as int?,
     );
   }
-
-
 
   @override
   Map<String, dynamic> toJson() => _$OrderedTaskToJson(this);

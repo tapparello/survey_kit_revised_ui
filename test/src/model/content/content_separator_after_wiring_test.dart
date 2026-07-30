@@ -13,7 +13,10 @@ void main() {
   });
 
   test('StyledTextContent round-trips separatorAfter', () {
-    final c = StyledTextContent.fromJson({'text': 't', 'separatorAfter': false});
+    final c = StyledTextContent.fromJson({
+      'text': 't',
+      'separatorAfter': false,
+    });
     expect(c.separatorAfter, isFalse);
     expect(c.toJson()['separatorAfter'], isFalse);
     expect(StyledTextContent.fromJson({'text': 't'}).separatorAfter, isTrue);

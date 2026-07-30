@@ -35,9 +35,7 @@ void main() {
     test('returns null when variable not in map', () {
       const content = ConditionalContent(
         variable: 'child_name',
-        options: {
-          'Aidan': HtmlContent(html: '<p>Aidan</p>'),
-        },
+        options: {'Aidan': HtmlContent(html: '<p>Aidan</p>')},
       );
       final resolved = content.resolveContent({});
       expect(resolved, isNull);
@@ -46,9 +44,7 @@ void main() {
     test('returns null when value not in options', () {
       const content = ConditionalContent(
         variable: 'child_name',
-        options: {
-          'Aidan': HtmlContent(html: '<p>Aidan</p>'),
-        },
+        options: {'Aidan': HtmlContent(html: '<p>Aidan</p>')},
       );
       final resolved = content.resolveContent({'child_name': 'Unknown'});
       expect(resolved, isNull);
@@ -72,7 +68,10 @@ void main() {
         options: {'Aidan': HtmlContent(html: '<p>Aidan</p>')},
         defaultOption: 'Aidan',
       );
-      expect((content.resolveContent({'child_name': 'X'})! as HtmlContent).html, '<p>Aidan</p>');
+      expect(
+        (content.resolveContent({'child_name': 'X'})! as HtmlContent).html,
+        '<p>Aidan</p>',
+      );
     });
 
     test('matched value still wins over default', () {
@@ -84,7 +83,11 @@ void main() {
         },
         defaultOption: 'Aidan',
       );
-      expect((content.resolveContent({'child_name': 'Brayden'})! as HtmlContent).html, '<p>Brayden</p>');
+      expect(
+        (content.resolveContent({'child_name': 'Brayden'})! as HtmlContent)
+            .html,
+        '<p>Brayden</p>',
+      );
     });
 
     test('deserializes default from JSON and round-trips', () {
@@ -92,7 +95,9 @@ void main() {
         'type': 'conditional',
         'variable': 'child_name',
         'default': 'Aidan',
-        'options': {'Aidan': {'type': 'html', 'html': '<p>A</p>'}},
+        'options': {
+          'Aidan': {'type': 'html', 'html': '<p>A</p>'},
+        },
       };
       final c = ConditionalContent.fromJson(json);
       expect(c.defaultOption, 'Aidan');

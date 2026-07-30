@@ -27,6 +27,7 @@ class ScaleBand {
     required this.labelAt,
   });
 
-  factory ScaleBand.fromJson(Map<String, dynamic> json) => _$ScaleBandFromJson(json);
+  factory ScaleBand.fromJson(Map<String, dynamic> json) =>
+      _$ScaleBandFromJson(json);
   Map<String, dynamic> toJson() => _$ScaleBandToJson(this);
 }

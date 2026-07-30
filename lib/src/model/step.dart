@@ -27,11 +27,19 @@ class Step {
     this.stepShell,
   }) : id = id ?? const Uuid().v4();
 
-  factory Step.fromJson(Map<String, dynamic> json, {SurveyRegistries? registries}) {
+  factory Step.fromJson(
+    Map<String, dynamic> json, {
+    SurveyRegistries? registries,
+  }) {
     return Step(
       id: json['id'] as String?,
       content: (json['content'] as List<dynamic>)
-          .map((e) => Content.fromJson(e as Map<String, dynamic>, registries: registries))
+          .map(
+            (e) => Content.fromJson(
+              e as Map<String, dynamic>,
+              registries: registries,
+            ),
+          )
           .toList(),
       isMandatory: json['isMandatory'] as bool? ?? true,
       answerFormat: json['answerFormat'] == null

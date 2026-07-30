@@ -24,14 +24,23 @@ void main() {
       expect(format.isWithinAcceptedRange(1000), isTrue);
     });
 
-    test('returns true only within the inclusive accepted range (Average 6–9)', () {
-      final format = buildFormat(acceptedMin: 6, acceptedMax: 9);
-      expect(format.isWithinAcceptedRange(5), isFalse); // just below
-      expect(format.isWithinAcceptedRange(6), isTrue);  // lower bound inclusive
-      expect(format.isWithinAcceptedRange(7), isTrue);  // interior
-      expect(format.isWithinAcceptedRange(9), isTrue);  // upper bound inclusive
-      expect(format.isWithinAcceptedRange(10), isFalse); // just above
-    });
+    test(
+      'returns true only within the inclusive accepted range (Average 6–9)',
+      () {
+        final format = buildFormat(acceptedMin: 6, acceptedMax: 9);
+        expect(format.isWithinAcceptedRange(5), isFalse); // just below
+        expect(
+          format.isWithinAcceptedRange(6),
+          isTrue,
+        ); // lower bound inclusive
+        expect(format.isWithinAcceptedRange(7), isTrue); // interior
+        expect(
+          format.isWithinAcceptedRange(9),
+          isTrue,
+        ); // upper bound inclusive
+        expect(format.isWithinAcceptedRange(10), isFalse); // just above
+      },
+    );
 
     test('supports a single-value accepted range (Well Below Average = 1)', () {
       final format = buildFormat(acceptedMin: 1, acceptedMax: 1);
@@ -51,7 +60,10 @@ void main() {
       expect(buildFormat().hasAcceptedRange, isFalse);
       expect(buildFormat(acceptedMin: 6).hasAcceptedRange, isFalse);
       expect(buildFormat(acceptedMax: 9).hasAcceptedRange, isFalse);
-      expect(buildFormat(acceptedMin: 6, acceptedMax: 9).hasAcceptedRange, isTrue);
+      expect(
+        buildFormat(acceptedMin: 6, acceptedMax: 9).hasAcceptedRange,
+        isTrue,
+      );
     });
 
     test('inverted range (min > max) matches no value', () {
@@ -102,7 +114,12 @@ void main() {
         'defaultValue': 1,
         'step': 1,
         'bands': [
-          {'min': 1, 'max': 1, 'name': 'Well below average for age', 'labelAt': 1},
+          {
+            'min': 1,
+            'max': 1,
+            'name': 'Well below average for age',
+            'labelAt': 1,
+          },
           {'min': 6, 'max': 9, 'name': 'Average for age', 'labelAt': 7},
         ],
       });
@@ -125,16 +142,24 @@ void main() {
 
   group('ScaleAnswerFormat band lookup', () {
     ScaleAnswerFormat standard() => const ScaleAnswerFormat(
-          minimumValue: 1, maximumValue: 12, defaultValue: 1, step: 1,
-          bands: [
-            ScaleBand(min: 1, max: 1, name: 'Well below average for age', labelAt: 1),
-            ScaleBand(min: 2, max: 3, name: 'Below average for age', labelAt: 3),
-            ScaleBand(min: 4, max: 5, name: 'Low average for age', labelAt: 4),
-            ScaleBand(min: 6, max: 9, name: 'Average for age', labelAt: 7),
-            ScaleBand(min: 10, max: 11, name: 'High average for age', labelAt: 10),
-            ScaleBand(min: 12, max: 12, name: 'Above average for age', labelAt: 12),
-          ],
-        );
+      minimumValue: 1,
+      maximumValue: 12,
+      defaultValue: 1,
+      step: 1,
+      bands: [
+        ScaleBand(
+          min: 1,
+          max: 1,
+          name: 'Well below average for age',
+          labelAt: 1,
+        ),
+        ScaleBand(min: 2, max: 3, name: 'Below average for age', labelAt: 3),
+        ScaleBand(min: 4, max: 5, name: 'Low average for age', labelAt: 4),
+        ScaleBand(min: 6, max: 9, name: 'Average for age', labelAt: 7),
+        ScaleBand(min: 10, max: 11, name: 'High average for age', labelAt: 10),
+        ScaleBand(min: 12, max: 12, name: 'Above average for age', labelAt: 12),
+      ],
+    );
 
     test('tooltipName returns the band covering a value, incl. boundaries', () {
       final f = standard();
@@ -148,7 +173,12 @@ void main() {
     });
 
     test('tooltipName returns null when no bands', () {
-      const f = ScaleAnswerFormat(minimumValue: 1, maximumValue: 12, defaultValue: 1, step: 1);
+      const f = ScaleAnswerFormat(
+        minimumValue: 1,
+        maximumValue: 12,
+        defaultValue: 1,
+        step: 1,
+      );
       expect(f.tooltipName(5.0), isNull);
     });
 
@@ -163,7 +193,12 @@ void main() {
     });
 
     test('labelName returns null when no bands', () {
-      const f = ScaleAnswerFormat(minimumValue: 1, maximumValue: 12, defaultValue: 1, step: 1);
+      const f = ScaleAnswerFormat(
+        minimumValue: 1,
+        maximumValue: 12,
+        defaultValue: 1,
+        step: 1,
+      );
       expect(f.labelName(7.0), isNull);
     });
   });

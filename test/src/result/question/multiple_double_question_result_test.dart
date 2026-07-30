@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:survey_kit/src/model/answer/multi_double.dart';
 import 'package:survey_kit/survey_kit.dart';
 
 import 'mock.dart';
@@ -18,14 +17,12 @@ void main() {
   );
 
   group('serialisation', () {
-    test(
-      'should work with valid example',
-      () async {
-        final encodedResult = tResult.toJson();
-        final decodedResult =
-            StepResult<List<MultiDouble>>.fromJson(encodedResult);
-        expect(tResult, decodedResult);
-      },
-    );
+    test('should work with valid example', () async {
+      final encodedResult = tResult.toJson();
+      final decodedResult = StepResult<List<MultiDouble>>.fromJson(
+        encodedResult,
+      );
+      expect(tResult, decodedResult);
+    });
   });
 }

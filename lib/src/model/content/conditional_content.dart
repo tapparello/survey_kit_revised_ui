@@ -16,10 +16,16 @@ class ConditionalContent extends Content {
     this.defaultOption,
   }) : super(contentType: type);
 
-  factory ConditionalContent.fromJson(Map<String, dynamic> json, {SurveyRegistries? registries}) {
+  factory ConditionalContent.fromJson(
+    Map<String, dynamic> json, {
+    SurveyRegistries? registries,
+  }) {
     final optionsJson = json['options'] as Map<String, dynamic>;
     final options = optionsJson.map(
-      (key, value) => MapEntry(key, Content.fromJson(value as Map<String, dynamic>, registries: registries)),
+      (key, value) => MapEntry(
+        key,
+        Content.fromJson(value as Map<String, dynamic>, registries: registries),
+      ),
     );
     return ConditionalContent(
       variable: json['variable'] as String,
@@ -30,13 +36,13 @@ class ConditionalContent extends Content {
 
   @override
   Map<String, dynamic> toJson() => {
-        'type': type,
-        'variable': variable,
-        if (defaultOption != null) 'default': defaultOption,
-        'options': options.map(
-          (key, value) => MapEntry(key, (value as dynamic).toJson()),
-        ),
-      };
+    'type': type,
+    'variable': variable,
+    if (defaultOption != null) 'default': defaultOption,
+    'options': options.map(
+      (key, value) => MapEntry(key, (value as dynamic).toJson()),
+    ),
+  };
 
   /// Resolves which content to display based on [variables].
   /// Falls back to [defaultOption] when the variable is absent or unmatched.

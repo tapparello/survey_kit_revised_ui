@@ -23,13 +23,12 @@ void main() {
       ),
       buttonText: terminalButtonText,
     );
-    return NavigableTask(id: 't', steps: [q1, terminal])
-      ..addNavigationRule(
-        forTriggerStepIdentifier: 'terminal',
-        navigationRule: ConditionalNavigationRule(
-          resultToStepIdentifierMapper: (_, __) => 'end_task',
-        ),
-      );
+    return NavigableTask(id: 't', steps: [q1, terminal])..addNavigationRule(
+      forTriggerStepIdentifier: 'terminal',
+      navigationRule: ConditionalNavigationRule(
+        resultToStepIdentifierMapper: (_, __) => 'end_task',
+      ),
+    );
   }
 
   Future<void> pumpToTerminal(
@@ -51,7 +50,9 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('no-buttonText terminal step shows localized Done', (tester) async {
+  testWidgets('no-buttonText terminal step shows localized Done', (
+    tester,
+  ) async {
     await pumpToTerminal(tester);
     // q1 is non-terminal -> forward button localized "Next".
     expect(find.text('Next'), findsOneWidget);
@@ -61,7 +62,9 @@ void main() {
     expect(find.text('Next'), findsNothing);
   });
 
-  testWidgets("literal 'Next' (resolved @next) terminal shows Done", (tester) async {
+  testWidgets("literal 'Next' (resolved @next) terminal shows Done", (
+    tester,
+  ) async {
     await pumpToTerminal(tester, terminalButtonText: 'Next');
     await tester.tap(find.text('Next')); // q1's own Next
     await tester.pumpAndSettle();
@@ -76,12 +79,17 @@ void main() {
     expect(find.text('Done'), findsNothing);
   });
 
-  testWidgets('Done/Next localize (es): chrome terminal -> Listo, non-terminal -> Siguiente',
-      (tester) async {
-    await pumpToTerminal(tester, localizations: {'next': 'Siguiente', 'done': 'Listo'});
-    expect(find.text('Siguiente'), findsOneWidget); // q1 non-terminal
-    await tester.tap(find.text('Siguiente'));
-    await tester.pumpAndSettle();
-    expect(find.text('Listo'), findsOneWidget); // terminal localized Done
-  });
+  testWidgets(
+    'Done/Next localize (es): chrome terminal -> Listo, non-terminal -> Siguiente',
+    (tester) async {
+      await pumpToTerminal(
+        tester,
+        localizations: {'next': 'Siguiente', 'done': 'Listo'},
+      );
+      expect(find.text('Siguiente'), findsOneWidget); // q1 non-terminal
+      await tester.tap(find.text('Siguiente'));
+      await tester.pumpAndSettle();
+      expect(find.text('Listo'), findsOneWidget); // terminal localized Done
+    },
+  );
 }

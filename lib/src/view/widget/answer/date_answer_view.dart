@@ -35,7 +35,8 @@ class _DateAnswerViewState extends State<DateAnswerView>
   void initState() {
     super.initState();
     _dateAnswerFormat = widget.questionStep.answerFormat! as DateAnswerFormat;
-    _result = widget.result?.result as DateTime? ??
+    _result =
+        widget.result?.result as DateTime? ??
         _dateAnswerFormat.defaultDate ??
         DateTime.now();
   }
@@ -111,10 +112,7 @@ class _DateAnswerViewState extends State<DateAnswerView>
                 bottom: 8.0,
                 child: Text(
                   _dateFormat.format(_result!),
-                  style: const TextStyle(
-                    fontSize: 28.0,
-                    color: Colors.white,
-                  ),
+                  style: const TextStyle(fontSize: 28.0, color: Colors.white),
                 ),
               ),
             ],

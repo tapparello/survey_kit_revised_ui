@@ -18,16 +18,14 @@ class ImageAnswerFormat extends AnswerFormat {
     super.answerType = type,
   }) : super();
 
-  factory ImageAnswerFormat.fromJson(Map<String, dynamic> json) => _$ImageAnswerFormatFromJson(json);
+  factory ImageAnswerFormat.fromJson(Map<String, dynamic> json) =>
+      _$ImageAnswerFormatFromJson(json);
 
   @override
   Map<String, dynamic> toJson() => _$ImageAnswerFormatToJson(this);
 
   @override
   Widget createView(Step step, StepResult? stepResult) {
-    return ImageAnswerView(
-      questionStep: step,
-      result: stepResult,
-    );
+    return ImageAnswerView(questionStep: step, result: stepResult);
   }
 }

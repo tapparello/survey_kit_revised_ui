@@ -5,10 +5,7 @@ import 'package:survey_kit/src/widget/link.dart';
 import 'package:survey_kit/src/widget/survey_kit_video_player.dart';
 
 class VideoWidget extends StatelessWidget {
-  const VideoWidget({
-    super.key,
-    required this.videoContent,
-  });
+  const VideoWidget({super.key, required this.videoContent});
 
   final VideoContent videoContent;
 
@@ -51,7 +48,10 @@ class VideoWidget extends StatelessWidget {
           ),
           child: widget,
         ),
-        if (videoContent.externalLink != null) ...[smallVerticalSpacer, LinkText(link: videoContent.externalLink!)],
+        if (videoContent.externalLink != null) ...[
+          smallVerticalSpacer,
+          LinkText(link: videoContent.externalLink!),
+        ],
         if (videoContent.subtitle != null) ...[
           smallVerticalSpacer,
           SelectableText(

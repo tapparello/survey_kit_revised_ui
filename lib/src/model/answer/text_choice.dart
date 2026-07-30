@@ -12,20 +12,22 @@ class TextChoice {
   @JsonKey(includeIfNull: false)
   final String? value;
 
-  TextChoice({
-    String? id,
-    required this.text,
-    this.value,
-  }) : id = id ?? const Uuid().v4();
+  TextChoice({String? id, required this.text, this.value})
+    : id = id ?? const Uuid().v4();
 
   @override
   bool operator ==(Object other) =>
-      identical(this, other) || other is TextChoice && runtimeType == other.runtimeType && text == other.text && value == other.value;
+      identical(this, other) ||
+      other is TextChoice &&
+          runtimeType == other.runtimeType &&
+          text == other.text &&
+          value == other.value;
 
   @override
   int get hashCode => text.hashCode ^ value.hashCode;
 
-  factory TextChoice.fromJson(Map<String, dynamic> json) => _$TextChoiceFromJson(json);
+  factory TextChoice.fromJson(Map<String, dynamic> json) =>
+      _$TextChoiceFromJson(json);
 
   Map<String, dynamic> toJson() => _$TextChoiceToJson(this);
 }

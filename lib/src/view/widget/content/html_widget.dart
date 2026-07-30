@@ -5,10 +5,7 @@ import 'package:survey_kit/src/model/content/html_content.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class HtmlWidget extends StatelessWidget {
-  const HtmlWidget({
-    super.key,
-    required this.htmlContent,
-  });
+  const HtmlWidget({super.key, required this.htmlContent});
 
   final HtmlContent htmlContent;
 
@@ -22,9 +19,7 @@ class HtmlWidget extends StatelessWidget {
           await launchUrl(_url);
         }
       },
-      extensions: const [
-        TableHtmlExtension(),
-      ],
+      extensions: const [TableHtmlExtension()],
       style: {
         'table': Style(
           backgroundColor: const Color.fromARGB(0x50, 0xee, 0xee, 0xee),

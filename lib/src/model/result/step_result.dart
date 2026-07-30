@@ -30,17 +30,6 @@ class StepResult<T> {
     this.valueIdentifier,
   });
 
-  factory StepResult.fromQuestion({required StepResult questionResult}) {
-    return StepResult(
-      id: questionResult.id,
-      step: questionResult.step,
-      startTime: questionResult.startTime,
-      endTime: questionResult.endTime,
-      result: questionResult as T?,
-      valueIdentifier: questionResult.valueIdentifier,
-    );
-  }
-
   factory StepResult.fromJson(Map<String, dynamic> json) {
     // Normalize id: old format stored {"id": "..."}, new format is plain string
     final rawId = json['id'];
@@ -82,13 +71,21 @@ class StepResult<T> {
     if (value is List) {
       if (S == List<TextChoice>) {
         return value
-            .map((e) => TextChoice.fromJson(Map<String, dynamic>.from(e as Map)))
-            .toList() as S;
+                .map(
+                  (e) =>
+                      TextChoice.fromJson(Map<String, dynamic>.from(e as Map)),
+                )
+                .toList()
+            as S;
       }
       if (S == List<MultiDouble>) {
         return value
-            .map((e) => MultiDouble.fromJson(Map<String, dynamic>.from(e as Map)))
-            .toList() as S;
+                .map(
+                  (e) =>
+                      MultiDouble.fromJson(Map<String, dynamic>.from(e as Map)),
+                )
+                .toList()
+            as S;
       }
     }
 
@@ -119,6 +116,10 @@ class StepResult<T> {
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
-        other is StepResult && runtimeType == other.runtimeType && id == other.id && startTime == other.startTime && endTime == other.endTime;
+        other is StepResult &&
+            runtimeType == other.runtimeType &&
+            id == other.id &&
+            startTime == other.startTime &&
+            endTime == other.endTime;
   }
 }

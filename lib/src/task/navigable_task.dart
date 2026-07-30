@@ -18,14 +18,16 @@ class NavigableTask extends Task {
     Map<String, NavigationRule>? navigationRules,
     Map<String, dynamic>? variables,
     int? stepCount,
-  })  : navigationRules = navigationRules ?? {},
-        super(
-          id: id,
-          steps: steps,
-          initialStep: steps.firstWhereOrNull((step) => step.id == initialStepId),
-          variables: variables,
-          stepCount: stepCount,
-        );
+  }) : navigationRules = navigationRules ?? {},
+       super(
+         id: id,
+         steps: steps,
+         initialStep: steps.firstWhereOrNull(
+           (step) => step.id == initialStepId,
+         ),
+         variables: variables,
+         stepCount: stepCount,
+       );
 
   /// Adds a [NavigationRule] to the [navigationRule] Map
   /// It only adds the [NavigationRule] if none is already set for the
@@ -43,7 +45,10 @@ class NavigableTask extends Task {
     return navigationRules[stepIdentifier];
   }
 
-  factory NavigableTask.fromJson(Map<String, dynamic> json, {SurveyRegistries? registries}) {
+  factory NavigableTask.fromJson(
+    Map<String, dynamic> json, {
+    SurveyRegistries? registries,
+  }) {
     final navigationRules = <String, NavigationRule>{};
 
     if (json['rules'] != null) {
@@ -51,7 +56,8 @@ class NavigableTask extends Task {
       for (final rule in rules) {
         navigationRules.putIfAbsent(
           ((rule as Map<String, dynamic>)['triggerStepIdentifier']
-              as Map<String, dynamic>)['id'] as String,
+                  as Map<String, dynamic>)['id']
+              as String,
           () => NavigationRule.fromJson(rule),
         );
       }
@@ -63,10 +69,13 @@ class NavigableTask extends Task {
       id: json['id'] as String,
       steps: json['steps'] != null
           ? (json['steps'] as List)
-              .map(
-                (dynamic step) => Step.fromJson(step as Map<String, dynamic>, registries: registries),
-              )
-              .toList()
+                .map(
+                  (dynamic step) => Step.fromJson(
+                    step as Map<String, dynamic>,
+                    registries: registries,
+                  ),
+                )
+                .toList()
           : [],
       initialStepId: json['initialStepId'] as String?,
       navigationRules: navigationRules,
@@ -77,8 +86,8 @@ class NavigableTask extends Task {
 
   @override
   Map<String, dynamic> toJson() => <String, dynamic>{
-        'id': id,
-        'steps': steps.map((step) => step.toJson()).toList(),
-        'navigationRules': navigationRules,
-      };
+    'id': id,
+    'steps': steps.map((step) => step.toJson()).toList(),
+    'navigationRules': navigationRules,
+  };
 }

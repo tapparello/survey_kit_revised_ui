@@ -35,12 +35,13 @@ abstract class TaskNavigator {
     return history.last;
   }
 
-  // bool hasNextStep(Step step){
-  //   return nextInList(step) != null;
-  // }
-
-  bool hasNextStep(Step step, List<StepResult> previousResults){
-    return nextStep(step: step, previousResults: previousResults, recordStep: false) != null;
+  bool hasNextStep(Step step, List<StepResult> previousResults) {
+    return nextStep(
+          step: step,
+          previousResults: previousResults,
+          recordStep: false,
+        ) !=
+        null;
   }
 
   bool hasPreviousStep() {

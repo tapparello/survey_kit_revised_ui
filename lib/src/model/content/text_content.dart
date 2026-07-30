@@ -23,7 +23,8 @@ class TextContent extends Content {
     super.separatorAfter,
   }) : super(contentType: type);
 
-  factory TextContent.fromJson(Map<String, dynamic> json) => _$TextContentFromJson(json);
+  factory TextContent.fromJson(Map<String, dynamic> json) =>
+      _$TextContentFromJson(json);
 
   @override
   Map<String, dynamic> toJson() => _$TextContentToJson(this);

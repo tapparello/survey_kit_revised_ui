@@ -9,7 +9,10 @@ void main() {
     });
 
     test('deserializes from JSON', () {
-      final rule = CustomNavigationRule.fromJson({'type': 'custom', 'ruleId': 'my_rule'});
+      final rule = CustomNavigationRule.fromJson({
+        'type': 'custom',
+        'ruleId': 'my_rule',
+      });
       expect(rule.ruleId, 'my_rule');
     });
 

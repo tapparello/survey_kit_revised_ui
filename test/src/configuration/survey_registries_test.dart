@@ -8,9 +8,7 @@ void main() {
   group('SurveyRegistries', () {
     test('resolves registered custom content type', () {
       const registries = SurveyRegistries(
-        customContentTypes: {
-          'custom_html': HtmlContent.fromJson,
-        },
+        customContentTypes: {'custom_html': HtmlContent.fromJson},
       );
       final json = {'type': 'custom_html', 'html': '<p>test</p>'};
       final content = registries.resolveContent(json);
@@ -25,15 +23,9 @@ void main() {
 
     test('resolves registered custom step type', () {
       const registries = SurveyRegistries(
-        customStepTypes: {
-          'custom_step': Step.fromJson,
-        },
+        customStepTypes: {'custom_step': Step.fromJson},
       );
-      final json = {
-        'type': 'custom_step',
-        'id': 'test',
-        'content': [],
-      };
+      final json = {'type': 'custom_step', 'id': 'test', 'content': []};
       final step = registries.resolveStep(json);
       expect(step, isA<Step>());
     });
@@ -47,7 +39,11 @@ void main() {
     });
 
     test('stores and retrieves custom navigation rule handler', () {
-      String handler(List<StepResult> r, StepResult? c, Map<String, dynamic> v) => 'next';
+      String handler(
+        List<StepResult> r,
+        StepResult? c,
+        Map<String, dynamic> v,
+      ) => 'next';
       final registries = SurveyRegistries(
         customNavigationRules: {'my_rule': handler},
       );

@@ -31,10 +31,10 @@ class MultipleChoiceAutoCompleteAnswerFormat extends AnswerFormat {
 
   factory MultipleChoiceAutoCompleteAnswerFormat.fromJson(
     Map<String, dynamic> json,
-  ) =>
-      _$MultipleChoiceAutoCompleteAnswerFormatFromJson(json);
+  ) => _$MultipleChoiceAutoCompleteAnswerFormatFromJson(json);
   @override
-  Map<String, dynamic> toJson() => _$MultipleChoiceAutoCompleteAnswerFormatToJson(this);
+  Map<String, dynamic> toJson() =>
+      _$MultipleChoiceAutoCompleteAnswerFormatToJson(this);
 
   @override
   Widget createView(Step step, StepResult? stepResult) {

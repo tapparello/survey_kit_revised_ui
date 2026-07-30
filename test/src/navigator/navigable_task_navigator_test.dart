@@ -35,26 +35,33 @@ void main() {
     return NavigableTaskNavigator(task, registries: registries);
   }
 
-  test('hasNextStep probe does NOT fire the action handler but sees the next step',
-      () {
-    final navigator = buildNavigator();
-    final step1 = navigator.task.steps.first;
+  test(
+    'hasNextStep probe does NOT fire the action handler but sees the next step',
+    () {
+      final navigator = buildNavigator();
+      final step1 = navigator.task.steps.first;
 
-    final hasNext = navigator.hasNextStep(step1, const []);
+      final hasNext = navigator.hasNextStep(step1, const []);
 
-    expect(hasNext, isTrue, reason: 's2 follows s1');
-    expect(navigator.task.variables['fired'], isNull,
-        reason: 'action handler must not run during the read-only probe');
-  });
+      expect(hasNext, isTrue, reason: 's2 follows s1');
+      expect(
+        navigator.task.variables['fired'],
+        isNull,
+        reason: 'action handler must not run during the read-only probe',
+      );
+    },
+  );
 
-  test('real forward navigation (recordStep: true) fires the action handler once',
-      () {
-    final navigator = buildNavigator();
-    final step1 = navigator.task.steps.first;
+  test(
+    'real forward navigation (recordStep: true) fires the action handler once',
+    () {
+      final navigator = buildNavigator();
+      final step1 = navigator.task.steps.first;
 
-    final next = navigator.nextStep(step: step1, previousResults: const []);
+      final next = navigator.nextStep(step: step1, previousResults: const []);
 
-    expect(next?.id, 's2');
-    expect(navigator.task.variables['fired'], 1);
-  });
+      expect(next?.id, 's2');
+      expect(navigator.task.variables['fired'], 1);
+    },
+  );
 }

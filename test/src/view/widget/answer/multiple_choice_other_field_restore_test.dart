@@ -8,54 +8,70 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:survey_kit/survey_kit.dart';
 
 void main() {
-  testWidgets('restores the saved "Other" write-in text from an existing result',
-      (WidgetTester tester) async {
-    final otherStep = QuestionStep(
-      id: 'q_other',
-      title: 'Other',
-      answerFormat: MultipleChoiceAnswerFormat(
-        textChoices: [
-          TextChoice(id: '1', text: 'Juvenile justice services', value: 'Juvenile justice services'),
-        ],
-        otherField: true,
-        otherHintText: 'Add your own...',
-        noneOption: true,
-        maxAllowedChoices: 5,
-      ),
-      buttonText: 'Next',
-    );
-
-    final t = DateTime(2024);
-    // Simulates a prior run/back-nav: the "Other" free-text was saved as an
-    // 'Other' choice on this step.
-    final seeded = StepResult<List<TextChoice>>(
-      id: 'q_other',
-      step: otherStep,
-      startTime: t,
-      endTime: t,
-      result: [TextChoice(id: 'Other', text: 'My custom entry', value: 'My custom entry')],
-    );
-
-    final widget = MaterialApp(
-      home: Scaffold(
-        body: SurveyKit(
-          task: OrderedTask(
-            id: 't',
-            steps: [
-              otherStep,
-              CompletionStep(title: 'Done', text: 'Thanks', buttonText: 'Submit'),
-            ],
-          ),
-          initialResults: {seeded},
-          onResult: (_) {},
+  testWidgets(
+    'restores the saved "Other" write-in text from an existing result',
+    (WidgetTester tester) async {
+      final otherStep = QuestionStep(
+        id: 'q_other',
+        title: 'Other',
+        answerFormat: MultipleChoiceAnswerFormat(
+          textChoices: [
+            TextChoice(
+              id: '1',
+              text: 'Juvenile justice services',
+              value: 'Juvenile justice services',
+            ),
+          ],
+          otherField: true,
+          otherHintText: 'Add your own...',
+          noneOption: true,
+          maxAllowedChoices: 5,
         ),
-      ),
-    );
+        buttonText: 'Next',
+      );
 
-    await tester.pumpWidget(widget);
-    await tester.pumpAndSettle();
+      final t = DateTime(2024);
+      // Simulates a prior run/back-nav: the "Other" free-text was saved as an
+      // 'Other' choice on this step.
+      final seeded = StepResult<List<TextChoice>>(
+        id: 'q_other',
+        step: otherStep,
+        startTime: t,
+        endTime: t,
+        result: [
+          TextChoice(
+            id: 'Other',
+            text: 'My custom entry',
+            value: 'My custom entry',
+          ),
+        ],
+      );
 
-    // The write-in field must show the previously entered text, not just the hint.
-    expect(find.text('My custom entry'), findsOneWidget);
-  });
+      final widget = MaterialApp(
+        home: Scaffold(
+          body: SurveyKit(
+            task: OrderedTask(
+              id: 't',
+              steps: [
+                otherStep,
+                CompletionStep(
+                  title: 'Done',
+                  text: 'Thanks',
+                  buttonText: 'Submit',
+                ),
+              ],
+            ),
+            initialResults: {seeded},
+            onResult: (_) {},
+          ),
+        ),
+      );
+
+      await tester.pumpWidget(widget);
+      await tester.pumpAndSettle();
+
+      // The write-in field must show the previously entered text, not just the hint.
+      expect(find.text('My custom entry'), findsOneWidget);
+    },
+  );
 }

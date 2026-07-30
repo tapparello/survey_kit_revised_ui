@@ -22,16 +22,14 @@ class SingleChoiceAnswerFormat extends AnswerFormat {
     super.answerType = type,
   }) : super();
 
-  factory SingleChoiceAnswerFormat.fromJson(Map<String, dynamic> json) => _$SingleChoiceAnswerFormatFromJson(json);
+  factory SingleChoiceAnswerFormat.fromJson(Map<String, dynamic> json) =>
+      _$SingleChoiceAnswerFormatFromJson(json);
 
   @override
   Map<String, dynamic> toJson() => _$SingleChoiceAnswerFormatToJson(this);
 
   @override
   Widget createView(Step step, StepResult? stepResult) {
-    return SingleChoiceAnswerView(
-      questionStep: step,
-      result: stepResult,
-    );
+    return SingleChoiceAnswerView(questionStep: step, result: stepResult);
   }
 }

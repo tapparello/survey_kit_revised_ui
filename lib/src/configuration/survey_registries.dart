@@ -4,15 +4,14 @@ import 'package:survey_kit/src/model/step.dart';
 
 typedef ContentFactory = Content Function(Map<String, dynamic> json);
 typedef StepFactory = Step Function(Map<String, dynamic> json);
-typedef NavigationRuleHandler = String Function(
-  List<StepResult> results,
-  StepResult? currentResult,
-  Map<String, dynamic> variables,
-);
-typedef ActionHandler = void Function(
-  List<StepResult> results,
-  Map<String, dynamic> variables,
-);
+typedef NavigationRuleHandler =
+    String Function(
+      List<StepResult> results,
+      StepResult? currentResult,
+      Map<String, dynamic> variables,
+    );
+typedef ActionHandler =
+    void Function(List<StepResult> results, Map<String, dynamic> variables);
 
 class SurveyRegistries {
   final Map<String, ContentFactory> customContentTypes;

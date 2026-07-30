@@ -17,20 +17,19 @@ class TimeAnswerFormat extends AnswerFormat {
     super.answerType = type,
   }) : super();
 
-  factory TimeAnswerFormat.fromJson(Map<String, dynamic> json) => _$TimeAnswerFormatFromJson(json);
+  factory TimeAnswerFormat.fromJson(Map<String, dynamic> json) =>
+      _$TimeAnswerFormatFromJson(json);
   @override
   Map<String, dynamic> toJson() => _$TimeAnswerFormatToJson(this);
 
   @override
   Widget createView(Step step, StepResult? stepResult) {
-    return TimeAnswerView(
-      questionStep: step,
-      result: stepResult,
-    );
+    return TimeAnswerView(questionStep: step, result: stepResult);
   }
 }
 
-class _TimeOfDayJsonConverter implements JsonConverter<TimeOfDay?, Map<String, dynamic>> {
+class _TimeOfDayJsonConverter
+    implements JsonConverter<TimeOfDay?, Map<String, dynamic>> {
   const _TimeOfDayJsonConverter();
 
   @override
@@ -38,15 +37,12 @@ class _TimeOfDayJsonConverter implements JsonConverter<TimeOfDay?, Map<String, d
     if (json['hour'] == null || json['minute'] == null) {
       return null;
     }
-    return TimeOfDay(
-      hour: json['hour'] as int,
-      minute: json['minute'] as int,
-    );
+    return TimeOfDay(hour: json['hour'] as int, minute: json['minute'] as int);
   }
 
   @override
   Map<String, dynamic> toJson(TimeOfDay? timeOfDay) => <String, dynamic>{
-        'hour': timeOfDay?.hour,
-        'minute': timeOfDay?.minute,
-      };
+    'hour': timeOfDay?.hour,
+    'minute': timeOfDay?.minute,
+  };
 }

@@ -17,7 +17,12 @@ void main() {
     });
 
     test('round-trips through toJson', () {
-      const band = ScaleBand(min: 1, max: 1, name: 'Well below average for age', labelAt: 1);
+      const band = ScaleBand(
+        min: 1,
+        max: 1,
+        name: 'Well below average for age',
+        labelAt: 1,
+      );
       final restored = ScaleBand.fromJson(band.toJson());
       expect(restored.min, 1.0);
       expect(restored.name, 'Well below average for age');

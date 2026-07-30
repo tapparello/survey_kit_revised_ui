@@ -73,16 +73,16 @@ class _TextAnswerViewState extends State<TextAnswerView>
         if (questionText != null) AnswerQuestionText(text: questionText),
         Container(
           width: MediaQuery.of(context).size.width,
-          height: _textAnswerFormat.maxLines != null ? _textAnswerFormat.maxLines! * 50 : 50,
+          height: _textAnswerFormat.maxLines != null
+              ? _textAnswerFormat.maxLines! * 50
+              : 50,
           child: TextField(
             maxLines: _textAnswerFormat.maxLines == null ? 1 : null,
             expands: _textAnswerFormat.maxLines != null,
             style: Theme.of(context).textTheme.bodyLarge,
             textInputAction: TextInputAction.next,
             autofocus: false,
-            decoration: textFieldInputDecoration(
-              hint: _textAnswerFormat.hint,
-            ),
+            decoration: textFieldInputDecoration(hint: _textAnswerFormat.hint),
             controller: _controller,
             textAlign: TextAlign.start,
             textAlignVertical: TextAlignVertical.top,

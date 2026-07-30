@@ -15,8 +15,8 @@ class NavigableTaskNavigator extends TaskNavigator {
   final SurveyRegistries? _registries;
 
   NavigableTaskNavigator(Task task, {SurveyRegistries? registries})
-      : _registries = registries,
-        super(task) {
+    : _registries = registries,
+      super(task) {
     _init();
   }
 
@@ -40,7 +40,9 @@ class NavigableTaskNavigator extends TaskNavigator {
       return nextInList(step);
     }
     if (rule is DirectNavigationRule) {
-      return task.steps.firstWhereOrNull((e) => e.id == rule.destinationStepIdentifier);
+      return task.steps.firstWhereOrNull(
+        (e) => e.id == rule.destinationStepIdentifier,
+      );
     }
     if (rule is ConditionalNavigationRule) {
       return evaluateNextStep(step, rule, previousResults, questionResult);
@@ -53,8 +55,12 @@ class NavigableTaskNavigator extends TaskNavigator {
       // evaluates the next step to pick the Next/Done label). Do not fire the
       // side-effecting action handler during that probe — the destination is
       // fixed regardless, so only fire it on real forward navigation (#976).
-      return _evaluateActionRule(step, rule, previousResults,
-          fireAction: recordStep);
+      return _evaluateActionRule(
+        step,
+        rule,
+        previousResults,
+        fireAction: recordStep,
+      );
     }
     return nextInList(step);
   }
@@ -76,7 +82,10 @@ class NavigableTaskNavigator extends TaskNavigator {
     List<StepResult> previousResults,
     StepResult? questionResult,
   ) {
-    final nextStepIdentifier = rule.resultToStepIdentifierMapper(previousResults, questionResult);
+    final nextStepIdentifier = rule.resultToStepIdentifierMapper(
+      previousResults,
+      questionResult,
+    );
     if (nextStepIdentifier == null) {
       return nextInList(step);
     }
@@ -85,23 +94,9 @@ class NavigableTaskNavigator extends TaskNavigator {
       return null;
     }
 
-    // log(json.encode(questionResult.toJson()));
-    // final dynamic result = questionResult.result;
-    // if (result == null) {
-    //   return nextInList(step);
-    // }
-    // log(json.encode(result.toJson()));
-    // String? value;
-    // switch (result.runtimeType){
-    //   case TextChoice:
-    //     value = (result as TextChoice).value;
-    // }
-    // final nextStepIdentifier =
-    //     rule.resultToStepIdentifierMapper(value);
-    // if (nextStepIdentifier == null) {
-    //   return nextInList(step);
-    // }
-    return task.steps.firstWhereOrNull((element) => element.id == nextStepIdentifier);
+    return task.steps.firstWhereOrNull(
+      (element) => element.id == nextStepIdentifier,
+    );
   }
 
   Step? _evaluateCustomRule(
@@ -112,7 +107,9 @@ class NavigableTaskNavigator extends TaskNavigator {
   ) {
     final handler = _registries?.customNavigationRules[rule.ruleId];
     if (handler == null) {
-      SurveyKitLogger.d('No handler registered for custom rule: ${rule.ruleId}');
+      SurveyKitLogger.d(
+        'No handler registered for custom rule: ${rule.ruleId}',
+      );
       return nextInList(step);
     }
     task.variables['_currentStepId'] = step.id;
@@ -156,41 +153,6 @@ class NavigableTaskNavigator extends TaskNavigator {
   @override
   Step? firstStep() {
     final previousStep = peekHistory();
-
-    //
-    // if (previousStep == null) {
-    //   if (task.initialStep != null && task.initialStep!.id != task.steps.first.id) {
-    //     // Re-generate the history in case the task is restarted from a different initial step
-    //     var currentStep = task.steps.first;
-    //     Step? step;
-    //     SurveyKitLogger.d('Recorded step: ${currentStep.id}');
-    //     while (currentStep.id != task.initialStep!.id) {
-    //       step = nextStep(
-    //         step: currentStep,
-    //         previousResults: [],
-    //         questionResult: null,
-    //       );
-    //
-    //       SurveyKitLogger.d('Recorded step: ${step?.id}');
-    //       if (step == null) {
-    //         break;
-    //       }
-    //
-    //       currentStep = step;
-    //     }
-    //
-    //     return task.initialStep;
-    //   } else {
-    //     return task.steps.first;
-    //   }
-    //
-    // } else { // There is a previous step in the history
-    //   return nextStep(
-    //     step: previousStep,
-    //     previousResults: [],
-    //     questionResult: null,
-    //   );
-    // }
 
     return previousStep == null
         ? task.initialStep ?? task.steps.first

@@ -9,7 +9,8 @@ dynamic extractAnswerValue(dynamic result) {
   // Restored single-choice answer (StepResult<dynamic> from initialResults)
   // arrives as a raw Map. 4_11-style choices have no 'value' (only 'text'),
   // so match on either key and return value ?? text.
-  if (result is Map && (result.containsKey('value') || result.containsKey('text'))) {
+  if (result is Map &&
+      (result.containsKey('value') || result.containsKey('text'))) {
     return (result['value'] ?? result['text'])?.toString();
   }
   if (result is List) {
@@ -17,7 +18,8 @@ dynamic extractAnswerValue(dynamic result) {
       for (final item in result)
         if (item is TextChoice)
           (item.value ?? item.text)
-        else if (item is Map && (item.containsKey('value') || item.containsKey('text')))
+        else if (item is Map &&
+            (item.containsKey('value') || item.containsKey('text')))
           ((item['value'] ?? item['text'])?.toString() ?? '')
         else if (item != null)
           item.toString(),

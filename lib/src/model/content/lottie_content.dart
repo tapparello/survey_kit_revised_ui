@@ -23,10 +23,11 @@ class LottieContent extends Content {
     this.width = 100,
     this.height = 100,
     super.id,
-  })  : assert(url != null || asset != null, 'Either url or asset must be set'),
-        super(contentType: type);
+  }) : assert(url != null || asset != null, 'Either url or asset must be set'),
+       super(contentType: type);
 
-  factory LottieContent.fromJson(Map<String, dynamic> json) => _$LottieContentFromJson(json);
+  factory LottieContent.fromJson(Map<String, dynamic> json) =>
+      _$LottieContentFromJson(json);
 
   @override
   Map<String, dynamic> toJson() => _$LottieContentToJson(this);
