@@ -1,0 +1,17 @@
+# Revisions listed here are skipped by `git blame`.
+#
+# Enable locally with:
+#   git config blame.ignoreRevsFile .git-blame-ignore-revs
+#
+# GitHub honors this file automatically.
+#
+# IMPORTANT: every SHA below must remain reachable. Do not squash-merge or
+# rebase-merge branches containing them - git treats an unresolvable SHA in
+# this file as a FATAL error on every `git blame`, not a warning.
+#
+# If you must rewrite history at or before one of these commits, first run
+#   git config --unset blame.ignoreRevsFile
+# then update this file with the new SHA and re-enable it.
+
+# style(1000): dart format at width 80 (Phase 1 library hardening, ADO #1000)
+0277ba013858d39d0808052f4b788262bf644a4b
