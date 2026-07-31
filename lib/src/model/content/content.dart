@@ -12,11 +12,10 @@ import 'package:survey_kit/src/model/content/styled_text_content.dart';
 import 'package:survey_kit/src/model/content/text_content.dart';
 import 'package:survey_kit/src/model/content/video_content.dart';
 
-@JsonSerializable()
 abstract class Content {
   @JsonKey(includeIfNull: false)
   final String? id;
-  @JsonKey(name: 'type')
+  @JsonKey(name: 'type', includeToJson: true, includeFromJson: false)
   final String contentType;
 
   /// Whether a default 14px separator is rendered AFTER this content in

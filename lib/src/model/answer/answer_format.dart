@@ -17,12 +17,11 @@ import 'package:survey_kit/src/model/answer/time_answer_format.dart';
 import 'package:survey_kit/src/model/result/step_result.dart';
 import 'package:survey_kit/src/model/step.dart';
 
-@JsonSerializable()
 abstract class AnswerFormat {
   const AnswerFormat({this.answerType, this.question});
 
   final String? question;
-  @JsonKey(name: 'type')
+  @JsonKey(name: 'type', includeToJson: true, includeFromJson: false)
   final String? answerType;
 
   Map<String, dynamic> toJson();
