@@ -1,3 +1,33 @@
+# 1.0.0-dev.13
+
+- BUGFIX: `build_runner` regeneration is reproducible again. Previously the
+  regenerated code did not compile (all 14 answer formats), silently dropped the
+  JSON `type` discriminator from all 10 `Content` subclasses, and reverted the
+  hand-applied nested `toJson()` fix for `Step` / `StepResult`. A round-tripped
+  `Content` would have degraded to a different type on the next regeneration.
+  (ADO #1001)
+- BUGFIX: integer fields on `IntegerAnswerFormat`, `TextAnswerFormat` and the
+  multiple-choice formats no longer throw when the value arrives as a JSON
+  double (e.g. `1.0`).
+- CHANGE: `toJson()` now returns a fully JSON-encodable map everywhere; nested
+  models are converted rather than embedded as live objects.
+- CHANGE: key **order** in serialized output changed for 16 models. The decoded
+  map is equivalent, but the encoded string is no longer byte-identical -
+  consumers comparing persisted JSON as a string will see one inequality per
+  existing record.
+- CHANGE: `OrderedTask.toJson()` now includes `variables` and `stepCount`.
+- ADDED: a root `build.yaml` restricting codegen to `lib/**`.
+- ADDED: a CI job enforcing that regeneration is a no-op.
+- ADDED: `.fvmrc` pinning Flutter 3.44.7, and a README section on regenerating
+  code.
+
+# 1.0.0-dev.3 - 1.0.0-dev.12
+
+Not previously recorded. The notable change in this range:
+
+- BREAKING: two unused public members were removed during Phase 1 library
+  hardening. (ADO #1000, `d870dad`)
+
 # 1.0.0-dev.2
 - BREAKING: `resultToStepIdentifierMapper` now also returns the previous results
   - (StepResult? result) -> (List<StepResult> results, StepResult? result)
