@@ -59,4 +59,61 @@ void main() {
       });
     }
   });
+
+  group('AnswerFormat discriminator survives a JSON round trip', () {
+    final formats = <AnswerFormat>[
+      const BooleanAnswerFormat(positiveAnswer: 'y', negativeAnswer: 'n'),
+      DateAnswerFormat(),
+      const DoubleAnswerFormat(),
+      const IntegerAnswerFormat(),
+      const ImageAnswerFormat(),
+      const TextAnswerFormat(),
+      const TimeAnswerFormat(),
+      const ScaleAnswerFormat(
+        maximumValue: 10,
+        minimumValue: 0,
+        defaultValue: 5,
+        step: 1,
+      ),
+      const MultipleChoiceAnswerFormat(textChoices: []),
+      const MultipleChoiceAnswerWithFeedbackFormat(textChoices: []),
+      const MultipleChoiceAutoCompleteAnswerFormat(textChoices: []),
+      const SingleChoiceAnswerFormat(textChoices: []),
+      const SingleChoiceAnswerWithFeedbackFormat(textChoices: []),
+      const MultipleDoubleAnswerFormat(hints: []),
+    ];
+
+    for (final format in formats) {
+      test('${format.runtimeType}', () {
+        final decoded =
+            jsonDecode(jsonEncode(format.toJson())) as Map<String, dynamic>;
+
+        expect(
+          decoded['type'],
+          format.answerType,
+          reason: 'discriminator missing for ${format.runtimeType}',
+        );
+
+        final back = AnswerFormat.fromJson(decoded);
+
+        expect(
+          back.runtimeType,
+          format.runtimeType,
+          reason: '${format.runtimeType} degraded to ${back.runtimeType}',
+        );
+        expect(
+          back.answerType,
+          format.answerType,
+          reason: '${format.runtimeType} answerType changed after decode',
+        );
+        expect(
+          back.toJson(),
+          format.toJson(),
+          reason:
+              '${format.runtimeType} did not round-trip its payload '
+              'faithfully',
+        );
+      });
+    }
+  });
 }
