@@ -12,17 +12,9 @@ SeparatorContent _$SeparatorContentFromJson(Map<String, dynamic> json) =>
       id: json['id'] as String?,
     );
 
-Map<String, dynamic> _$SeparatorContentToJson(SeparatorContent instance) {
-  final val = <String, dynamic>{};
-
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
-    }
-  }
-
-  writeNotNull('id', instance.id);
-  val['height'] = instance.height;
-  val['type'] = 'separator';
-  return val;
-}
+Map<String, dynamic> _$SeparatorContentToJson(SeparatorContent instance) =>
+    <String, dynamic>{
+      'id': ?instance.id,
+      'type': instance.contentType,
+      'height': instance.height,
+    };

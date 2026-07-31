@@ -20,13 +20,13 @@ StyledTextContent _$StyledTextContentFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$StyledTextContentToJson(StyledTextContent instance) =>
     <String, dynamic>{
-      'type': 'styled_text',
+      'type': instance.contentType,
+      'separatorAfter': instance.separatorAfter,
       'text': instance.text,
       'fontSize': instance.fontSize,
       'bold': instance.bold,
       'italic': instance.italic,
       'underlined': instance.underlined,
       'center': instance.center,
-      'separatorAfter': instance.separatorAfter,
-      if (instance.style != null) 'style': instance.style!,
+      'style': ?instance.style,
     };

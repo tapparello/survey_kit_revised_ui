@@ -7,23 +7,21 @@ part of 'multiple_double_answer_format.dart';
 // **************************************************************************
 
 MultipleDoubleAnswerFormat _$MultipleDoubleAnswerFormatFromJson(
-        Map<String, dynamic> json) =>
-    MultipleDoubleAnswerFormat(
-      defaultValues: (json['defaultValues'] as List<dynamic>?)
-          ?.map((e) => MultiDouble.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      hints:
-          (json['hints'] as List<dynamic>?)?.map((e) => e as String).toList() ??
-              [],
-      question: json['question'] as String?,
-      answerType: json['type'] as String?,
-    );
+  Map<String, dynamic> json,
+) => MultipleDoubleAnswerFormat(
+  defaultValues: (json['defaultValues'] as List<dynamic>?)
+      ?.map((e) => MultiDouble.fromJson(e as Map<String, dynamic>))
+      .toList(),
+  hints:
+      (json['hints'] as List<dynamic>?)?.map((e) => e as String).toList() ?? [],
+  question: json['question'] as String?,
+);
 
 Map<String, dynamic> _$MultipleDoubleAnswerFormatToJson(
-        MultipleDoubleAnswerFormat instance) =>
-    <String, dynamic>{
-      'question': instance.question,
-      'type': instance.answerType,
-      'defaultValues': instance.defaultValues,
-      'hints': instance.hints,
-    };
+  MultipleDoubleAnswerFormat instance,
+) => <String, dynamic>{
+  'question': instance.question,
+  'type': instance.answerType,
+  'defaultValues': instance.defaultValues?.map((e) => e.toJson()).toList(),
+  'hints': instance.hints,
+};

@@ -9,7 +9,9 @@ part of 'ordered_task.dart';
 Map<String, dynamic> _$OrderedTaskToJson(OrderedTask instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'steps': instance.steps,
-      'initialStep': instance.initialStep,
+      'steps': instance.steps.map((e) => e.toJson()).toList(),
+      'initialStep': instance.initialStep?.toJson(),
+      'variables': instance.variables,
+      'stepCount': instance.stepCount,
       'hashCode': instance.hashCode,
     };
