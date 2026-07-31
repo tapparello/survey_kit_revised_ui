@@ -333,5 +333,33 @@ Open an issue if you need help, if you found a bug, or if you want to discuss a 
 
 Open a PR if you want to make changes to SurveyKit.
 
+# 🔁 Regenerating generated code
+
+This package commits its `json_serializable` output (`lib/**/*.g.dart`). CI
+enforces that regeneration is a no-op, so the committed files must always match
+what the generator produces.
+
+```
+dart run build_runner build
+```
+
+- Use **Flutter 3.44.7** (see `.fvmrc`). A different SDK ships a different
+  `dart_style` and will reformat all 33 generated files.
+- Do **not** pass `--delete-conflicting-outputs`; `build_runner` 2.15 removed it
+  and ignores it.
+- Two `defaultValue` warnings from
+  `multiple_choice_auto_complete_answer_format.dart` are expected.
+- Reverting generated files with `git checkout` and rebuilding is a **no-op** —
+  `build_runner` caches its asset graph. Use
+  `dart run build_runner clean && dart run build_runner build`.
+- Regeneration must leave `git status --porcelain -- '*.g.dart'` empty before
+  you push. If it does not, commit the regenerated files.
+- **Never remove `build.yaml`'s `sources` restriction.** Without it
+  `build_runner` traverses `example/ios/.symlinks`, an absolute symlink back to
+  this repository, and writes generated output into your working tree from any
+  checkout. See ADO #1001.
+- If you bump `json_serializable`, `source_gen`, `dart_style`, or the Flutter
+  SDK, regenerate in the same commit.
+
 # 📃 License
 SurveyKit is released under an MIT license. See [License](LICENSE) for more information.
