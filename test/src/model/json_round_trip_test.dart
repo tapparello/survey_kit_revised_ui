@@ -33,7 +33,7 @@ void main() {
 
         expect(
           decoded['type'],
-          isNotNull,
+          content.contentType,
           reason: 'discriminator missing for ${content.runtimeType}',
         );
 
@@ -44,7 +44,18 @@ void main() {
           content.runtimeType,
           reason: '${content.runtimeType} degraded to ${back.runtimeType}',
         );
-        expect(back.contentType, content.contentType);
+        expect(
+          back.contentType,
+          content.contentType,
+          reason: '${content.runtimeType} contentType changed after decode',
+        );
+        expect(
+          back.toJson(),
+          content.toJson(),
+          reason:
+              '${content.runtimeType} did not round-trip its payload '
+              'faithfully',
+        );
       });
     }
   });
