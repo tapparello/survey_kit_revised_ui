@@ -14,8 +14,16 @@
 - CHANGE: key **order** in serialized output changed for 16 models. The decoded
   map is equivalent, but the encoded string is no longer byte-identical -
   consumers comparing persisted JSON as a string will see one inequality per
-  existing record.
+  existing record. Self-correcting once each record is next written; update
+  any byte-comparison golden tests.
 - CHANGE: `OrderedTask.toJson()` now includes `variables` and `stepCount`.
+- CHANGE: the `type` discriminator on the abstract `Content` and `AnswerFormat`
+  bases is now write-only (`includeToJson: true, includeFromJson: false`). If you
+  subclass either and generate your own `.g.dart`, your subclass must supply the
+  discriminator default (e.g. `super.answerType = type`) or `toJson()` will emit
+  `"type": null` and the next load will throw. `explicit_to_json` is
+  package-local, so set it in your own `build.yaml` to keep nested `toJson()`
+  calls.
 - ADDED: a root `build.yaml` restricting codegen to `lib/**`.
 - ADDED: a CI job enforcing that regeneration is a no-op.
 - ADDED: `.fvmrc` pinning Flutter 3.44.7, and a README section on regenerating

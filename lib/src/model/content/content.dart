@@ -15,6 +15,11 @@ import 'package:survey_kit/src/model/content/video_content.dart';
 abstract class Content {
   @JsonKey(includeIfNull: false)
   final String? id;
+  // Write-only by design: the discriminator is consumed by the dispatching
+  // Content.fromJson factory below and is never assigned from JSON. Removing
+  // includeToJson silently drops 'type' from every subclass's generated
+  // toJson; removing includeFromJson makes codegen emit an out-of-scope
+  // subclass constant that will not compile. See ADO #1001.
   @JsonKey(name: 'type', includeToJson: true, includeFromJson: false)
   final String contentType;
 
