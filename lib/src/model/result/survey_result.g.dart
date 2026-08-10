@@ -7,17 +7,17 @@ part of 'survey_result.dart';
 // **************************************************************************
 
 SurveyResult _$SurveyResultFromJson(Map<String, dynamic> json) => SurveyResult(
-      id: json['id'] as String,
-      startTime:
-          const CustomDateTimeConverter().fromJson(json['startTime'] as String),
-      endTime:
-          const CustomDateTimeConverter().fromJson(json['endTime'] as String),
-      finishReason: $enumDecode(_$FinishReasonEnumMap, json['finishReason']),
-      results: (json['results'] as List<dynamic>)
-          .map((e) => StepResult<dynamic>.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      lastShownStepId: json['lastShownStepId'] as String?,
-    );
+  id: json['id'] as String,
+  startTime: const CustomDateTimeConverter().fromJson(
+    json['startTime'] as String,
+  ),
+  endTime: const CustomDateTimeConverter().fromJson(json['endTime'] as String),
+  finishReason: $enumDecode(_$FinishReasonEnumMap, json['finishReason']),
+  results: (json['results'] as List<dynamic>)
+      .map((e) => StepResult<dynamic>.fromJson(e as Map<String, dynamic>))
+      .toList(),
+  lastShownStepId: json['lastShownStepId'] as String?,
+);
 
 Map<String, dynamic> _$SurveyResultToJson(SurveyResult instance) =>
     <String, dynamic>{
@@ -25,8 +25,8 @@ Map<String, dynamic> _$SurveyResultToJson(SurveyResult instance) =>
       'startTime': const CustomDateTimeConverter().toJson(instance.startTime),
       'endTime': const CustomDateTimeConverter().toJson(instance.endTime),
       'finishReason': _$FinishReasonEnumMap[instance.finishReason]!,
-      'lastShownStepId': instance.lastShownStepId,
       'results': instance.results.map((e) => e.toJson()).toList(),
+      'lastShownStepId': instance.lastShownStepId,
     };
 
 const _$FinishReasonEnumMap = {

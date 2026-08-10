@@ -42,3 +42,31 @@ jobs:
         with:
           name: coverage
           path: coverage/lcov.info
+
+  codegen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.44.7
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+
+      # Regeneration must be a no-op. Uses `git status --porcelain` rather than
+      # `git diff --exit-code` so generated files that are ADDED or DELETED are
+      # caught, not just modified - build_runner has been observed deleting all
+      # 33 of them. Two `defaultValue` warnings are expected and do not fail the
+      # build. See ADO #1001.
+      - name: Verify generated code is up to date
+        run: |
+          dart run build_runner build
+          if [ -n "$(git status --porcelain -- '*.g.dart')" ]; then
+            echo "::error::Generated code is stale. Run: dart run build_runner build"
+            git status --porcelain -- '*.g.dart'
+            git diff -- '*.g.dart'
+            exit 1
+          fi

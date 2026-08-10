@@ -12,11 +12,15 @@ import 'package:survey_kit/src/model/content/styled_text_content.dart';
 import 'package:survey_kit/src/model/content/text_content.dart';
 import 'package:survey_kit/src/model/content/video_content.dart';
 
-@JsonSerializable()
 abstract class Content {
   @JsonKey(includeIfNull: false)
   final String? id;
-  @JsonKey(name: 'type')
+  // Write-only by design: the discriminator is consumed by the dispatching
+  // Content.fromJson factory below and is never assigned from JSON. Removing
+  // includeToJson silently drops 'type' from every subclass's generated
+  // toJson; removing includeFromJson makes codegen emit an out-of-scope
+  // subclass constant that will not compile. See ADO #1001.
+  @JsonKey(name: 'type', includeToJson: true, includeFromJson: false)
   final String contentType;
 
   /// Whether a default 14px separator is rendered AFTER this content in

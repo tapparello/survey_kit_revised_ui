@@ -7,31 +7,24 @@ part of 'text_content.dart';
 // **************************************************************************
 
 TextContent _$TextContentFromJson(Map<String, dynamic> json) => TextContent(
-      text: json['text'] as String,
-      fontSize: (json['fontSize'] as num?)?.toDouble() ?? 16,
-      textAlign: $enumDecodeNullable(_$TextAlignEnumMap, json['textAlign']) ??
-          TextAlign.center,
-      id: json['id'] as String?,
-      separatorAfter: json['separatorAfter'] as bool? ?? true,
-    );
+  text: json['text'] as String,
+  fontSize: (json['fontSize'] as num?)?.toDouble() ?? 16,
+  textAlign:
+      $enumDecodeNullable(_$TextAlignEnumMap, json['textAlign']) ??
+      TextAlign.center,
+  id: json['id'] as String?,
+  separatorAfter: json['separatorAfter'] as bool? ?? true,
+);
 
-Map<String, dynamic> _$TextContentToJson(TextContent instance) {
-  final val = <String, dynamic>{};
-
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
-    }
-  }
-
-  writeNotNull('id', instance.id);
-  val['text'] = instance.text;
-  val['fontSize'] = instance.fontSize;
-  val['textAlign'] = _$TextAlignEnumMap[instance.textAlign]!;
-  val['separatorAfter'] = instance.separatorAfter;
-  val['type'] = 'text';
-  return val;
-}
+Map<String, dynamic> _$TextContentToJson(TextContent instance) =>
+    <String, dynamic>{
+      'id': ?instance.id,
+      'type': instance.contentType,
+      'separatorAfter': instance.separatorAfter,
+      'text': instance.text,
+      'fontSize': instance.fontSize,
+      'textAlign': _$TextAlignEnumMap[instance.textAlign]!,
+    };
 
 const _$TextAlignEnumMap = {
   TextAlign.left: 'left',

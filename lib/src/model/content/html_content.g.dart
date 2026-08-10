@@ -7,23 +7,15 @@ part of 'html_content.dart';
 // **************************************************************************
 
 HtmlContent _$HtmlContentFromJson(Map<String, dynamic> json) => HtmlContent(
-      html: json['html'] as String,
-      id: json['id'] as String?,
-      separatorAfter: json['separatorAfter'] as bool? ?? true,
-    );
+  html: json['html'] as String,
+  id: json['id'] as String?,
+  separatorAfter: json['separatorAfter'] as bool? ?? true,
+);
 
-Map<String, dynamic> _$HtmlContentToJson(HtmlContent instance) {
-  final val = <String, dynamic>{};
-
-  void writeNotNull(String key, dynamic value) {
-    if (value != null) {
-      val[key] = value;
-    }
-  }
-
-  writeNotNull('id', instance.id);
-  val['html'] = instance.html;
-  val['separatorAfter'] = instance.separatorAfter;
-  val['type'] = 'html';
-  return val;
-}
+Map<String, dynamic> _$HtmlContentToJson(HtmlContent instance) =>
+    <String, dynamic>{
+      'id': ?instance.id,
+      'type': instance.contentType,
+      'separatorAfter': instance.separatorAfter,
+      'html': instance.html,
+    };

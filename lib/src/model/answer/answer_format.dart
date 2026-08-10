@@ -17,12 +17,16 @@ import 'package:survey_kit/src/model/answer/time_answer_format.dart';
 import 'package:survey_kit/src/model/result/step_result.dart';
 import 'package:survey_kit/src/model/step.dart';
 
-@JsonSerializable()
 abstract class AnswerFormat {
   const AnswerFormat({this.answerType, this.question});
 
   final String? question;
-  @JsonKey(name: 'type')
+  // Write-only by design: the discriminator is consumed by the dispatching
+  // AnswerFormat.fromJson factory below and is never assigned from JSON.
+  // Removing includeToJson silently drops 'type' from every subclass's
+  // generated toJson; removing includeFromJson makes codegen emit an
+  // out-of-scope subclass constant that will not compile. See ADO #1001.
+  @JsonKey(name: 'type', includeToJson: true, includeFromJson: false)
   final String? answerType;
 
   Map<String, dynamic> toJson();

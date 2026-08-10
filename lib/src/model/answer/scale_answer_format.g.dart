@@ -24,7 +24,6 @@ ScaleAnswerFormat _$ScaleAnswerFormatFromJson(Map<String, dynamic> json) =>
               .toList() ??
           const [],
       question: json['question'] as String?,
-      answerType: json['type'] as String?,
     );
 
 Map<String, dynamic> _$ScaleAnswerFormatToJson(ScaleAnswerFormat instance) =>
@@ -41,5 +40,5 @@ Map<String, dynamic> _$ScaleAnswerFormatToJson(ScaleAnswerFormat instance) =>
       'isAge': instance.isAge,
       'acceptedMinimumValue': instance.acceptedMinimumValue,
       'acceptedMaximumValue': instance.acceptedMaximumValue,
-      'bands': instance.bands,
+      'bands': instance.bands.map((e) => e.toJson()).toList(),
     };
