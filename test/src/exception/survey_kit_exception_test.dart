@@ -15,6 +15,7 @@ String describe(SurveyKitException e) => switch (e) {
   UnknownTypeException() => 'unknown',
   TaskNotDefinedException() => 'task',
   RuleNotDefinedException() => 'rule',
+  ResultCodecException() => 'resultCodec',
 };
 
 void main() {
@@ -39,6 +40,7 @@ void main() {
         UnknownTypeException(kind: 'K'),
         TaskNotDefinedException(),
         RuleNotDefinedException(),
+        ResultCodecException(stepId: 's', answerType: 'text', cause: 'c'),
       ];
       for (final e in subtypes) {
         expect(e, isA<Exception>());
@@ -65,6 +67,30 @@ void main() {
       const e = MalformedValueException(field: 'timeOfDay', value: null);
       expect(e.value, isNull);
       expect(e.message, contains('timeOfDay'));
+    });
+
+    test('ResultCodecException names the step and the discriminator', () {
+      const e = ResultCodecException(
+        stepId: 'q1',
+        answerType: 'time',
+        cause: 'boom',
+      );
+      expect(e.stepId, 'q1');
+      expect(e.answerType, 'time');
+      expect(e.message, contains('q1'));
+      expect(e.message, contains('time'));
+      expect(e.message, contains('boom'));
+    });
+
+    test('ResultCodecException tolerates a missing discriminator', () {
+      const e = ResultCodecException(
+        stepId: 'q1',
+        answerType: null,
+        cause: 'no answerType',
+      );
+      expect(e.answerType, isNull);
+      expect(e.message, contains('q1'));
+      expect(e.message, contains('no answerType'));
     });
 
     test('UnknownTypeException distinguishes absent from unrecognized', () {

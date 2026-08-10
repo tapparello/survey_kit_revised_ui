@@ -171,6 +171,14 @@ void main() {
     const rule = RuleNotDefinedException(discriminator: 'x');
     expect(rule, isA<SurveyKitException>());
 
+    const resultCodec = ResultCodecException(
+      stepId: 'api-step',
+      answerType: 'text',
+      cause: 'probe',
+    );
+    expect(resultCodec.stepId, 'api-step');
+    expect(resultCodec.answerType, 'text');
+
     for (final e in <SurveyKitException>[
       missing,
       mismatch,
@@ -180,6 +188,7 @@ void main() {
       unknown,
       task,
       rule,
+      resultCodec,
     ]) {
       expect(e.toString(), contains(e.message));
     }

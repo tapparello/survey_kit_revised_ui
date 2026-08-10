@@ -139,6 +139,39 @@ final class TaskNotDefinedException extends SurveyKitException {
   final String? discriminator;
 }
 
+/// A step result could not be converted to or from its serialized form.
+///
+/// Thrown rather than yielding an untyped value, so a caller that cannot decode
+/// a persisted record discards it instead of receiving raw JSON. Records written
+/// before Phase 2b carry no `answerType` and always fail this way.
+final class ResultCodecException extends SurveyKitException {
+  const ResultCodecException({
+    required this.stepId,
+    required this.answerType,
+    required this.cause,
+  }) : super(
+         answerType == null
+             ? "Result for step '$stepId' carries no answerType, so it cannot "
+                   'be converted: $cause'
+             : "Result for step '$stepId' with answerType '$answerType' could "
+                   'not be converted: $cause',
+       );
+
+  /// Id of the step whose result failed to convert.
+  final String stepId;
+
+  /// The result's declared answer-format discriminator, or null when the
+  /// serialized record carried none.
+  ///
+  /// The discriminator rather than a Dart type name: it is one of a fixed set of
+  /// authored constants and so survives `--obfuscate`, and it is what a reader
+  /// can act on.
+  final String? answerType;
+
+  /// Description of the underlying failure.
+  final String cause;
+}
+
 /// `NavigationRule.fromJson` found no rule type matching the discriminator.
 final class RuleNotDefinedException extends SurveyKitException {
   const RuleNotDefinedException({this.discriminator})
