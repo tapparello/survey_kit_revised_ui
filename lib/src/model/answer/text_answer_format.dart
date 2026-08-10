@@ -25,8 +25,11 @@ class TextAnswerFormat extends AnswerFormat {
     this.hint = '',
     this.validationRegEx = r'^(?!s*$).+',
     super.question,
-    super.answerType = type,
   }) : super();
+
+  @override
+  @JsonKey(name: 'type', includeToJson: true, includeFromJson: false)
+  String get answerType => type;
 
   factory TextAnswerFormat.fromJson(Map<String, dynamic> json) =>
       _$TextAnswerFormatFromJson(json);

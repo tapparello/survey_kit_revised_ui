@@ -19,16 +19,25 @@ import 'package:survey_kit/src/model/result/step_result.dart';
 import 'package:survey_kit/src/model/step.dart';
 
 abstract class AnswerFormat {
-  const AnswerFormat({this.answerType, this.question});
+  const AnswerFormat({this.question});
 
   final String? question;
-  // Write-only by design: the discriminator is consumed by the dispatching
-  // AnswerFormat.fromJson factory below and is never assigned from JSON.
-  // Removing includeToJson silently drops 'type' from every subclass's
-  // generated toJson; removing includeFromJson makes codegen emit an
-  // out-of-scope subclass constant that will not compile. See ADO #1001.
+
+  /// JSON discriminator identifying this format, e.g. `'time'`.
+  ///
+  /// Write-only by design: the discriminator is consumed by the dispatching
+  /// [AnswerFormat.fromJson] factory below and is never assigned from JSON.
+  /// Removing includeToJson silently drops 'type' from every subclass's
+  /// generated toJson; removing includeFromJson makes codegen emit an
+  /// out-of-scope subclass constant that will not compile. See ADO #1001.
+  ///
+  /// A getter rather than a constructor parameter so a caller cannot construct
+  /// one format while declaring another: [StepResult] dispatches result
+  /// conversion on this value, so a mismatch would convert with the wrong
+  /// branch in both directions. Each subclass must repeat the [JsonKey]
+  /// annotation on its override, or json_serializable drops the key. (ADO #1012)
   @JsonKey(name: 'type', includeToJson: true, includeFromJson: false)
-  final String? answerType;
+  String? get answerType;
 
   Map<String, dynamic> toJson();
 

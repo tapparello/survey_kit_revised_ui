@@ -29,7 +29,6 @@ ScaleAnswerFormat _$ScaleAnswerFormatFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$ScaleAnswerFormatToJson(ScaleAnswerFormat instance) =>
     <String, dynamic>{
       'question': instance.question,
-      'type': instance.answerType,
       'maximumValue': instance.maximumValue,
       'minimumValue': instance.minimumValue,
       'defaultValue': instance.defaultValue,
@@ -41,4 +40,5 @@ Map<String, dynamic> _$ScaleAnswerFormatToJson(ScaleAnswerFormat instance) =>
       'acceptedMinimumValue': instance.acceptedMinimumValue,
       'acceptedMaximumValue': instance.acceptedMaximumValue,
       'bands': instance.bands.map((e) => e.toJson()).toList(),
+      'type': instance.answerType,
     };

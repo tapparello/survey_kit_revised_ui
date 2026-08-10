@@ -21,8 +21,11 @@ class SingleChoiceAnswerWithFeedbackFormat extends AnswerFormat {
     this.defaultSelection,
     this.shuffleChoices = false,
     super.question,
-    super.answerType = type,
   }) : super();
+
+  @override
+  @JsonKey(name: 'type', includeToJson: true, includeFromJson: false)
+  String get answerType => type;
 
   factory SingleChoiceAnswerWithFeedbackFormat.fromJson(
     Map<String, dynamic> json,

@@ -24,9 +24,9 @@ DateAnswerFormat _$DateAnswerFormatFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$DateAnswerFormatToJson(DateAnswerFormat instance) =>
     <String, dynamic>{
       'question': instance.question,
-      'type': instance.answerType,
       'defaultDate': instance.defaultDate?.toIso8601String(),
       'minDate': instance.minDate?.toIso8601String(),
       'maxDate': instance.maxDate?.toIso8601String(),
       'futureOnly': instance.futureOnly,
+      'type': instance.answerType,
     };

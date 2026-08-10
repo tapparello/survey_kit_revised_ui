@@ -20,8 +20,11 @@ class MultipleDoubleAnswerFormat extends AnswerFormat {
     this.defaultValues,
     required this.hints,
     super.question,
-    super.answerType = type,
   }) : super();
+
+  @override
+  @JsonKey(name: 'type', includeToJson: true, includeFromJson: false)
+  String get answerType => type;
 
   factory MultipleDoubleAnswerFormat.fromJson(Map<String, dynamic> json) =>
       _$MultipleDoubleAnswerFormatFromJson(json);

@@ -16,7 +16,7 @@ DoubleAnswerFormat _$DoubleAnswerFormatFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$DoubleAnswerFormatToJson(DoubleAnswerFormat instance) =>
     <String, dynamic>{
       'question': instance.question,
-      'type': instance.answerType,
       'defaultValue': instance.defaultValue,
       'hint': instance.hint,
+      'type': instance.answerType,
     };

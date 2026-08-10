@@ -35,8 +35,11 @@ class MultipleChoiceAnswerFormat extends AnswerFormat {
     this.noneOptionText,
     this.otherHintText,
     super.question,
-    super.answerType = type,
   }) : super();
+
+  @override
+  @JsonKey(name: 'type', includeToJson: true, includeFromJson: false)
+  String get answerType => type;
 
   factory MultipleChoiceAnswerFormat.fromJson(Map<String, dynamic> json) =>
       _$MultipleChoiceAnswerFormatFromJson(json);

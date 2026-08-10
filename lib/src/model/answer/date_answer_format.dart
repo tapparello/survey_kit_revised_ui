@@ -28,7 +28,6 @@ class DateAnswerFormat extends AnswerFormat {
     this.maxDate,
     this.futureOnly = false,
     super.question,
-    super.answerType = type,
   }) : assert(
          minDate == null || maxDate == null || minDate.isBefore(maxDate),
          'mindate must be before maxdate',
@@ -48,6 +47,10 @@ class DateAnswerFormat extends AnswerFormat {
          'defaultDate must be before maxDate',
        ),
        super();
+
+  @override
+  @JsonKey(name: 'type', includeToJson: true, includeFromJson: false)
+  String get answerType => type;
 
   factory DateAnswerFormat.fromJson(Map<String, dynamic> json) =>
       _$DateAnswerFormatFromJson(json);

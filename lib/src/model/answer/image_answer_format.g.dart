@@ -16,7 +16,7 @@ ImageAnswerFormat _$ImageAnswerFormatFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$ImageAnswerFormatToJson(ImageAnswerFormat instance) =>
     <String, dynamic>{
       'question': instance.question,
-      'type': instance.answerType,
       'defaultValue': instance.defaultValue,
       'buttonText': instance.buttonText,
+      'type': instance.answerType,
     };

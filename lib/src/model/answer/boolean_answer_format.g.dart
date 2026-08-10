@@ -20,10 +20,10 @@ Map<String, dynamic> _$BooleanAnswerFormatToJson(
   BooleanAnswerFormat instance,
 ) => <String, dynamic>{
   'question': instance.question,
-  'type': instance.answerType,
   'positiveAnswer': instance.positiveAnswer,
   'negativeAnswer': instance.negativeAnswer,
   'result': _$BooleanResultEnumMap[instance.result]!,
+  'type': instance.answerType,
 };
 
 const _$BooleanResultEnumMap = {

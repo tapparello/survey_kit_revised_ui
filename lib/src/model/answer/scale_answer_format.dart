@@ -42,8 +42,11 @@ class ScaleAnswerFormat extends AnswerFormat {
     this.acceptedMaximumValue,
     this.bands = const [],
     super.question,
-    super.answerType = type,
   }) : super();
+
+  @override
+  @JsonKey(name: 'type', includeToJson: true, includeFromJson: false)
+  String get answerType => type;
 
   /// Whether a complete accepted sub-range is configured (both bounds set).
   bool get hasAcceptedRange =>

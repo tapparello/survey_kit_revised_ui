@@ -19,9 +19,9 @@ Map<String, dynamic> _$IntegerAnswerFormatToJson(
   IntegerAnswerFormat instance,
 ) => <String, dynamic>{
   'question': instance.question,
-  'type': instance.answerType,
   'defaultValue': instance.defaultValue,
   'hint': instance.hint,
   'min': instance.min,
   'max': instance.max,
+  'type': instance.answerType,
 };

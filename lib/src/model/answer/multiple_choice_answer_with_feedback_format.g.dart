@@ -35,7 +35,6 @@ Map<String, dynamic> _$MultipleChoiceAnswerWithFeedbackFormatToJson(
   MultipleChoiceAnswerWithFeedbackFormat instance,
 ) => <String, dynamic>{
   'question': instance.question,
-  'type': instance.answerType,
   'textChoices': instance.textChoices.map((e) => e.toJson()).toList(),
   'defaultSelection': instance.defaultSelection?.toJson(),
   'choicesFromVariable': instance.choicesFromVariable,
@@ -48,4 +47,5 @@ Map<String, dynamic> _$MultipleChoiceAnswerWithFeedbackFormatToJson(
   'feedbackCorrect': instance.feedbackCorrect,
   'feedbackWrong': instance.feedbackWrong,
   'coloredFeedback': instance.coloredFeedback,
+  'type': instance.answerType,
 };

@@ -37,8 +37,11 @@ class MultipleChoiceAnswerWithFeedbackFormat extends AnswerFormat {
     this.noneOption = false,
     this.noneOptionText,
     super.question,
-    super.answerType = type,
   }) : super();
+
+  @override
+  @JsonKey(name: 'type', includeToJson: true, includeFromJson: false)
+  String get answerType => type;
 
   factory MultipleChoiceAnswerWithFeedbackFormat.fromJson(
     Map<String, dynamic> json,

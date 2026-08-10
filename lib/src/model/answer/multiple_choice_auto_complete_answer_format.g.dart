@@ -30,9 +30,9 @@ Map<String, dynamic> _$MultipleChoiceAutoCompleteAnswerFormatToJson(
   MultipleChoiceAutoCompleteAnswerFormat instance,
 ) => <String, dynamic>{
   'question': instance.question,
-  'type': instance.answerType,
   'textChoices': instance.textChoices.map((e) => e.toJson()).toList(),
   'defaultSelection': instance.defaultSelection.map((e) => e.toJson()).toList(),
   'suggestions': instance.suggestions.map((e) => e.toJson()).toList(),
   'otherField': instance.otherField,
+  'type': instance.answerType,
 };

@@ -11,11 +11,11 @@ class TimeAnswerFormat extends AnswerFormat {
   @_TimeOfDayJsonConverter()
   final TimeOfDay? defaultValue;
 
-  const TimeAnswerFormat({
-    this.defaultValue,
-    super.question,
-    super.answerType = type,
-  }) : super();
+  const TimeAnswerFormat({this.defaultValue, super.question}) : super();
+
+  @override
+  @JsonKey(name: 'type', includeToJson: true, includeFromJson: false)
+  String get answerType => type;
 
   factory TimeAnswerFormat.fromJson(Map<String, dynamic> json) =>
       _$TimeAnswerFormatFromJson(json);

@@ -24,9 +24,9 @@ Map<String, dynamic> _$SingleChoiceAnswerFormatToJson(
   SingleChoiceAnswerFormat instance,
 ) => <String, dynamic>{
   'question': instance.question,
-  'type': instance.answerType,
   'textChoices': instance.textChoices.map((e) => e.toJson()).toList(),
   'choicesFromVariable': instance.choicesFromVariable,
   'defaultSelection': instance.defaultSelection?.toJson(),
   'shuffleChoices': instance.shuffleChoices,
+  'type': instance.answerType,
 };

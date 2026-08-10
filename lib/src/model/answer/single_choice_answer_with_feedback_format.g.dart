@@ -27,10 +27,10 @@ Map<String, dynamic> _$SingleChoiceAnswerWithFeedbackFormatToJson(
   SingleChoiceAnswerWithFeedbackFormat instance,
 ) => <String, dynamic>{
   'question': instance.question,
-  'type': instance.answerType,
   'textChoices': instance.textChoices.map((e) => e.toJson()).toList(),
   'defaultSelection': instance.defaultSelection?.toJson(),
   'shuffleChoices': instance.shuffleChoices,
   'feedbackCorrect': instance.feedbackCorrect,
   'feedbackWrong': instance.feedbackWrong,
+  'type': instance.answerType,
 };

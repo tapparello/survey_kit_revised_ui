@@ -16,12 +16,12 @@ class DoubleAnswerFormat extends AnswerFormat {
   final double? defaultValue;
   final String hint;
 
-  const DoubleAnswerFormat({
-    this.defaultValue,
-    this.hint = '',
-    super.question,
-    super.answerType = type,
-  }) : super();
+  const DoubleAnswerFormat({this.defaultValue, this.hint = '', super.question})
+    : super();
+
+  @override
+  @JsonKey(name: 'type', includeToJson: true, includeFromJson: false)
+  String get answerType => type;
 
   factory DoubleAnswerFormat.fromJson(Map<String, dynamic> json) =>
       _$DoubleAnswerFormatFromJson(json);
