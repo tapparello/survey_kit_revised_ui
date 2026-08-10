@@ -3,6 +3,7 @@ import 'package:survey_kit/src/model/answer/double_answer_format.dart';
 import 'package:survey_kit/src/model/result/step_result.dart';
 import 'package:survey_kit/src/model/step.dart';
 import 'package:survey_kit/src/util/measure_date_state_mixin.dart';
+import 'package:survey_kit/src/view/widget/answer/answer_format_guard.dart';
 import 'package:survey_kit/src/view/widget/answer/answer_mixin.dart';
 import 'package:survey_kit/src/view/widget/answer/answer_question_text.dart';
 import 'package:survey_kit/src/view/widget/decoration/input_decoration.dart';
@@ -29,11 +30,9 @@ class _DoubleAnswerViewState extends State<DoubleAnswerView>
   @override
   void initState() {
     super.initState();
-    final answer = widget.questionStep.answerFormat;
-    if (answer == null) {
-      throw Exception('DoubleAnswerFormat is null');
-    }
-    _doubleAnswerFormat = answer as DoubleAnswerFormat;
+    _doubleAnswerFormat = requireAnswerFormat<DoubleAnswerFormat>(
+      widget.questionStep,
+    );
     _controller = TextEditingController();
     _controller.text = widget.result?.result?.toString() ?? '';
 

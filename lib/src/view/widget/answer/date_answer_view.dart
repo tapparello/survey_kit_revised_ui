@@ -5,6 +5,7 @@ import 'package:survey_kit/src/model/answer/date_answer_format.dart';
 import 'package:survey_kit/src/model/result/step_result.dart';
 import 'package:survey_kit/src/model/step.dart';
 import 'package:survey_kit/src/util/measure_date_state_mixin.dart';
+import 'package:survey_kit/src/view/widget/answer/answer_format_guard.dart';
 import 'package:survey_kit/src/view/widget/answer/answer_mixin.dart';
 import 'package:survey_kit/src/view/widget/answer/answer_question_text.dart';
 
@@ -34,7 +35,9 @@ class _DateAnswerViewState extends State<DateAnswerView>
   @override
   void initState() {
     super.initState();
-    _dateAnswerFormat = widget.questionStep.answerFormat! as DateAnswerFormat;
+    _dateAnswerFormat = requireAnswerFormat<DateAnswerFormat>(
+      widget.questionStep,
+    );
     _result =
         widget.result?.result as DateTime? ??
         _dateAnswerFormat.defaultDate ??

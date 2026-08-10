@@ -5,6 +5,7 @@ import 'package:survey_kit/src/model/result/step_result.dart';
 import 'package:survey_kit/src/model/result/time_result.dart';
 import 'package:survey_kit/src/model/step.dart';
 import 'package:survey_kit/src/util/measure_date_state_mixin.dart';
+import 'package:survey_kit/src/view/widget/answer/answer_format_guard.dart';
 import 'package:survey_kit/src/view/widget/answer/answer_mixin.dart';
 import 'package:survey_kit/src/view/widget/answer/answer_question_text.dart';
 
@@ -39,11 +40,9 @@ class _TimeAnswerViewState extends State<TimeAnswerView>
   @override
   void initState() {
     super.initState();
-    final answer = widget.questionStep.answerFormat;
-    if (answer == null) {
-      throw Exception('TimeAnswerFormat is null');
-    }
-    _timeAnswerFormat = answer as TimeAnswerFormat;
+    _timeAnswerFormat = requireAnswerFormat<TimeAnswerFormat>(
+      widget.questionStep,
+    );
 
     initialValue = widget.result?.result != null
         ? widget.result?.result as TimeResult

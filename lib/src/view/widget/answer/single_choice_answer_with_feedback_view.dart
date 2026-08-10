@@ -4,6 +4,7 @@ import 'package:survey_kit/src/model/answer/text_choice.dart';
 import 'package:survey_kit/src/model/result/step_result.dart';
 import 'package:survey_kit/src/model/step.dart';
 import 'package:survey_kit/src/util/measure_date_state_mixin.dart';
+import 'package:survey_kit/src/view/widget/answer/answer_format_guard.dart';
 import 'package:survey_kit/src/view/widget/answer/answer_mixin.dart';
 import 'package:survey_kit/src/view/widget/answer/answer_question_text.dart';
 import 'package:survey_kit/src/view/widget/answer/selection_list_tile.dart';
@@ -34,12 +35,10 @@ class _SingleChoiceAnswerViewState
   @override
   void initState() {
     super.initState();
-    final answer = widget.questionStep.answerFormat;
-    if (answer == null) {
-      throw Exception('SingleSelectAnswer is null');
-    }
     _singleChoiceAnswerWithFeedbackFormat =
-        answer as SingleChoiceAnswerWithFeedbackFormat;
+        requireAnswerFormat<SingleChoiceAnswerWithFeedbackFormat>(
+          widget.questionStep,
+        );
 
     if (_singleChoiceAnswerWithFeedbackFormat.shuffleChoices) {
       _singleChoiceAnswerWithFeedbackFormat.textChoices.shuffle();

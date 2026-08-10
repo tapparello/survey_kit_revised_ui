@@ -8,6 +8,7 @@ import 'package:survey_kit/src/model/result/step_result.dart';
 import 'package:survey_kit/src/model/step.dart';
 import 'package:survey_kit/src/presenter/survey_state_provider.dart';
 import 'package:survey_kit/src/util/measure_date_state_mixin.dart';
+import 'package:survey_kit/src/view/widget/answer/answer_format_guard.dart';
 import 'package:survey_kit/src/view/widget/answer/answer_mixin.dart';
 import 'package:survey_kit/src/view/widget/answer/answer_question_text.dart';
 import 'package:survey_kit/src/view/widget/answer/none_option_selection.dart';
@@ -42,11 +43,9 @@ class _MultipleChoiceAnswerView extends State<MultipleChoiceAnswerView>
   void initState() {
     super.initState();
 
-    final answer = widget.questionStep.answerFormat;
-    if (answer == null) {
-      throw Exception('MultiSelectAnswer is null');
-    }
-    _multipleChoiceAnswer = answer as MultipleChoiceAnswerFormat;
+    _multipleChoiceAnswer = requireAnswerFormat<MultipleChoiceAnswerFormat>(
+      widget.questionStep,
+    );
 
     _noneOfTheAboveOption = TextChoice(
       id: 'None',

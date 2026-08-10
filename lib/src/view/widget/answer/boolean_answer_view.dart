@@ -3,6 +3,7 @@ import 'package:survey_kit/src/model/answer/boolean_answer_format.dart';
 import 'package:survey_kit/src/model/result/step_result.dart';
 import 'package:survey_kit/src/model/step.dart';
 import 'package:survey_kit/src/util/measure_date_state_mixin.dart';
+import 'package:survey_kit/src/view/widget/answer/answer_format_guard.dart';
 import 'package:survey_kit/src/view/widget/answer/answer_mixin.dart';
 import 'package:survey_kit/src/view/widget/answer/answer_question_text.dart';
 import 'package:survey_kit/src/view/widget/answer/selection_list_tile.dart';
@@ -31,11 +32,9 @@ class _BooleanAnswerViewState extends State<BooleanAnswerView>
   @override
   void initState() {
     super.initState();
-    final answer = widget.questionStep.answerFormat;
-    if (answer == null) {
-      throw Exception('BooleanAnswerFormat is null');
-    }
-    _answerFormat = answer as BooleanAnswerFormat;
+    _answerFormat = requireAnswerFormat<BooleanAnswerFormat>(
+      widget.questionStep,
+    );
     _result = widget.result?.result as BooleanResult? ?? _answerFormat.result;
   }
 

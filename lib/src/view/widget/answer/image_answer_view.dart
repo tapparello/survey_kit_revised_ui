@@ -5,6 +5,7 @@ import 'package:survey_kit/src/model/answer/image_answer_format.dart';
 import 'package:survey_kit/src/model/result/step_result.dart';
 import 'package:survey_kit/src/model/step.dart';
 import 'package:survey_kit/src/util/measure_date_state_mixin.dart';
+import 'package:survey_kit/src/view/widget/answer/answer_format_guard.dart';
 import 'package:survey_kit/src/view/widget/answer/answer_question_text.dart';
 
 class ImageAnswerView extends StatefulWidget {
@@ -30,11 +31,9 @@ class _ImageAnswerViewState extends State<ImageAnswerView>
   @override
   void initState() {
     super.initState();
-    final answer = widget.questionStep.answerFormat;
-    if (answer == null) {
-      throw Exception('ImageAnswerFormat is null');
-    }
-    _imageAnswerFormat = answer as ImageAnswerFormat;
+    _imageAnswerFormat = requireAnswerFormat<ImageAnswerFormat>(
+      widget.questionStep,
+    );
   }
 
   @override

@@ -3,6 +3,7 @@ import 'package:survey_kit/src/model/answer/scale_answer_format.dart';
 import 'package:survey_kit/src/model/result/step_result.dart';
 import 'package:survey_kit/src/model/step.dart';
 import 'package:survey_kit/src/util/measure_date_state_mixin.dart';
+import 'package:survey_kit/src/view/widget/answer/answer_format_guard.dart';
 import 'package:survey_kit/src/view/widget/answer/answer_mixin.dart';
 import 'package:survey_kit/src/view/widget/answer/answer_question_text.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
@@ -31,11 +32,9 @@ class _ScaleAnswerViewState extends State<ScaleAnswerView>
   @override
   void initState() {
     super.initState();
-    final answer = widget.questionStep.answerFormat;
-    if (answer == null) {
-      throw Exception('ScaleAnswerFormat is null');
-    }
-    _scaleAnswerFormat = answer as ScaleAnswerFormat;
+    _scaleAnswerFormat = requireAnswerFormat<ScaleAnswerFormat>(
+      widget.questionStep,
+    );
 
     if (widget.result?.result is double) {
       _value = widget.result?.result as double;
