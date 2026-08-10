@@ -29,8 +29,15 @@ class QuestionAnswer<R> extends InheritedWidget {
 
   static QuestionAnswer of(BuildContext context) {
     final result = context.dependOnInheritedWidgetOfExactType<QuestionAnswer>();
-    assert(result != null, 'No QuestionAnswer found in context');
-    return result!;
+    if (result == null) {
+      throw const SurveyKitScopeException(
+        widgetType: 'QuestionAnswer',
+        hint:
+            'QuestionAnswer is only available inside an answer view build '
+            'subtree, not anywhere under SurveyKit.',
+      );
+    }
+    return result;
   }
 
   @override

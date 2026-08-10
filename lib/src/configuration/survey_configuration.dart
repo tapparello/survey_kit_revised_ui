@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:survey_kit/src/configuration/survey_registries.dart';
 import 'package:survey_kit/src/controller/survey_controller.dart';
+import 'package:survey_kit/src/exception/survey_kit_exception.dart';
 import 'package:survey_kit/src/model/content/styled_text_content.dart';
 import 'package:survey_kit/src/navigator/task_navigator.dart';
 import 'package:survey_kit/src/widget/survey_progress_configuration.dart';
@@ -31,8 +32,13 @@ class SurveyConfiguration extends InheritedWidget {
   static SurveyConfiguration of(BuildContext context) {
     final result = context
         .dependOnInheritedWidgetOfExactType<SurveyConfiguration>();
-    assert(result != null, 'No SurveyConfiguration found in context');
-    return result!;
+    if (result == null) {
+      throw const SurveyKitScopeException(
+        widgetType: 'SurveyConfiguration',
+        hint: 'Wrap the widget tree in SurveyKit.',
+      );
+    }
+    return result;
   }
 
   @override

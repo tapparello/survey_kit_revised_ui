@@ -38,8 +38,13 @@ class SurveyStateProvider extends InheritedWidget {
   static SurveyStateProvider of(BuildContext context) {
     final result = context
         .dependOnInheritedWidgetOfExactType<SurveyStateProvider>();
-    assert(result != null, 'No SurveyPresenterInherited found in context');
-    return result!;
+    if (result == null) {
+      throw const SurveyKitScopeException(
+        widgetType: 'SurveyStateProvider',
+        hint: 'Wrap the widget tree in SurveyKit.',
+      );
+    }
+    return result;
   }
 
   @override
