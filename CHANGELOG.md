@@ -1,3 +1,50 @@
+# 1.0.0-dev.14
+
+- ADDED: `SurveyKitException`, a sealed base type for every failure the library
+  throws, with 8 subtypes: `MissingAnswerFormatException`,
+  `AnswerFormatMismatchException`, `SurveyKitScopeException`,
+  `MalformedValueException`, `UnsupportedTaskException`, `UnknownTypeException`,
+  and the two pre-existing `TaskNotDefinedException` and
+  `RuleNotDefinedException`. A single `on SurveyKitException` now catches
+  everything the library throws, and a `switch` over it can be exhaustive.
+  Because the hierarchy is sealed, a future release adding a subtype is a
+  breaking change for any consumer relying on that exhaustiveness. (ADO #1010)
+- CHANGE: `TaskNotDefinedException` and `RuleNotDefinedException` keep their
+  names and their zero-argument `const` constructors, but now extend
+  `SurveyKitException`, carry an optional `discriminator`, and have a real
+  `toString()`. Code logging `'$e'` previously saw
+  `Instance of 'TaskNotDefinedException'`. It now sees
+  `TaskNotDefinedException: <message>` in **debug** builds; in profile and
+  release, `toString()` reports the shared fallback
+  `SurveyKitException: <message>` for every subtype, because it uses Flutter's
+  `objectRuntimeType`, which resolves the concrete type inside an `assert`. The
+  `message` text and the typed `catch` clause are unaffected in all modes —
+  branch on the type or the structured fields, not on the string.
+- CHANGE: 18 failures previously raised as `Error` subtypes are now `Exception`
+  subtypes — the 14 unchecked answer-format casts (`TypeError`), the three
+  `of(context)` lookups (`Null check operator used on a null value` in release),
+  and `DateAnswerView` with a null `answerFormat` (also a null-check error). If
+  you wrap survey_kit calls in `on Exception catch`, those clauses now match
+  failures that previously escaped as hard crashes.
+- CHANGE: `SurveyConfiguration.of`, `SurveyStateProvider.of` and
+  `QuestionAnswer.of` throw `SurveyKitScopeException` in **release** builds too.
+  Previously the check was an `assert`, so release builds raised a bare
+  null-check error with no indication of the missing ancestor.
+- CHANGE: `AnswerFormat.fromJson` throws `UnknownTypeException` instead of
+  `Exception('Unknown type: ...')`. Its redundant debug-only
+  `assert(type != null)` is removed; an absent `type` already fell through to
+  the `default` branch, which throws in all modes. In debug that case previously
+  raised an `AssertionError`.
+- CHANGE: `TimeResult` throws `MalformedValueException` instead of
+  `Exception('TimeOfDay cannot be ...')`.
+- CHANGE: `SurveyKit` throws `UnsupportedTaskException` instead of
+  `Exception('Task must be either OrderedTask or NavigableTask')`.
+- CHANGE: four answer-view error messages named classes that do not exist
+  (`MultiSelectAnswer`, `SingleSelectAnswer`). Messages are now generated from
+  the actual types involved.
+- NOTE: no change to which inputs are accepted or rejected. Every condition that
+  failed before still fails; only the thrown type and its message changed.
+
 # 1.0.0-dev.13
 
 - BUGFIX: `build_runner` regeneration is reproducible again. Previously the

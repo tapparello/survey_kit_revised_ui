@@ -134,4 +134,54 @@ void main() {
 
     expect(find.text('answer-widget'), findsOneWidget);
   });
+
+  test('the exception hierarchy is exported and exercisable', () {
+    const missing = MissingAnswerFormatException(
+      stepId: 'api-step',
+      expected: 'TextAnswerFormat',
+    );
+    expect(missing.stepId, 'api-step');
+    expect(missing, isA<SurveyKitException>());
+
+    const mismatch = AnswerFormatMismatchException(
+      stepId: 'api-step',
+      expected: 'TextAnswerFormat',
+      actual: 'BooleanAnswerFormat',
+    );
+    expect(mismatch.actual, 'BooleanAnswerFormat');
+
+    const scope = SurveyKitScopeException(
+      widgetType: 'SurveyKit',
+      hint: 'Wrap the widget tree in SurveyKit.',
+    );
+    expect(scope.widgetType, 'SurveyKit');
+
+    const malformed = MalformedValueException(field: 'f', value: 42);
+    expect(malformed.value, 42);
+
+    const unsupported = UnsupportedTaskException(taskType: 'MyTask');
+    expect(unsupported.taskType, 'MyTask');
+
+    const unknown = UnknownTypeException(kind: 'Content', discriminator: 'x');
+    expect(unknown.discriminator, 'x');
+
+    const task = TaskNotDefinedException(discriminator: 'x');
+    expect(task, isA<SurveyKitException>());
+
+    const rule = RuleNotDefinedException(discriminator: 'x');
+    expect(rule, isA<SurveyKitException>());
+
+    for (final e in <SurveyKitException>[
+      missing,
+      mismatch,
+      scope,
+      malformed,
+      unsupported,
+      unknown,
+      task,
+      rule,
+    ]) {
+      expect(e.toString(), contains(e.message));
+    }
+  });
 }
