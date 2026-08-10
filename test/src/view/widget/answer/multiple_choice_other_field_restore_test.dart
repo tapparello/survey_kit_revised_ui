@@ -35,7 +35,7 @@ void main() {
       // 'Other' choice on this step.
       final seeded = StepResult<List<TextChoice>>(
         id: 'q_other',
-        step: otherStep,
+        answerType: MultipleChoiceAnswerFormat.type,
         startTime: t,
         endTime: t,
         result: [

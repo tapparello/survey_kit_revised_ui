@@ -76,12 +76,15 @@ void main() {
     return task;
   }
 
-  StepResult seed(String id, Step step, dynamic result) {
+  // Takes the answer-format discriminator rather than the Step: StepResult is
+  // keyed by id now, and `answerType` is what makes a seeded result
+  // serializable. Omitting it would leave a fixture that throws on toJson().
+  StepResult seed(String id, String answerType, dynamic result) {
     final t = DateTime.now();
     return StepResult(
       id: id,
+      answerType: answerType,
       result: result,
-      step: step,
       startTime: t,
       endTime: t,
     );
@@ -91,14 +94,16 @@ void main() {
     WidgetTester tester,
   ) async {
     final task = buildBranchingTask();
-    final q1 = task.steps.firstWhere((s) => s.id == 'q1');
-    final aStep = task.steps.firstWhere((s) => s.id == 'aStep');
 
     // Seed a prior run that took branch A (q1=A, plus an answer on aStep).
     final seeded = <StepResult>{
       // NOTE: TextChoice is NOT const (it generates a uuid id), so no `const`.
-      seed('q1', q1, TextChoice(text: 'A', value: 'a')),
-      seed('aStep', aStep, 'stale-A-answer'),
+      seed(
+        'q1',
+        SingleChoiceAnswerFormat.type,
+        TextChoice(text: 'A', value: 'a'),
+      ),
+      seed('aStep', TextAnswerFormat.type, 'stale-A-answer'),
     };
 
     SurveyResult? captured;
@@ -168,13 +173,10 @@ void main() {
           ),
         );
 
-      // A step that is NOT on the path; its result is seeded (as if from a prior run).
-      final orphanStep = InstructionStep(
-        id: 'orphan',
-        title: 'Orphan',
-        text: '',
-        buttonText: 'x',
-      );
+      // The seeded result below is for step id 'orphan', which is deliberately
+      // NOT among the task's steps — that is what makes it orphaned. It used to
+      // need a throwaway Step object just to satisfy the old seed() signature;
+      // now the id alone expresses it, since results are keyed by id.
       List<StepResult>? captured;
       final registries = SurveyRegistries(
         actionHandlers: {'capture': (results, variables) => captured = results},
@@ -186,7 +188,9 @@ void main() {
             body: SurveyKit(
               task: task,
               registries: registries,
-              initialResults: {seed('orphan', orphanStep, 'stale-orphan')},
+              initialResults: {
+                seed('orphan', TextAnswerFormat.type, 'stale-orphan'),
+              },
               onResult: (_) {},
             ),
           ),

@@ -20,7 +20,7 @@ class QuestionAnswer<R> extends InheritedWidget {
   void setStepResult(R? result) {
     _stepResult = StepResult<R>(
       id: step.id,
-      step: step,
+      answerType: step.answerFormat?.answerType,
       result: result,
       startTime: startTime,
       endTime: DateTime.now(),
