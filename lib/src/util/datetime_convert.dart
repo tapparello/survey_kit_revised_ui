@@ -13,17 +13,17 @@ class CustomDateTimeConverter implements JsonConverter<DateTime, String> {
 
   @override
   String toJson(DateTime json) {
-    //Ignore microseconds
-    final date = DateTime(
-      json.year,
-      json.month,
-      json.day,
-      json.hour,
-      json.minute,
-      json.second,
-      json.millisecond,
-    ).toUtc();
+    // Drop microseconds without reinterpreting the value's time zone.
+    //
+    // This used to rebuild the value with the local DateTime(...) constructor
+    // from its own field values and then call toUtc(). For an already-UTC input
+    // that takes UTC wall-clock numbers as local time and shifts the instant by
+    // the zone offset — DateTime.utc(2026, 3, 4) came back as 05:00Z in EST.
+    // It stayed latent while the only values passed through here were
+    // startTime / endTime, which always come from DateTime.now() and so are
+    // local-origin. Phase 2b routes date *answers* through it too. (ADO #1012)
+    final truncated = json.subtract(Duration(microseconds: json.microsecond));
 
-    return date.toIso8601String();
+    return truncated.toUtc().toIso8601String();
   }
 }
