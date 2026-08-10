@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:survey_kit/src/exception/survey_kit_exception.dart';
 
 part 'time_result.g.dart';
 
@@ -22,7 +23,7 @@ class _TimeOfDayConverter extends JsonConverter<TimeOfDay, String?> {
   @override
   TimeOfDay fromJson(String? json) {
     if (json == null) {
-      throw Exception('TimeOfDay cannot be null');
+      throw const MalformedValueException(field: 'timeOfDay', value: null);
     }
 
     String _removeLeadingZeroIfNeeded(String value) {
@@ -44,7 +45,7 @@ class _TimeOfDayConverter extends JsonConverter<TimeOfDay, String?> {
     if (hour != null && minute != null) {
       return TimeOfDay(hour: hour, minute: minute);
     }
-    throw Exception('TimeOfDay cannot be parsed');
+    throw MalformedValueException(field: 'timeOfDay', value: json);
   }
 
   @override

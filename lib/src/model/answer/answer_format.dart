@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' hide Step;
 import 'package:json_annotation/json_annotation.dart';
+import 'package:survey_kit/src/exception/survey_kit_exception.dart';
 import 'package:survey_kit/src/model/answer/boolean_answer_format.dart';
 import 'package:survey_kit/src/model/answer/date_answer_format.dart';
 import 'package:survey_kit/src/model/answer/double_answer_format.dart';
@@ -35,7 +36,6 @@ abstract class AnswerFormat {
 
   factory AnswerFormat.fromJson(Map<String, dynamic> json) {
     final type = json['type'] as String?;
-    assert(type != null, 'type is required');
 
     switch (type) {
       case MultipleChoiceAnswerFormat.type:
@@ -67,7 +67,7 @@ abstract class AnswerFormat {
       case MultipleDoubleAnswerFormat.type:
         return MultipleDoubleAnswerFormat.fromJson(json);
       default:
-        throw Exception('Unknown type: $type');
+        throw UnknownTypeException(kind: 'AnswerFormat', discriminator: type);
     }
   }
 }

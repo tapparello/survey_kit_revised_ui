@@ -3,6 +3,7 @@ import 'package:flutter/material.dart' hide Step;
 import 'package:survey_kit/src/configuration/survey_configuration.dart';
 import 'package:survey_kit/src/configuration/survey_registries.dart';
 import 'package:survey_kit/src/controller/survey_controller.dart';
+import 'package:survey_kit/src/exception/survey_kit_exception.dart';
 import 'package:survey_kit/src/model/content/styled_text_content.dart';
 import 'package:survey_kit/src/model/result/step_result.dart';
 import 'package:survey_kit/src/model/result/survey_result.dart';
@@ -97,7 +98,7 @@ class _SurveyKitState extends State<SurveyKit> {
       return NavigableTaskNavigator(widget.task, registries: widget.registries);
     }
 
-    throw Exception('Task must be either OrderedTask or NavigableTask');
+    throw UnsupportedTaskException(taskType: '${task.runtimeType}');
   }
 
   @override
