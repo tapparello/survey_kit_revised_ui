@@ -1,8 +1,8 @@
+import 'package:survey_kit/src/exception/survey_kit_exception.dart';
 import 'package:survey_kit/src/navigator/rules/action_navigation_rule.dart';
 import 'package:survey_kit/src/navigator/rules/conditional_navigation_rule.dart';
 import 'package:survey_kit/src/navigator/rules/custom_navigation_rule.dart';
 import 'package:survey_kit/src/navigator/rules/direct_navigation_rule.dart';
-import 'package:survey_kit/src/navigator/rules/rule_not_defined_exception.dart';
 
 abstract class NavigationRule {
   const NavigationRule();
@@ -18,7 +18,7 @@ abstract class NavigationRule {
     } else if (type == 'action') {
       return ActionNavigationRule.fromJson(json);
     }
-    throw const RuleNotDefinedException();
+    throw RuleNotDefinedException(discriminator: type);
   }
   Map<String, dynamic> toJson();
 }
