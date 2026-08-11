@@ -1,3 +1,83 @@
+# 1.0.0-dev.16
+
+- **BREAKING: `AnswerFormat.answerType` returns `AnswerFormatType`, not
+  `String?`,** and `StepResult.answerType` is `AnswerFormatType?`. The serialized
+  wire values are unchanged, so no persisted data needs migrating. Read a
+  discriminator's JSON string with `AnswerFormatType.<member>.wireName`. (ADO
+  #1015)
+- **BREAKING: the 14 `static const String type` constants on the answer format
+  subclasses are removed.** `BooleanAnswerFormat.type` becomes
+  `AnswerFormatType.boolean`, or `AnswerFormatType.boolean.wireName` where a
+  `String` is required.
+- **BREAKING: an external `AnswerFormat` subclass must now return an
+  `AnswerFormatType`, and cannot introduce a new discriminator.** The enum is
+  closed, so a subclass has to reuse one of the 14 members — which also means it
+  shares that member's result conversion in `StepResult`. Subclassing itself
+  still works; `AnswerFormat` remains a plain abstract class. Nothing in the
+  library, the example, or the consumer subclasses it today.
+- **BREAKING: `TaskNotDefinedException` and `RuleNotDefinedException` are
+  removed.** Both meant "the JSON `type` discriminator matched nothing", which is
+  what `UnknownTypeException` already said. `Task.fromJson` and
+  `NavigationRule.fromJson` now throw `UnknownTypeException` with `kind: 'Task'` /
+  `kind: 'NavigationRule'`, and it gained an optional `String? expected` carrying
+  the old messages' hint. Note the sealed `SurveyKitException` hierarchy lost two
+  subtypes, which is breaking for an exhaustive `switch` over it.
+- **BREAKING: `Content.fromJson` throws `UnknownTypeException` for an absent or
+  unrecognised `type`** instead of silently returning `TextContent('')`. Its
+  shape-inference fallback is also removed — that existed only for the
+  persisted-result re-parse path deleted in `1.0.0-dev.15`, and is unreachable
+  for old and new records alike. Content whose type comes from a registry now
+  fails loudly when parsed without that registry, rather than becoming a blank
+  block.
+- **BREAKING: a result whose `answerType` is not a known discriminator now
+  throws even when its value is null.** Previously such a record decoded
+  successfully if `result` was null or absent — the generic decoder
+  short-circuits on null, so the conversion never ran and the unrecognised string
+  was retained in the `String?` field. With `answerType` typed as an enum there is
+  no place to keep it, so `StepResult.fromJson` throws `ResultCodecException`
+  naming the offending string. This makes the failure uniform with the
+  non-null-result case.
+- **BREAKING: conditional answer formats use `"type": "conditional"`, and
+  `default` is required.** A `default` naming a key absent from `variants` throws
+  `MalformedValueException` at parse, so an authoring typo fails when the survey
+  loads rather than when a user reaches the step. `"type": "custom"` is
+  deliberately not accepted — it is already `CustomNavigationRule`'s
+  discriminator.
+- ADDED: `AnswerFormatType`, the answer format dispatch table. Each member
+  carries its wire string and its `fromJson` factory, so a member cannot exist
+  without one, and `StepResult`'s result conversion is now a compiler-checked
+  exhaustive switch. This closes the hole `1.0.0-dev.15` left open, where a
+  format absent from both the dispatch and the conversion compiled cleanly and
+  failed at runtime.
+- ADDED: conditional answer formats. `{"type": "conditional", "variable": ...,
+  "default": ..., "variants": {...}}` resolves to its concrete variant at parse
+  time, against the task's `variables`. No conditional value exists at runtime,
+  so a result always records the variant's discriminator. Resolving against prior
+  in-section answers, as conditional *content* does, is not supported yet.
+- ADDED: `Step.fromJson` and `AnswerFormat.fromJson` take an optional
+  `variables:` map, used to resolve conditional answer formats. Both are named and
+  defaulted, so existing calls are unaffected.
+- ADDED: `Task.fromJson` and `NavigationRule.fromJson` throw
+  `UnknownTypeException` instead of a raw `TypeError` when `type` is absent. Both
+  read `json['type'] as String` — a non-null cast on a nullable value — so a
+  missing key surfaced from inside a cast rather than as a typed failure.
+- BUGFIX: `SectionContent` is reachable through `Content.fromJson`. It had no
+  case in the dispatch, so any authored `"type": "section"` degraded to an empty
+  `TextContent` even though the class was exported, declared its discriminator,
+  and had a generated `fromJson`. (ADO #1006)
+- BUGFIX: `SurveyRegistries.customStepTypes` is honoured. `resolveStep` was
+  exported and documented but called by nothing in the library, so a consumer
+  that registered a custom step factory got silence. `Step.fromJson` now consults
+  it. An absent or unregistered step `type` still yields a built-in `Step` — steps
+  are deliberately the one family where a missing discriminator is not an error.
+- BUGFIX: content nested inside a `conditional` block now receives the
+  registries. The dispatch dropped them, so a registry-provided type inside a
+  conditional resolved without its factory.
+- REMOVED: the dead generated `_$StepFromJson`. `Step` declares a hand-written
+  `fromJson`, and the generated one — which could pass neither `registries` nor
+  `variables` — had no callers. It was the only reason `Content.fromJson` carried
+  a shape-inference fallback.
+
 # 1.0.0-dev.15
 
 - **BREAKING (data): survey results saved by an earlier version will not load.**
