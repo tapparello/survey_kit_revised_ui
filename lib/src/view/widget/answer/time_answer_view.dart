@@ -44,8 +44,9 @@ class _TimeAnswerViewState extends State<TimeAnswerView>
       widget.questionStep,
     );
 
-    initialValue = widget.result?.result != null
-        ? widget.result?.result as TimeResult
+    final restored = widget.result?.result;
+    initialValue = restored is TimeResult
+        ? restored
         : _timeAnswerFormat.defaultValue != null
         ? TimeResult(timeOfDay: _timeAnswerFormat.defaultValue!)
         : TimeResult(timeOfDay: TimeOfDay.fromDateTime(DateTime.now()));

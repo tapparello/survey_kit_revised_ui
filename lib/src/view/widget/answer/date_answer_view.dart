@@ -38,10 +38,10 @@ class _DateAnswerViewState extends State<DateAnswerView>
     _dateAnswerFormat = requireAnswerFormat<DateAnswerFormat>(
       widget.questionStep,
     );
-    _result =
-        widget.result?.result as DateTime? ??
-        _dateAnswerFormat.defaultDate ??
-        DateTime.now();
+    final restored = widget.result?.result;
+    _result = restored is DateTime
+        ? restored
+        : _dateAnswerFormat.defaultDate ?? DateTime.now();
   }
 
   @override

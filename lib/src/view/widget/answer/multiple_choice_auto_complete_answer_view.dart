@@ -38,9 +38,10 @@ class _MultipleChoiceAutoCompleteAnswerViewState
         requireAnswerFormat<MultipleChoiceAutoCompleteAnswerFormat>(
           widget.questionStep,
         );
-    _selectedChoices =
-        widget.result?.result as List<TextChoice>? ??
-        _multipleChoiceAnswer.defaultSelection;
+    final restored = widget.result?.result;
+    _selectedChoices = restored is List<TextChoice>
+        ? restored
+        : _multipleChoiceAnswer.defaultSelection;
   }
 
   // TODO(marvin): refactor the widgets and organize, DRY also

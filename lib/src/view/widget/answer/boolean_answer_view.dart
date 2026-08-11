@@ -35,7 +35,8 @@ class _BooleanAnswerViewState extends State<BooleanAnswerView>
     _answerFormat = requireAnswerFormat<BooleanAnswerFormat>(
       widget.questionStep,
     );
-    _result = widget.result?.result as BooleanResult? ?? _answerFormat.result;
+    final restored = widget.result?.result;
+    _result = restored is BooleanResult ? restored : _answerFormat.result;
   }
 
   @override

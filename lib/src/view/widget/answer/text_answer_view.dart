@@ -32,7 +32,8 @@ class _TextAnswerViewState extends State<TextAnswerView>
   void initState() {
     super.initState();
     _controller = TextEditingController();
-    _controller.text = widget.result?.result as String? ?? '';
+    final restored = widget.result?.result;
+    _controller.text = restored is String ? restored : '';
     _textAnswerFormat = requireAnswerFormat<TextAnswerFormat>(
       widget.questionStep,
     );
