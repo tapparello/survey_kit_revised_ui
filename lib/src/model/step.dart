@@ -34,7 +34,15 @@ class Step {
   factory Step.fromJson(
     Map<String, dynamic> json, {
     SurveyRegistries? registries,
+    Map<String, dynamic> variables = const {},
   }) {
+    // Registry first. Unlike the other dispatching factories, an absent or
+    // unrecognised discriminator is not an error here — every built-in step
+    // is authored without one — so this falls through rather than throwing.
+    // resolveStep already returns null for a null or unregistered type.
+    final custom = registries?.resolveStep(json);
+    if (custom != null) return custom;
+
     return Step(
       id: json['id'] as String?,
       content: (json['content'] as List<dynamic>)
@@ -48,7 +56,10 @@ class Step {
       isMandatory: json['isMandatory'] as bool? ?? true,
       answerFormat: json['answerFormat'] == null
           ? null
-          : AnswerFormat.fromJson(json['answerFormat'] as Map<String, dynamic>),
+          : AnswerFormat.fromJson(
+              json['answerFormat'] as Map<String, dynamic>,
+              variables: variables,
+            ),
       buttonText: json['buttonText'] as String?,
     );
   }

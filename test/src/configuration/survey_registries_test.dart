@@ -50,4 +50,44 @@ void main() {
       expect(registries.customNavigationRules['my_rule'], isNotNull);
     });
   });
+
+  group('Step.fromJson consults the registry', () {
+    test('a registered step type is built by its factory', () {
+      // resolveStep existed, was exported and documented, and was called by
+      // nothing in lib/ — a consumer populating customStepTypes got silence.
+      final registries = SurveyRegistries(
+        customStepTypes: {
+          'wrap_up': (json) => Step(id: 'built-by-registry', content: const []),
+        },
+      );
+
+      final step = Step.fromJson(const <String, dynamic>{
+        'id': 'ignored',
+        'type': 'wrap_up',
+        'content': <dynamic>[],
+      }, registries: registries);
+
+      expect(step.id, 'built-by-registry');
+    });
+
+    test('an unregistered step type still builds a built-in Step', () {
+      // Unlike the other four factories, an absent or unknown discriminator
+      // is legitimate here: every built-in step is authored without one.
+      final step = Step.fromJson(const <String, dynamic>{
+        'id': 'plain',
+        'type': 'not_registered',
+        'content': <dynamic>[],
+      }, registries: const SurveyRegistries());
+
+      expect(step.id, 'plain');
+    });
+
+    test('no registry at all still builds a built-in Step', () {
+      final step = Step.fromJson(const <String, dynamic>{
+        'id': 'plain',
+        'content': <dynamic>[],
+      });
+      expect(step.id, 'plain');
+    });
+  });
 }
