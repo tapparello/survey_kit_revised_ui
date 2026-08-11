@@ -7,7 +7,11 @@ import 'package:uuid/uuid.dart';
 
 part 'step.g.dart';
 
-@JsonSerializable()
+// createFactory: false — Step declares a hand-written fromJson (below) that
+// threads `registries` and `variables`. The generated factory could pass
+// neither, so it parsed content registry-less and forced Content.fromJson to
+// keep a shape-inference fallback for it. It had no callers. See ADO #1015.
+@JsonSerializable(createFactory: false)
 class Step {
   final String id;
   final bool isMandatory;
