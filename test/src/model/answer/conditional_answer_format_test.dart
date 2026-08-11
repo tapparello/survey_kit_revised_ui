@@ -75,6 +75,49 @@ void main() {
     });
   });
 
+  group('Task.fromJson threads its variables into Step.fromJson', () {
+    // Both OrderedTask.fromJson and NavigableTask.fromJson read
+    // json['variables'] and pass it to every Step.fromJson call. Nothing else
+    // exercises that link, so a dropped `variables: variables` at either call
+    // site would compile, keep every other test green, and silently resolve
+    // every conditional answer format to its `default` variant instead.
+    test('an OrderedTask resolves a non-default variant on its step', () {
+      final task = Task.fromJson(<String, dynamic>{
+        'type': 'ordered',
+        'id': 'ordered-task',
+        'variables': const <String, dynamic>{'child': 'Lilia'},
+        'steps': <dynamic>[
+          <String, dynamic>{
+            'id': 's1',
+            'content': const <dynamic>[],
+            'answerFormat': conditional(),
+          },
+        ],
+      });
+      final step = task.steps.single;
+      expect(step.answerFormat, isA<IntegerAnswerFormat>());
+      expect(step.answerFormat!.answerType, AnswerFormatType.integer);
+    });
+
+    test('a NavigableTask resolves a non-default variant on its step', () {
+      final task = Task.fromJson(<String, dynamic>{
+        'type': 'navigable',
+        'id': 'navigable-task',
+        'variables': const <String, dynamic>{'child': 'Lilia'},
+        'steps': <dynamic>[
+          <String, dynamic>{
+            'id': 's1',
+            'content': const <dynamic>[],
+            'answerFormat': conditional(),
+          },
+        ],
+      });
+      final step = task.steps.single;
+      expect(step.answerFormat, isA<IntegerAnswerFormat>());
+      expect(step.answerFormat!.answerType, AnswerFormatType.integer);
+    });
+  });
+
   group('malformed conditionals throw MalformedValueException', () {
     test('missing variable', () {
       final json = conditional()..remove('variable');
