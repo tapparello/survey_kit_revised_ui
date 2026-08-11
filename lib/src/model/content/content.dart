@@ -42,7 +42,11 @@ abstract class Content {
 
     final member = ContentType.byWireName(type);
     if (member == null) {
-      throw UnknownTypeException(kind: 'Content', discriminator: type);
+      throw UnknownTypeException(
+        kind: 'Content',
+        discriminator: type,
+        expected: ContentType.values.map((e) => e.wireName).join(', '),
+      );
     }
     return member.fromJson(json, registries: registries);
   }

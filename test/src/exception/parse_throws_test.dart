@@ -18,7 +18,15 @@ void main() {
         throwsA(
           isA<UnknownTypeException>()
               .having((e) => e.discriminator, 'discriminator', 'no-such')
-              .having((e) => e.kind, 'kind', 'AnswerFormat'),
+              .having((e) => e.kind, 'kind', 'AnswerFormat')
+              .having(
+                (e) => e.expected,
+                'expected',
+                <String>[
+                  ...AnswerFormatType.values.map((e) => e.wireName),
+                  'conditional',
+                ].join(', '),
+              ),
         ),
       );
     });

@@ -54,7 +54,12 @@ void main() {
         throwsA(
           isA<UnknownTypeException>()
               .having((e) => e.kind, 'kind', 'Content')
-              .having((e) => e.discriminator, 'discriminator', 'pdf'),
+              .having((e) => e.discriminator, 'discriminator', 'pdf')
+              .having(
+                (e) => e.expected,
+                'expected',
+                ContentType.values.map((e) => e.wireName).join(', '),
+              ),
         ),
       );
     });

@@ -94,7 +94,14 @@ abstract class AnswerFormat {
     }
     final member = AnswerFormatType.byWireName(type);
     if (member == null) {
-      throw UnknownTypeException(kind: 'AnswerFormat', discriminator: type);
+      throw UnknownTypeException(
+        kind: 'AnswerFormat',
+        discriminator: type,
+        expected: <String>[
+          ...AnswerFormatType.values.map((e) => e.wireName),
+          _conditionalDiscriminator,
+        ].join(', '),
+      );
     }
     return member.fromJson(json);
   }
