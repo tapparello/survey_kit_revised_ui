@@ -164,12 +164,14 @@ void main() {
 
     const unknown = UnknownTypeException(kind: 'Content', discriminator: 'x');
     expect(unknown.discriminator, 'x');
+    expect(unknown.expected, isNull);
 
-    const task = TaskNotDefinedException(discriminator: 'x');
-    expect(task, isA<SurveyKitException>());
-
-    const rule = RuleNotDefinedException(discriminator: 'x');
-    expect(rule, isA<SurveyKitException>());
+    const unknownWithHint = UnknownTypeException(
+      kind: 'Task',
+      discriminator: 'x',
+      expected: 'ordered or navigable',
+    );
+    expect(unknownWithHint.message, contains('Expected ordered or navigable.'));
 
     const resultCodec = ResultCodecException(
       stepId: 'api-step',
@@ -186,8 +188,6 @@ void main() {
       malformed,
       unsupported,
       unknown,
-      task,
-      rule,
       resultCodec,
     ]) {
       expect(e.toString(), contains(e.message));

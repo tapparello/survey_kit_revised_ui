@@ -8,17 +8,22 @@ abstract class NavigationRule {
   const NavigationRule();
 
   factory NavigationRule.fromJson(Map<String, dynamic> json) {
-    final type = json['type'] as String;
-    if (type == 'conditional') {
-      return ConditionalNavigationRule.fromJson(json);
-    } else if (type == 'direct') {
-      return DirectNavigationRule.fromJson(json);
-    } else if (type == 'custom') {
-      return CustomNavigationRule.fromJson(json);
-    } else if (type == 'action') {
-      return ActionNavigationRule.fromJson(json);
+    final type = json['type'] as String?;
+    switch (type) {
+      case 'conditional':
+        return ConditionalNavigationRule.fromJson(json);
+      case 'direct':
+        return DirectNavigationRule.fromJson(json);
+      case 'custom':
+        return CustomNavigationRule.fromJson(json);
+      case 'action':
+        return ActionNavigationRule.fromJson(json);
     }
-    throw RuleNotDefinedException(discriminator: type);
+    throw UnknownTypeException(
+      kind: 'NavigationRule',
+      discriminator: type,
+      expected: 'conditional, direct, custom or action',
+    );
   }
   Map<String, dynamic> toJson();
 }

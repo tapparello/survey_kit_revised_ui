@@ -13,8 +13,6 @@ String describe(SurveyKitException e) => switch (e) {
   MalformedValueException() => 'malformed',
   UnsupportedTaskException() => 'unsupported',
   UnknownTypeException() => 'unknown',
-  TaskNotDefinedException() => 'task',
-  RuleNotDefinedException() => 'rule',
   ResultCodecException() => 'resultCodec',
 };
 
@@ -38,8 +36,6 @@ void main() {
         MalformedValueException(field: 'f', value: null),
         UnsupportedTaskException(taskType: 'T'),
         UnknownTypeException(kind: 'K'),
-        TaskNotDefinedException(),
-        RuleNotDefinedException(),
         ResultCodecException(stepId: 's', answerType: 'text', cause: 'c'),
       ];
       for (final e in subtypes) {
@@ -103,60 +99,6 @@ void main() {
       expect(wrong.discriminator, 'nope');
       expect(wrong.message, contains('nope'));
       expect(absent.message, isNot(contains('nope')));
-    });
-  });
-
-  group('reparented legacy types', () {
-    test('stay const-constructible with zero arguments and canonicalize', () {
-      const a = TaskNotDefinedException();
-      const b = TaskNotDefinedException();
-      expect(identical(a, b), isTrue);
-
-      const c = RuleNotDefinedException();
-      const d = RuleNotDefinedException();
-      expect(identical(c, d), isTrue);
-    });
-
-    test('carry the discriminator when one is supplied', () {
-      const e = TaskNotDefinedException(discriminator: 'nonsense');
-      expect(e.discriminator, 'nonsense');
-      expect(e.message, contains('nonsense'));
-    });
-
-    test('say nothing about subclassing or nextStepIdentifier', () {
-      const rule = RuleNotDefinedException();
-      expect(rule.message, isNot(contains('nextStepIdentifier')));
-      expect(rule.message, isNot(contains('subclass')));
-    });
-  });
-
-  group('legacy throw sites still fire', () {
-    test('Task.fromJson throws TaskNotDefinedException with the type', () {
-      expect(
-        () => Task.fromJson(const <String, dynamic>{'type': 'nonsense'}),
-        throwsA(
-          isA<TaskNotDefinedException>().having(
-            (e) => e.discriminator,
-            'discriminator',
-            'nonsense',
-          ),
-        ),
-      );
-    });
-
-    test('NavigationRule.fromJson throws RuleNotDefinedException', () {
-      expect(
-        () => NavigationRule.fromJson(const <String, dynamic>{
-          'type': 'nonsense',
-        }),
-        throwsA(
-          isA<RuleNotDefinedException>().having(
-            (e) => e.discriminator,
-            'discriminator',
-            'nonsense',
-          ),
-        ),
-      );
     });
   });
 }

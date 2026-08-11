@@ -108,35 +108,32 @@ final class UnsupportedTaskException extends SurveyKitException {
 
 /// A JSON `type` discriminator matched no known implementation.
 final class UnknownTypeException extends SurveyKitException {
-  const UnknownTypeException({required this.kind, this.discriminator})
-    : super(
-        discriminator == null
-            ? 'No $kind implementation matched: the JSON carries no type '
-                  'discriminator.'
-            : 'No $kind implementation matched the type discriminator '
-                  "'$discriminator'.",
-      );
+  const UnknownTypeException({
+    required this.kind,
+    this.discriminator,
+    this.expected,
+  }) : super(
+         discriminator == null
+             ? 'No $kind implementation matched: the JSON carries no type '
+                   'discriminator.'
+                   '${expected == null ? '' : ' Expected $expected.'}'
+             : 'No $kind implementation matched the type discriminator '
+                   "'$discriminator'."
+                   '${expected == null ? '' : ' Expected $expected.'}',
+       );
 
   /// The abstract family being resolved, e.g. `'AnswerFormat'`.
   final String kind;
 
   /// The unmatched discriminator, or null when the JSON carried none.
   final String? discriminator;
-}
 
-/// `Task.fromJson` found no task type matching the JSON discriminator.
-final class TaskNotDefinedException extends SurveyKitException {
-  const TaskNotDefinedException({this.discriminator})
-    : super(
-        discriminator == null
-            ? 'No Task type matched the JSON type discriminator. Expected '
-                  'ordered or navigable.'
-            : 'No Task type matched the JSON type discriminator '
-                  "'$discriminator'. Expected ordered or navigable.",
-      );
-
-  /// The unmatched discriminator, or null when the JSON carried none.
-  final String? discriminator;
+  /// Human-readable list of the discriminators this family accepts, e.g.
+  /// `'ordered or navigable'`.
+  ///
+  /// A `String?` rather than a `List<String>`: [message] is built in a `const`
+  /// super-initializer, and a list cannot be interpolated there.
+  final String? expected;
 }
 
 /// A step result could not be converted to or from its serialized form.
@@ -170,20 +167,4 @@ final class ResultCodecException extends SurveyKitException {
 
   /// Description of the underlying failure.
   final String cause;
-}
-
-/// `NavigationRule.fromJson` found no rule type matching the discriminator.
-final class RuleNotDefinedException extends SurveyKitException {
-  const RuleNotDefinedException({this.discriminator})
-    : super(
-        discriminator == null
-            ? 'No NavigationRule type matched the JSON type discriminator. '
-                  'Expected conditional, direct, custom or action.'
-            : 'No NavigationRule type matched the JSON type discriminator '
-                  "'$discriminator'. Expected conditional, direct, custom or "
-                  'action.',
-      );
-
-  /// The unmatched discriminator, or null when the JSON carried none.
-  final String? discriminator;
 }

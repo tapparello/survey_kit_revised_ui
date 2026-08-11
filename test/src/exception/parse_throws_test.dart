@@ -84,4 +84,60 @@ void main() {
       );
     });
   });
+
+  group('Task.fromJson', () {
+    test('throws UnknownTypeException for an unrecognized type', () {
+      expect(
+        () => Task.fromJson(const <String, dynamic>{'type': 'no-such'}),
+        throwsA(
+          isA<UnknownTypeException>()
+              .having((e) => e.kind, 'kind', 'Task')
+              .having((e) => e.discriminator, 'discriminator', 'no-such')
+              .having((e) => e.expected, 'expected', 'ordered or navigable'),
+        ),
+      );
+    });
+
+    test('throws UnknownTypeException when type is absent', () {
+      // Previously a raw TypeError from `json['type'] as String` on a null.
+      expect(
+        () => Task.fromJson(const <String, dynamic>{}),
+        throwsA(
+          isA<UnknownTypeException>()
+              .having((e) => e.kind, 'kind', 'Task')
+              .having((e) => e.discriminator, 'discriminator', isNull),
+        ),
+      );
+    });
+  });
+
+  group('NavigationRule.fromJson', () {
+    test('throws UnknownTypeException for an unrecognized type', () {
+      expect(
+        () =>
+            NavigationRule.fromJson(const <String, dynamic>{'type': 'no-such'}),
+        throwsA(
+          isA<UnknownTypeException>()
+              .having((e) => e.kind, 'kind', 'NavigationRule')
+              .having((e) => e.discriminator, 'discriminator', 'no-such')
+              .having(
+                (e) => e.expected,
+                'expected',
+                'conditional, direct, custom or action',
+              ),
+        ),
+      );
+    });
+
+    test('throws UnknownTypeException when type is absent', () {
+      expect(
+        () => NavigationRule.fromJson(const <String, dynamic>{}),
+        throwsA(
+          isA<UnknownTypeException>()
+              .having((e) => e.kind, 'kind', 'NavigationRule')
+              .having((e) => e.discriminator, 'discriminator', isNull),
+        ),
+      );
+    });
+  });
 }

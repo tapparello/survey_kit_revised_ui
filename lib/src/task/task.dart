@@ -34,20 +34,25 @@ abstract class Task {
   }) : id = id ?? const Uuid().v4(),
        variables = variables ?? {};
 
-  /// Creates a task from a Map. The task needs to have a type definition of
-  /// either 'ordered' - [OrderedTask] or 'navigable' - [NavigableTask].
-  /// If not it will throw a [TaskNotDefinedException].
+  /// Creates a task from a Map. The task needs a `type` of either 'ordered' —
+  /// [OrderedTask] — or 'navigable' — [NavigableTask]. If neither, it throws
+  /// an [UnknownTypeException].
   factory Task.fromJson(
     Map<String, dynamic> json, {
     SurveyRegistries? registries,
   }) {
-    final type = json['type'] as String;
+    final type = json['type'] as String?;
     if (type == 'ordered') {
       return OrderedTask.fromJson(json, registries: registries);
-    } else if (type == 'navigable') {
+    }
+    if (type == 'navigable') {
       return NavigableTask.fromJson(json, registries: registries);
     }
-    throw TaskNotDefinedException(discriminator: type);
+    throw UnknownTypeException(
+      kind: 'Task',
+      discriminator: type,
+      expected: 'ordered or navigable',
+    );
   }
 
   Map<String, dynamic> toJson();
