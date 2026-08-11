@@ -7,7 +7,7 @@ void main() {
     startTime: DateTime(2022, 8, 12, 16, 4),
     endTime: DateTime(2022, 8, 12, 16, 14),
     valueIdentifier: 'date1',
-    answerType: DateAnswerFormat.type,
+    answerType: AnswerFormatType.date,
     result: DateTime.now(),
   );
 

@@ -8,7 +8,7 @@ void main() {
     endTime: DateTime(2022, 8, 12, 16, 14),
     valueIdentifier: 'textInput1',
     result: 'some witty input  ',
-    answerType: TextAnswerFormat.type,
+    answerType: AnswerFormatType.text,
   );
 
   group('serialisation', () {

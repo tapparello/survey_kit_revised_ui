@@ -6,8 +6,6 @@ part 'multiple_choice_answer_with_feedback_format.g.dart';
 
 @JsonSerializable()
 class MultipleChoiceAnswerWithFeedbackFormat extends AnswerFormat {
-  static const String type = 'multi_with_feedback';
-
   final List<TextChoice> textChoices;
   final TextChoice? defaultSelection;
   final String? choicesFromVariable;
@@ -41,7 +39,7 @@ class MultipleChoiceAnswerWithFeedbackFormat extends AnswerFormat {
 
   @override
   @JsonKey(name: 'type', includeToJson: true, includeFromJson: false)
-  String get answerType => type;
+  AnswerFormatType get answerType => AnswerFormatType.multiWithFeedback;
 
   factory MultipleChoiceAnswerWithFeedbackFormat.fromJson(
     Map<String, dynamic> json,

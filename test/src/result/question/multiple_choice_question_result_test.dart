@@ -7,7 +7,7 @@ void main() {
     startTime: DateTime(2022, 8, 12, 16, 4),
     endTime: DateTime(2022, 8, 12, 16, 14),
     valueIdentifier: 'multiChoice1',
-    answerType: MultipleChoiceAnswerFormat.type,
+    answerType: AnswerFormatType.multi,
     result: [
       TextChoice(id: 'doubleVal1', value: '123.45', text: '123.45'),
       TextChoice(id: 'doubleVal2', value: '234.56', text: '234.56'),

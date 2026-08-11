@@ -6,8 +6,6 @@ part 'date_answer_format.g.dart';
 
 @JsonSerializable()
 class DateAnswerFormat extends AnswerFormat {
-  static const String type = 'date';
-
   /// Default date which will be preselected on datepicker opening
   final DateTime? defaultDate;
 
@@ -50,7 +48,7 @@ class DateAnswerFormat extends AnswerFormat {
 
   @override
   @JsonKey(name: 'type', includeToJson: true, includeFromJson: false)
-  String get answerType => type;
+  AnswerFormatType get answerType => AnswerFormatType.date;
 
   factory DateAnswerFormat.fromJson(Map<String, dynamic> json) =>
       _$DateAnswerFormatFromJson(json);

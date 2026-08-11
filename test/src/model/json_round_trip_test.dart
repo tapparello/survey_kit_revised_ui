@@ -90,7 +90,7 @@ void main() {
 
         expect(
           decoded['type'],
-          format.answerType,
+          format.answerType.wireName,
           reason: 'discriminator missing for ${format.runtimeType}',
         );
 

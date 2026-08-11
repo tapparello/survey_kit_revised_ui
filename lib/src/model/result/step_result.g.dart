@@ -16,7 +16,7 @@ StepResult<T> _$StepResultFromJson<T>(
     json['startTime'] as String,
   ),
   endTime: const CustomDateTimeConverter().fromJson(json['endTime'] as String),
-  answerType: json['answerType'] as String?,
+  answerType: AnswerFormatType.byWireName(json['answerType'] as String?),
   valueIdentifier: json['valueIdentifier'] as String?,
 );
 
@@ -25,7 +25,7 @@ Map<String, dynamic> _$StepResultToJson<T>(
   Object? Function(T value) toJsonT,
 ) => <String, dynamic>{
   'id': instance.id,
-  'answerType': ?instance.answerType,
+  'answerType': ?AnswerFormatType.wireNameOf(instance.answerType),
   'result': _$nullableGenericToJson(instance.result, toJsonT),
   'startTime': const CustomDateTimeConverter().toJson(instance.startTime),
   'endTime': const CustomDateTimeConverter().toJson(instance.endTime),

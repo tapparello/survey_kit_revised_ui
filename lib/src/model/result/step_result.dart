@@ -1,22 +1,10 @@
 import 'package:flutter/material.dart' hide Step;
 import 'package:json_annotation/json_annotation.dart';
 import 'package:survey_kit/src/exception/survey_kit_exception.dart';
+import 'package:survey_kit/src/model/answer/answer_format_type.dart';
 import 'package:survey_kit/src/model/answer/boolean_answer_format.dart';
-import 'package:survey_kit/src/model/answer/date_answer_format.dart';
-import 'package:survey_kit/src/model/answer/double_answer_format.dart';
-import 'package:survey_kit/src/model/answer/image_answer_format.dart';
-import 'package:survey_kit/src/model/answer/integer_answer_format.dart';
 import 'package:survey_kit/src/model/answer/multi_double.dart';
-import 'package:survey_kit/src/model/answer/multiple_choice_answer_format.dart';
-import 'package:survey_kit/src/model/answer/multiple_choice_answer_with_feedback_format.dart';
-import 'package:survey_kit/src/model/answer/multiple_choice_auto_complete_answer_format.dart';
-import 'package:survey_kit/src/model/answer/multiple_double_answer_format.dart';
-import 'package:survey_kit/src/model/answer/scale_answer_format.dart';
-import 'package:survey_kit/src/model/answer/single_choice_answer_format.dart';
-import 'package:survey_kit/src/model/answer/single_choice_answer_with_feedback_format.dart';
-import 'package:survey_kit/src/model/answer/text_answer_format.dart';
 import 'package:survey_kit/src/model/answer/text_choice.dart';
-import 'package:survey_kit/src/model/answer/time_answer_format.dart';
 import 'package:survey_kit/src/model/result/time_result.dart';
 import 'package:survey_kit/src/util/datetime_convert.dart';
 
@@ -38,14 +26,23 @@ class StepResult<T> {
   /// Id of the `Step` this result belongs to.
   final String id;
 
-  /// Discriminator of the `AnswerFormat` that produced [result], e.g. `'time'`.
+  /// Discriminator of the `AnswerFormat` that produced [result].
   ///
   /// Selects the conversion applied to [result] in both directions. Null only
   /// for a step with no answer format, which yields no result either — and for
   /// records written before this field existed, which is why an absent value on
   /// a non-null result is an error rather than a fallback.
-  @JsonKey(includeIfNull: false)
-  final String? answerType;
+  ///
+  /// Serialized through [AnswerFormatType.wireNameOf] / [AnswerFormatType.byWireName]
+  /// rather than the generated enum map, so the failure for an unrecognised
+  /// string is local and typed. An unrecognised value never reaches the
+  /// generated decoder — [StepResult.fromJson] rejects it first, see below.
+  @JsonKey(
+    includeIfNull: false,
+    toJson: AnswerFormatType.wireNameOf,
+    fromJson: AnswerFormatType.byWireName,
+  )
+  final AnswerFormatType? answerType;
 
   final T? result;
   final DateTime startTime;
@@ -70,12 +67,25 @@ class StepResult<T> {
       normalized['id'] = rawId['id'] as String;
     }
 
+    final id = normalized['id'] as String;
+
+    // Resolved here, ahead of _$StepResultFromJson, because that generated
+    // factory converts `result` before it reads `answerType` — so an
+    // unrecognised discriminator would surface as the misleading "carries no
+    // answerType" from inside _convert instead of naming the offending string.
+    final rawAnswerType = normalized['answerType'] as String?;
+    final answerType = AnswerFormatType.byWireName(rawAnswerType);
+    if (rawAnswerType != null && answerType == null) {
+      throw ResultCodecException(
+        stepId: id,
+        answerType: rawAnswerType,
+        cause: 'no answer format is registered for it',
+      );
+    }
+
     // Captured in a closure: the generated fromJsonT callback receives only the
     // value, never the enclosing map, so the discriminator cannot be read from
     // inside the conversion without closing over it here.
-    final answerType = normalized['answerType'] as String?;
-    final id = normalized['id'] as String;
-
     return _$StepResultFromJson<T>(
       normalized,
       (value) => _convert(id, answerType, value, out: false) as T,
@@ -95,38 +105,48 @@ class StepResult<T> {
   /// old `if (value is S) return value` short-circuit always match, returning
   /// raw JSON. That was ADO #1009.
   ///
-  /// Throws [ResultCodecException] for an absent, unknown or mismatched
-  /// [answerType]. There is deliberately no fallback: a caller that cannot
-  /// convert a record should discard it rather than receive an untyped value.
+  /// The switch has no `default:` arm: [AnswerFormatType] is an enum, so the
+  /// compiler rejects this function when a format is added without a conversion.
+  /// That is the hole 2b left open and #1015 closes.
+  ///
+  /// Throws [ResultCodecException] for an absent or mismatched [answerType].
+  /// There is deliberately no fallback: a caller that cannot convert a record
+  /// should discard it rather than receive an untyped value.
   static Object? _convert(
     String id,
-    String? answerType,
+    AnswerFormatType? answerType,
     Object? value, {
     required bool out,
   }) {
     if (value == null) return null;
     try {
       switch (answerType) {
-        case BooleanAnswerFormat.type:
+        case null:
+          throw ResultCodecException(
+            stepId: id,
+            answerType: null,
+            cause: 'the record carries no answerType',
+          );
+        case AnswerFormatType.boolean:
           return out
               ? (value as BooleanResult).name
               : BooleanResult.values.byName(value as String);
-        case DateAnswerFormat.type:
+        case AnswerFormatType.date:
           return out
               ? const CustomDateTimeConverter().toJson(value as DateTime)
               : const CustomDateTimeConverter().fromJson(value as String);
-        case TimeAnswerFormat.type:
+        case AnswerFormatType.time:
           return out
               ? (value as TimeResult).toJson()
               : TimeResult.fromJson(Map<String, dynamic>.from(value as Map));
-        case SingleChoiceAnswerFormat.type:
-        case SingleChoiceAnswerWithFeedbackFormat.type:
+        case AnswerFormatType.single:
+        case AnswerFormatType.singleWithFeedback:
           return out
               ? (value as TextChoice).toJson()
               : TextChoice.fromJson(Map<String, dynamic>.from(value as Map));
-        case MultipleChoiceAnswerFormat.type:
-        case MultipleChoiceAnswerWithFeedbackFormat.type:
-        case MultipleChoiceAutoCompleteAnswerFormat.type:
+        case AnswerFormatType.multi:
+        case AnswerFormatType.multiWithFeedback:
+        case AnswerFormatType.multipleAutoComplete:
           return out
               ? (value as List<TextChoice>).map((c) => c.toJson()).toList()
               : (value as List)
@@ -136,7 +156,7 @@ class StepResult<T> {
                       ),
                     )
                     .toList();
-        case MultipleDoubleAnswerFormat.type:
+        case AnswerFormatType.multipleDouble:
           return out
               ? (value as List<MultiDouble>).map((d) => d.toJson()).toList()
               : (value as List)
@@ -146,31 +166,23 @@ class StepResult<T> {
                       ),
                     )
                     .toList();
-        case TextAnswerFormat.type:
-        case ImageAnswerFormat.type:
+        case AnswerFormatType.text:
+        case AnswerFormatType.image:
           return value as String;
-        case IntegerAnswerFormat.type:
+        case AnswerFormatType.integer:
           return out ? value as int : (value as num).toInt();
-        case DoubleAnswerFormat.type:
-        case ScaleAnswerFormat.type:
+        case AnswerFormatType.doubleValue:
+        case AnswerFormatType.scale:
           // JSON may carry a whole-numbered double as an int; widen on the way
           // in so the views' `is double` guards see what they expect.
           return out ? value as double : (value as num).toDouble();
-        default:
-          throw ResultCodecException(
-            stepId: id,
-            answerType: answerType,
-            cause: answerType == null
-                ? 'the record carries no answerType'
-                : 'no conversion is registered for it',
-          );
       }
     } on ResultCodecException {
       rethrow;
     } catch (e) {
       throw ResultCodecException(
         stepId: id,
-        answerType: answerType,
+        answerType: answerType?.wireName,
         cause: '$e',
       );
     }

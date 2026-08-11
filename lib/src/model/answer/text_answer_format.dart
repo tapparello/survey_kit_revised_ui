@@ -6,8 +6,6 @@ part 'text_answer_format.g.dart';
 
 @JsonSerializable()
 class TextAnswerFormat extends AnswerFormat {
-  static const String type = 'text';
-
   final int? maxLines;
   @JsonKey(defaultValue: '')
   final String hint;
@@ -29,7 +27,7 @@ class TextAnswerFormat extends AnswerFormat {
 
   @override
   @JsonKey(name: 'type', includeToJson: true, includeFromJson: false)
-  String get answerType => type;
+  AnswerFormatType get answerType => AnswerFormatType.text;
 
   factory TextAnswerFormat.fromJson(Map<String, dynamic> json) =>
       _$TextAnswerFormatFromJson(json);

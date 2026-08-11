@@ -79,7 +79,7 @@ void main() {
   // Takes the answer-format discriminator rather than the Step: StepResult is
   // keyed by id now, and `answerType` is what makes a seeded result
   // serializable. Omitting it would leave a fixture that throws on toJson().
-  StepResult seed(String id, String answerType, dynamic result) {
+  StepResult seed(String id, AnswerFormatType answerType, dynamic result) {
     final t = DateTime.now();
     return StepResult(
       id: id,
@@ -98,12 +98,8 @@ void main() {
     // Seed a prior run that took branch A (q1=A, plus an answer on aStep).
     final seeded = <StepResult>{
       // NOTE: TextChoice is NOT const (it generates a uuid id), so no `const`.
-      seed(
-        'q1',
-        SingleChoiceAnswerFormat.type,
-        TextChoice(text: 'A', value: 'a'),
-      ),
-      seed('aStep', TextAnswerFormat.type, 'stale-A-answer'),
+      seed('q1', AnswerFormatType.single, TextChoice(text: 'A', value: 'a')),
+      seed('aStep', AnswerFormatType.text, 'stale-A-answer'),
     };
 
     SurveyResult? captured;
@@ -189,7 +185,7 @@ void main() {
               task: task,
               registries: registries,
               initialResults: {
-                seed('orphan', TextAnswerFormat.type, 'stale-orphan'),
+                seed('orphan', AnswerFormatType.text, 'stale-orphan'),
               },
               onResult: (_) {},
             ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart' hide Step;
 import 'package:json_annotation/json_annotation.dart';
 import 'package:survey_kit/src/model/answer/answer_format.dart';
+import 'package:survey_kit/src/model/answer/answer_format_type.dart';
 import 'package:survey_kit/src/model/answer/text_choice.dart';
 import 'package:survey_kit/src/model/result/step_result.dart';
 import 'package:survey_kit/src/model/step.dart';
@@ -10,8 +11,6 @@ part 'multiple_choice_auto_complete_answer_format.g.dart';
 
 @JsonSerializable()
 class MultipleChoiceAutoCompleteAnswerFormat extends AnswerFormat {
-  static const String type = 'multiple_auto_complete';
-
   final List<TextChoice> textChoices;
   @JsonKey(defaultValue: <TextChoice>[])
   final List<TextChoice> defaultSelection;
@@ -30,7 +29,7 @@ class MultipleChoiceAutoCompleteAnswerFormat extends AnswerFormat {
 
   @override
   @JsonKey(name: 'type', includeToJson: true, includeFromJson: false)
-  String get answerType => type;
+  AnswerFormatType get answerType => AnswerFormatType.multipleAutoComplete;
 
   factory MultipleChoiceAutoCompleteAnswerFormat.fromJson(
     Map<String, dynamic> json,

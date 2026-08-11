@@ -3,27 +3,21 @@ import 'package:survey_kit/survey_kit.dart';
 
 void main() {
   test('every member carries the discriminator its format declares', () {
-    // Pinned against the `static const String type` constants while they are
-    // still the source of truth. Task 2 deletes them and replaces the right
-    // column with literals.
     final expected = <AnswerFormatType, String>{
-      AnswerFormatType.boolean: BooleanAnswerFormat.type,
-      AnswerFormatType.date: DateAnswerFormat.type,
-      AnswerFormatType.doubleValue: DoubleAnswerFormat.type,
-      AnswerFormatType.integer: IntegerAnswerFormat.type,
-      AnswerFormatType.image: ImageAnswerFormat.type,
-      AnswerFormatType.text: TextAnswerFormat.type,
-      AnswerFormatType.time: TimeAnswerFormat.type,
-      AnswerFormatType.scale: ScaleAnswerFormat.type,
-      AnswerFormatType.single: SingleChoiceAnswerFormat.type,
-      AnswerFormatType.singleWithFeedback:
-          SingleChoiceAnswerWithFeedbackFormat.type,
-      AnswerFormatType.multi: MultipleChoiceAnswerFormat.type,
-      AnswerFormatType.multiWithFeedback:
-          MultipleChoiceAnswerWithFeedbackFormat.type,
-      AnswerFormatType.multipleAutoComplete:
-          MultipleChoiceAutoCompleteAnswerFormat.type,
-      AnswerFormatType.multipleDouble: MultipleDoubleAnswerFormat.type,
+      AnswerFormatType.boolean: 'bool',
+      AnswerFormatType.date: 'date',
+      AnswerFormatType.doubleValue: 'double',
+      AnswerFormatType.integer: 'integer',
+      AnswerFormatType.image: 'image',
+      AnswerFormatType.text: 'text',
+      AnswerFormatType.time: 'time',
+      AnswerFormatType.scale: 'scale',
+      AnswerFormatType.single: 'single',
+      AnswerFormatType.singleWithFeedback: 'single_with_feedback',
+      AnswerFormatType.multi: 'multi',
+      AnswerFormatType.multiWithFeedback: 'multi_with_feedback',
+      AnswerFormatType.multipleAutoComplete: 'multiple_auto_complete',
+      AnswerFormatType.multipleDouble: 'multiple_double',
     };
 
     expect(AnswerFormatType.values.length, 14);

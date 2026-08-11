@@ -6,8 +6,6 @@ part 'single_choice_answer_format.g.dart';
 
 @JsonSerializable()
 class SingleChoiceAnswerFormat extends AnswerFormat {
-  static const String type = 'single';
-
   final List<TextChoice> textChoices;
   final String? choicesFromVariable;
   final TextChoice? defaultSelection;
@@ -23,7 +21,7 @@ class SingleChoiceAnswerFormat extends AnswerFormat {
 
   @override
   @JsonKey(name: 'type', includeToJson: true, includeFromJson: false)
-  String get answerType => type;
+  AnswerFormatType get answerType => AnswerFormatType.single;
 
   factory SingleChoiceAnswerFormat.fromJson(Map<String, dynamic> json) =>
       _$SingleChoiceAnswerFormatFromJson(json);

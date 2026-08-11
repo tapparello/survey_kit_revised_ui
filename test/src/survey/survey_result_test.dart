@@ -11,7 +11,7 @@ void main() {
     ),
     StepResult<BooleanResult>(
       id: 'example1_boolean',
-      answerType: BooleanAnswerFormat.type,
+      answerType: AnswerFormatType.boolean,
       startTime: DateTime(2022, 8, 12, 16, 5),
       endTime: DateTime(2022, 8, 12, 16, 10),
       valueIdentifier: 'bool1',
@@ -19,7 +19,7 @@ void main() {
     ),
     StepResult<String>(
       id: 'example1_text',
-      answerType: TextAnswerFormat.type,
+      answerType: AnswerFormatType.text,
       startTime: DateTime(2022, 8, 12, 16, 10),
       endTime: DateTime(2022, 8, 12, 16, 12),
       result: 'free text',

@@ -18,7 +18,7 @@ StepResult<dynamic> _roundTrip(StepResult<Object?> original) {
   return StepResult<dynamic>.fromJson(encoded as Map<String, dynamic>);
 }
 
-StepResult<T> _make<T>(String answerType, T value) => StepResult<T>(
+StepResult<T> _make<T>(AnswerFormatType answerType, T value) => StepResult<T>(
   id: 'q1',
   answerType: answerType,
   result: value,
@@ -30,7 +30,7 @@ void main() {
   group('a result round-trips with its declared type', () {
     test('bool', () {
       final back = _roundTrip(
-        _make(BooleanAnswerFormat.type, BooleanResult.positive),
+        _make(AnswerFormatType.boolean, BooleanResult.positive),
       );
       expect(back.result, isA<BooleanResult>());
       expect(back.result, BooleanResult.positive);
@@ -39,7 +39,7 @@ void main() {
     test('date', () {
       // Local-origin, matching what DateAnswerView's date picker produces.
       final value = DateTime(2026, 3, 4);
-      final back = _roundTrip(_make(DateAnswerFormat.type, value));
+      final back = _roundTrip(_make(AnswerFormatType.date, value));
       expect(back.result, isA<DateTime>());
       expect((back.result as DateTime).toUtc(), value.toUtc());
     });
@@ -47,7 +47,7 @@ void main() {
     test('time', () {
       final back = _roundTrip(
         _make(
-          TimeAnswerFormat.type,
+          AnswerFormatType.time,
           const TimeResult(timeOfDay: TimeOfDay(hour: 9, minute: 30)),
         ),
       );
@@ -58,19 +58,19 @@ void main() {
     });
 
     test('text', () {
-      final back = _roundTrip(_make(TextAnswerFormat.type, 'hello'));
+      final back = _roundTrip(_make(AnswerFormatType.text, 'hello'));
       expect(back.result, isA<String>());
       expect(back.result, 'hello');
     });
 
     test('integer', () {
-      final back = _roundTrip(_make(IntegerAnswerFormat.type, 7));
+      final back = _roundTrip(_make(AnswerFormatType.integer, 7));
       expect(back.result, isA<int>());
       expect(back.result, 7);
     });
 
     test('double', () {
-      final back = _roundTrip(_make(DoubleAnswerFormat.type, 2.5));
+      final back = _roundTrip(_make(AnswerFormatType.doubleValue, 2.5));
       expect(back.result, isA<double>());
       expect(back.result, 2.5);
     });
@@ -78,7 +78,7 @@ void main() {
     test('scale widens a whole-numbered double back to double', () {
       // jsonEncode(3.0) emits "3.0", but a legacy or hand-written record may
       // carry a bare 3, which decodes as int. The scale arm must widen.
-      final back = _roundTrip(_make(ScaleAnswerFormat.type, 3.0));
+      final back = _roundTrip(_make(AnswerFormatType.scale, 3.0));
       expect(back.result, isA<double>());
       expect(back.result, 3.0);
     });
@@ -86,7 +86,7 @@ void main() {
     test('single_choice', () {
       // TextChoice is not const-constructible: its `id` defaults to a uuid.
       final back = _roundTrip(
-        _make(SingleChoiceAnswerFormat.type, TextChoice(text: 'A', value: 'a')),
+        _make(AnswerFormatType.single, TextChoice(text: 'A', value: 'a')),
       );
       expect(back.result, isA<TextChoice>());
       expect((back.result as TextChoice).value, 'a');
@@ -95,7 +95,7 @@ void main() {
     test('single_with_feedback', () {
       final back = _roundTrip(
         _make(
-          SingleChoiceAnswerWithFeedbackFormat.type,
+          AnswerFormatType.singleWithFeedback,
           TextChoice(text: 'B', value: 'b'),
         ),
       );
@@ -105,7 +105,7 @@ void main() {
 
     test('multi', () {
       final back = _roundTrip(
-        _make(MultipleChoiceAnswerFormat.type, [
+        _make(AnswerFormatType.multi, [
           TextChoice(text: 'A', value: 'a'),
           TextChoice(text: 'B', value: 'b'),
         ]),
@@ -119,7 +119,7 @@ void main() {
 
     test('multi_with_feedback', () {
       final back = _roundTrip(
-        _make(MultipleChoiceAnswerWithFeedbackFormat.type, [
+        _make(AnswerFormatType.multiWithFeedback, [
           TextChoice(text: 'A', value: 'a'),
         ]),
       );
@@ -129,7 +129,7 @@ void main() {
 
     test('multiple_auto_complete', () {
       final back = _roundTrip(
-        _make(MultipleChoiceAutoCompleteAnswerFormat.type, [
+        _make(AnswerFormatType.multipleAutoComplete, [
           TextChoice(text: 'A', value: 'a'),
         ]),
       );
@@ -139,7 +139,7 @@ void main() {
 
     test('multiple_double', () {
       final back = _roundTrip(
-        _make(MultipleDoubleAnswerFormat.type, const [
+        _make(AnswerFormatType.multipleDouble, const [
           MultiDouble(text: 'weight', value: 72.5),
         ]),
       );
@@ -148,16 +148,16 @@ void main() {
     });
 
     test('a null result round-trips with no conversion', () {
-      final back = _roundTrip(_make<String?>(TextAnswerFormat.type, null));
+      final back = _roundTrip(_make<String?>(AnswerFormatType.text, null));
       expect(back.result, isNull);
     });
   });
 
   group('serialized shape', () {
     test('toJson emits answerType and no step key', () {
-      final json = _make(TextAnswerFormat.type, 'x').toJson();
+      final json = _make(AnswerFormatType.text, 'x').toJson();
       expect(json.containsKey('step'), isFalse);
-      expect(json['answerType'], TextAnswerFormat.type);
+      expect(json['answerType'], AnswerFormatType.text.wireName);
     });
 
     test('a SurveyResult of several results round-trips each one typed', () {
@@ -167,9 +167,9 @@ void main() {
         endTime: DateTime(2026, 1, 1, 9, 5),
         finishReason: FinishReason.completed,
         results: [
-          _make(TextAnswerFormat.type, 'free text'),
-          _make(IntegerAnswerFormat.type, 42),
-          _make(BooleanAnswerFormat.type, BooleanResult.negative),
+          _make(AnswerFormatType.text, 'free text'),
+          _make(AnswerFormatType.integer, 42),
+          _make(AnswerFormatType.boolean, BooleanResult.negative),
         ],
       );
 
@@ -225,7 +225,7 @@ void main() {
 
     test('malformed JSON for a known answerType', () {
       final json = base()
-        ..['answerType'] = TimeAnswerFormat.type
+        ..['answerType'] = AnswerFormatType.time.wireName
         ..['result'] = 'not-a-map';
       expect(
         () => StepResult<dynamic>.fromJson(json),
@@ -250,6 +250,30 @@ void main() {
         const ResultCodecException(stepId: 's', answerType: null, cause: 'c'),
         isA<Exception>(),
       );
+    });
+  });
+
+  group('the enum-typed answerType', () {
+    test('wire format is unchanged', () {
+      final encoded = StepResult<String>(
+        id: 'step-3',
+        answerType: AnswerFormatType.text,
+        result: 'hi',
+        startTime: DateTime(2022, 8, 12, 16, 4),
+        endTime: DateTime(2022, 8, 12, 16, 14),
+      ).toJson();
+      expect(encoded['answerType'], 'text');
+    });
+
+    test('a record with no answerType and no result still decodes', () {
+      // A step with no answer format yields no result; absent is not an error.
+      final result = StepResult<dynamic>.fromJson(const <String, dynamic>{
+        'id': 'step-2',
+        'startTime': '2022-08-12T16:04:00.000',
+        'endTime': '2022-08-12T16:14:00.000',
+      });
+      expect(result.answerType, isNull);
+      expect(result.result, isNull);
     });
   });
 }

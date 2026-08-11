@@ -23,11 +23,28 @@ Map<String, dynamic> _$BooleanAnswerFormatToJson(
   'positiveAnswer': instance.positiveAnswer,
   'negativeAnswer': instance.negativeAnswer,
   'result': _$BooleanResultEnumMap[instance.result]!,
-  'type': instance.answerType,
+  'type': _$AnswerFormatTypeEnumMap[instance.answerType]!,
 };
 
 const _$BooleanResultEnumMap = {
   BooleanResult.none: 'none',
   BooleanResult.positive: 'positive',
   BooleanResult.negative: 'negative',
+};
+
+const _$AnswerFormatTypeEnumMap = {
+  AnswerFormatType.boolean: 'bool',
+  AnswerFormatType.date: 'date',
+  AnswerFormatType.doubleValue: 'double',
+  AnswerFormatType.integer: 'integer',
+  AnswerFormatType.image: 'image',
+  AnswerFormatType.text: 'text',
+  AnswerFormatType.time: 'time',
+  AnswerFormatType.scale: 'scale',
+  AnswerFormatType.single: 'single',
+  AnswerFormatType.singleWithFeedback: 'single_with_feedback',
+  AnswerFormatType.multi: 'multi',
+  AnswerFormatType.multiWithFeedback: 'multi_with_feedback',
+  AnswerFormatType.multipleAutoComplete: 'multiple_auto_complete',
+  AnswerFormatType.multipleDouble: 'multiple_double',
 };

@@ -7,7 +7,7 @@ void main() {
     startTime: DateTime(2022, 8, 12, 16, 4),
     endTime: DateTime(2022, 8, 12, 16, 14),
     valueIdentifier: 'scaleInput1',
-    answerType: ScaleAnswerFormat.type,
+    answerType: AnswerFormatType.scale,
     result: -123.45,
   );
 

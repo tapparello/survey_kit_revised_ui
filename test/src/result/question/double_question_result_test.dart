@@ -7,7 +7,7 @@ void main() {
     startTime: DateTime(2022, 8, 12, 16, 4),
     endTime: DateTime(2022, 8, 12, 16, 14),
     valueIdentifier: 'double1',
-    answerType: DoubleAnswerFormat.type,
+    answerType: AnswerFormatType.doubleValue,
     result: 123.45,
   );
 

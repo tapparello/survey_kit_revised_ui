@@ -6,8 +6,6 @@ part 'single_choice_answer_with_feedback_format.g.dart';
 
 @JsonSerializable()
 class SingleChoiceAnswerWithFeedbackFormat extends AnswerFormat {
-  static const String type = 'single_with_feedback';
-
   final List<TextChoice> textChoices;
   final TextChoice? defaultSelection;
   final bool shuffleChoices;
@@ -25,7 +23,7 @@ class SingleChoiceAnswerWithFeedbackFormat extends AnswerFormat {
 
   @override
   @JsonKey(name: 'type', includeToJson: true, includeFromJson: false)
-  String get answerType => type;
+  AnswerFormatType get answerType => AnswerFormatType.singleWithFeedback;
 
   factory SingleChoiceAnswerWithFeedbackFormat.fromJson(
     Map<String, dynamic> json,

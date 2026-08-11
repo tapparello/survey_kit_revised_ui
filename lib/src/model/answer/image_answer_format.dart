@@ -6,8 +6,6 @@ part 'image_answer_format.g.dart';
 
 @JsonSerializable()
 class ImageAnswerFormat extends AnswerFormat {
-  static const String type = 'image';
-
   final String? defaultValue;
   final String buttonText;
 
@@ -19,7 +17,7 @@ class ImageAnswerFormat extends AnswerFormat {
 
   @override
   @JsonKey(name: 'type', includeToJson: true, includeFromJson: false)
-  String get answerType => type;
+  AnswerFormatType get answerType => AnswerFormatType.image;
 
   factory ImageAnswerFormat.fromJson(Map<String, dynamic> json) =>
       _$ImageAnswerFormatFromJson(json);

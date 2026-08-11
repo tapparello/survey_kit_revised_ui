@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart' hide Step;
 import 'package:json_annotation/json_annotation.dart';
 import 'package:survey_kit/src/model/answer/answer_format.dart';
+import 'package:survey_kit/src/model/answer/answer_format_type.dart';
 import 'package:survey_kit/src/model/result/step_result.dart';
 import 'package:survey_kit/src/model/step.dart';
 import 'package:survey_kit/src/view/widget/answer/boolean_answer_view.dart';
@@ -9,8 +10,6 @@ part 'boolean_answer_format.g.dart';
 
 @JsonSerializable()
 class BooleanAnswerFormat extends AnswerFormat {
-  static const String type = 'bool';
-
   final String positiveAnswer;
   final String negativeAnswer;
   final BooleanResult result;
@@ -24,7 +23,7 @@ class BooleanAnswerFormat extends AnswerFormat {
 
   @override
   @JsonKey(name: 'type', includeToJson: true, includeFromJson: false)
-  String get answerType => type;
+  AnswerFormatType get answerType => AnswerFormatType.boolean;
 
   factory BooleanAnswerFormat.fromJson(Map<String, dynamic> json) =>
       _$BooleanAnswerFormatFromJson(json);

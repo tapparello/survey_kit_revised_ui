@@ -69,7 +69,7 @@ void main() {
     );
     final seeded = StepResult<String>(
       id: 'seeded-step',
-      answerType: TextAnswerFormat.type,
+      answerType: AnswerFormatType.text,
       result: 'seeded-answer',
       startTime: DateTime(2026),
       endTime: DateTime(2026),

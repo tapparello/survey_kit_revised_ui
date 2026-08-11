@@ -6,8 +6,6 @@ part 'scale_answer_format.g.dart';
 
 @JsonSerializable()
 class ScaleAnswerFormat extends AnswerFormat {
-  static const String type = 'scale';
-
   final double maximumValue;
   final double minimumValue;
   final double defaultValue;
@@ -46,7 +44,7 @@ class ScaleAnswerFormat extends AnswerFormat {
 
   @override
   @JsonKey(name: 'type', includeToJson: true, includeFromJson: false)
-  String get answerType => type;
+  AnswerFormatType get answerType => AnswerFormatType.scale;
 
   /// Whether a complete accepted sub-range is configured (both bounds set).
   bool get hasAcceptedRange =>

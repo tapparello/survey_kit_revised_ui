@@ -7,7 +7,7 @@ void main() {
     startTime: DateTime(2022, 8, 12, 16, 4),
     endTime: DateTime(2022, 8, 12, 16, 14),
     valueIdentifier: 'singleChoiceValue1',
-    answerType: SingleChoiceAnswerFormat.type,
+    answerType: AnswerFormatType.single,
     result: TextChoice(id: 'choice1', value: 'option2', text: 'option2'),
   );
 

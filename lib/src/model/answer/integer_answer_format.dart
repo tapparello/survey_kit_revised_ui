@@ -7,8 +7,6 @@ part 'integer_answer_format.g.dart';
 
 @JsonSerializable()
 class IntegerAnswerFormat extends AnswerFormat {
-  static const String type = 'integer';
-
   final int? defaultValue;
   final String hint;
   final int min;
@@ -24,7 +22,7 @@ class IntegerAnswerFormat extends AnswerFormat {
 
   @override
   @JsonKey(name: 'type', includeToJson: true, includeFromJson: false)
-  String get answerType => type;
+  AnswerFormatType get answerType => AnswerFormatType.integer;
 
   factory IntegerAnswerFormat.fromJson(Map<String, dynamic> json) =>
       _$IntegerAnswerFormatFromJson(json);

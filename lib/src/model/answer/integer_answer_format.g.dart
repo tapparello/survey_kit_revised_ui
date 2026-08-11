@@ -23,5 +23,22 @@ Map<String, dynamic> _$IntegerAnswerFormatToJson(
   'hint': instance.hint,
   'min': instance.min,
   'max': instance.max,
-  'type': instance.answerType,
+  'type': _$AnswerFormatTypeEnumMap[instance.answerType]!,
+};
+
+const _$AnswerFormatTypeEnumMap = {
+  AnswerFormatType.boolean: 'bool',
+  AnswerFormatType.date: 'date',
+  AnswerFormatType.doubleValue: 'double',
+  AnswerFormatType.integer: 'integer',
+  AnswerFormatType.image: 'image',
+  AnswerFormatType.text: 'text',
+  AnswerFormatType.time: 'time',
+  AnswerFormatType.scale: 'scale',
+  AnswerFormatType.single: 'single',
+  AnswerFormatType.singleWithFeedback: 'single_with_feedback',
+  AnswerFormatType.multi: 'multi',
+  AnswerFormatType.multiWithFeedback: 'multi_with_feedback',
+  AnswerFormatType.multipleAutoComplete: 'multiple_auto_complete',
+  AnswerFormatType.multipleDouble: 'multiple_double',
 };

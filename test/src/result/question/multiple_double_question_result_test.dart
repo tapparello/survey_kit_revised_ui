@@ -7,7 +7,7 @@ void main() {
     startTime: DateTime(2022, 8, 12, 16, 4),
     endTime: DateTime(2022, 8, 12, 16, 14),
     valueIdentifier: 'multiDouble1',
-    answerType: MultipleDoubleAnswerFormat.type,
+    answerType: AnswerFormatType.multipleDouble,
     result: const [
       MultiDouble(text: 'doubleVal1', value: 123.45),
       MultiDouble(text: 'doubleVal2', value: 234.56),

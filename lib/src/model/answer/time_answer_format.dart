@@ -6,8 +6,6 @@ part 'time_answer_format.g.dart';
 
 @JsonSerializable()
 class TimeAnswerFormat extends AnswerFormat {
-  static const String type = 'time';
-
   @_TimeOfDayJsonConverter()
   final TimeOfDay? defaultValue;
 
@@ -15,7 +13,7 @@ class TimeAnswerFormat extends AnswerFormat {
 
   @override
   @JsonKey(name: 'type', includeToJson: true, includeFromJson: false)
-  String get answerType => type;
+  AnswerFormatType get answerType => AnswerFormatType.time;
 
   factory TimeAnswerFormat.fromJson(Map<String, dynamic> json) =>
       _$TimeAnswerFormatFromJson(json);
