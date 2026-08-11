@@ -1,39 +1,58 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:survey_kit/src/model/content/content_type.dart';
 import 'package:survey_kit/survey_kit.dart';
 
 /// Guards the JSON `type` discriminator against regeneration regressions.
 ///
-/// `Content.fromJson` dispatches on `json['type']` and falls back to shape
-/// inference when it is absent, so a missing discriminator does not throw -
-/// it silently returns the wrong subclass. See ADO #1001.
+/// Both groups iterate their discriminator enum rather than a hand-written
+/// list, so a new member with no fixture fails here by name. That is the
+/// difference between narrowing the hole and closing it: the previous version
+/// of this file listed 10 of 11 content types, and the missing one — section —
+/// was ADO #1006.
 void main() {
   group('Content discriminator survives a JSON round trip', () {
-    final contents = <Content>[
-      const TextContent(text: 'hi'),
-      const StyledTextContent(text: 'hi'),
-      const MarkdownContent(text: '# hi'),
-      const HtmlContent(html: '<p>hi</p>'),
-      const ImageContent(url: 'u'),
-      const VideoContent(url: 'u'),
-      const AudioContent(url: 'u'),
-      const LottieContent(url: 'u'),
-      const SeparatorContent(),
-      const ConditionalContent(
+    final samples = <ContentType, Content>{
+      ContentType.audio: const AudioContent(url: 'u'),
+      ContentType.text: const TextContent(text: 'hi'),
+      ContentType.styledText: const StyledTextContent(text: 'hi'),
+      ContentType.video: const VideoContent(url: 'u'),
+      ContentType.image: const ImageContent(url: 'u'),
+      ContentType.markdown: const MarkdownContent(text: '# hi'),
+      ContentType.lottie: const LottieContent(url: 'u'),
+      ContentType.html: const HtmlContent(html: '<p>hi</p>'),
+      ContentType.separator: const SeparatorContent(),
+      ContentType.section: const SectionContent(
+        title: StyledTextContent(text: 't'),
+        subtitle: StyledTextContent(text: 's'),
+        text: StyledTextContent(text: 'b'),
+      ),
+      ContentType.conditional: const ConditionalContent(
         variable: 'x',
         options: {'1': TextContent(text: 'inner')},
       ),
-    ];
+    };
 
-    for (final content in contents) {
-      test('${content.runtimeType}', () {
+    test('every ContentType member has a fixture', () {
+      for (final member in ContentType.values) {
+        expect(
+          samples[member],
+          isNotNull,
+          reason: 'no fixture: ${member.name}',
+        );
+      }
+    });
+
+    for (final member in ContentType.values) {
+      test(member.name, () {
+        final content = samples[member]!;
         final decoded =
             jsonDecode(jsonEncode(content.toJson())) as Map<String, dynamic>;
 
         expect(
           decoded['type'],
-          content.contentType,
+          member.wireName,
           reason: 'discriminator missing for ${content.runtimeType}',
         );
 
@@ -61,36 +80,56 @@ void main() {
   });
 
   group('AnswerFormat discriminator survives a JSON round trip', () {
-    final formats = <AnswerFormat>[
-      const BooleanAnswerFormat(positiveAnswer: 'y', negativeAnswer: 'n'),
-      DateAnswerFormat(),
-      const DoubleAnswerFormat(),
-      const IntegerAnswerFormat(),
-      const ImageAnswerFormat(),
-      const TextAnswerFormat(),
-      const TimeAnswerFormat(),
-      const ScaleAnswerFormat(
+    final samples = <AnswerFormatType, AnswerFormat>{
+      AnswerFormatType.boolean: const BooleanAnswerFormat(
+        positiveAnswer: 'y',
+        negativeAnswer: 'n',
+      ),
+      // DateAnswerFormat's constructor is not const.
+      AnswerFormatType.date: DateAnswerFormat(),
+      AnswerFormatType.doubleValue: const DoubleAnswerFormat(),
+      AnswerFormatType.integer: const IntegerAnswerFormat(),
+      AnswerFormatType.image: const ImageAnswerFormat(),
+      AnswerFormatType.text: const TextAnswerFormat(),
+      AnswerFormatType.time: const TimeAnswerFormat(),
+      AnswerFormatType.scale: const ScaleAnswerFormat(
         maximumValue: 10,
         minimumValue: 0,
         defaultValue: 5,
         step: 1,
       ),
-      const MultipleChoiceAnswerFormat(textChoices: []),
-      const MultipleChoiceAnswerWithFeedbackFormat(textChoices: []),
-      const MultipleChoiceAutoCompleteAnswerFormat(textChoices: []),
-      const SingleChoiceAnswerFormat(textChoices: []),
-      const SingleChoiceAnswerWithFeedbackFormat(textChoices: []),
-      const MultipleDoubleAnswerFormat(hints: []),
-    ];
+      AnswerFormatType.single: const SingleChoiceAnswerFormat(textChoices: []),
+      AnswerFormatType.singleWithFeedback:
+          const SingleChoiceAnswerWithFeedbackFormat(textChoices: []),
+      AnswerFormatType.multi: const MultipleChoiceAnswerFormat(textChoices: []),
+      AnswerFormatType.multiWithFeedback:
+          const MultipleChoiceAnswerWithFeedbackFormat(textChoices: []),
+      AnswerFormatType.multipleAutoComplete:
+          const MultipleChoiceAutoCompleteAnswerFormat(textChoices: []),
+      AnswerFormatType.multipleDouble: const MultipleDoubleAnswerFormat(
+        hints: [],
+      ),
+    };
 
-    for (final format in formats) {
-      test('${format.runtimeType}', () {
+    test('every AnswerFormatType member has a fixture', () {
+      for (final member in AnswerFormatType.values) {
+        expect(
+          samples[member],
+          isNotNull,
+          reason: 'no fixture: ${member.name}',
+        );
+      }
+    });
+
+    for (final member in AnswerFormatType.values) {
+      test(member.name, () {
+        final format = samples[member]!;
         final decoded =
             jsonDecode(jsonEncode(format.toJson())) as Map<String, dynamic>;
 
         expect(
           decoded['type'],
-          format.answerType.wireName,
+          member.wireName,
           reason: 'discriminator missing for ${format.runtimeType}',
         );
 
