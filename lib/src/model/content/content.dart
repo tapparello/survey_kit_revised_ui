@@ -1,16 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:survey_kit/src/configuration/survey_registries.dart';
-import 'package:survey_kit/src/model/content/audio_content.dart';
-import 'package:survey_kit/src/model/content/conditional_content.dart';
-import 'package:survey_kit/src/model/content/html_content.dart';
-import 'package:survey_kit/src/model/content/image_content.dart';
-import 'package:survey_kit/src/model/content/lottie_content.dart';
-import 'package:survey_kit/src/model/content/markdown_content.dart';
-import 'package:survey_kit/src/model/content/separator_content.dart';
+import 'package:survey_kit/src/exception/survey_kit_exception.dart';
+import 'package:survey_kit/src/model/content/content_type.dart';
 import 'package:survey_kit/src/model/content/styled_text_content.dart';
-import 'package:survey_kit/src/model/content/text_content.dart';
-import 'package:survey_kit/src/model/content/video_content.dart';
 
 abstract class Content {
   @JsonKey(includeIfNull: false)
@@ -40,51 +33,18 @@ abstract class Content {
   }) {
     final type = json['type'] as String?;
 
-    // Check custom registry first
+    // Registry before built-ins: a consumer that registers a discriminator has
+    // done so deliberately, and shadowing a built-in stays possible.
     if (registries != null) {
       final custom = registries.resolveContent(json);
       if (custom != null) return custom;
     }
 
-    // If type is missing (e.g., from previously serialized results),
-    // try to infer from the JSON shape or return a text placeholder
-    if (type == null) {
-      if (json.containsKey('html')) {
-        return HtmlContent.fromJson(json);
-      }
-      if (json.containsKey('text')) {
-        return StyledTextContent.fromJson(json);
-      }
-      return const TextContent(text: '');
+    final member = ContentType.byWireName(type);
+    if (member == null) {
+      throw UnknownTypeException(kind: 'Content', discriminator: type);
     }
-
-    switch (type) {
-      case 'audio':
-        return AudioContent.fromJson(json);
-      case 'text':
-        return TextContent.fromJson(json);
-      case 'styled_text':
-        return StyledTextContent.fromJson(json);
-      case 'video':
-        return VideoContent.fromJson(json);
-      case 'image':
-        return ImageContent.fromJson(json);
-      case 'markdown':
-        return MarkdownContent.fromJson(json);
-      case 'lottie':
-        return LottieContent.fromJson(json);
-      case 'html':
-        return HtmlContent.fromJson(json);
-      case 'separator':
-        return SeparatorContent.fromJson(json);
-      case 'conditional':
-        return ConditionalContent.fromJson(json, registries: registries);
-      default:
-        // Unknown types (e.g., custom content from app registries) may appear
-        // when deserializing saved results without registries. Return a
-        // placeholder instead of crashing.
-        return const TextContent(text: '');
-    }
+    return member.fromJson(json, registries: registries);
   }
 
   Map<String, dynamic> toJson();
