@@ -5,7 +5,7 @@ part 'scale_band.g.dart';
 /// A contiguous value range on a vertical scale slider with a localizable
 /// [name]. Drives both the tooltip (any value in [min]..[max]) and the static
 /// tick label (shown only at the [labelAt] tick).
-@JsonSerializable(explicitToJson: true)
+@JsonSerializable()
 class ScaleBand {
   /// Inclusive lower bound of the value range this band covers.
   final double min;

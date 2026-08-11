@@ -1,3 +1,54 @@
+# 1.0.0-dev.15
+
+- **BREAKING (data): survey results saved by an earlier version will not load.**
+  `StepResult` no longer embeds a `Step`, and results are reconstructed using the
+  answer format's discriminator, which older records do not carry.
+  `StepResult.fromJson` throws `ResultCodecException` for such a record and
+  `SurveyResult.fromJson` propagates it, so a caller should catch it and start the
+  survey with no prior answers. Persisted results are unrecoverable across this
+  upgrade by design: the package is pre-1.0, and the alternative was carrying a
+  shape-guessing fallback forward. (ADO #1012)
+- **BREAKING: `StepResult.step` is removed**, along with the `step` constructor
+  argument. Results are keyed by `id`, which already equalled `step.id`. Replace
+  `result.step.id` with `result.id`. A new optional `answerType` carries the
+  answer format's discriminator and is required for any non-null result to
+  serialize.
+- **BREAKING: `AnswerFormat.answerType` is a getter, not a constructor
+  parameter.** It was overridable — `TextAnswerFormat(answerType: 'time')`
+  compiled — which now would select the wrong result conversion. Subclasses
+  override the getter. If you subclass `AnswerFormat`, you must override
+  `answerType` **and repeat the `@JsonKey(name: 'type', includeToJson: true,
+  includeFromJson: false)` annotation on your override**; without it
+  `json_serializable` silently omits `type` from your `toJson` and the next load
+  cannot dispatch.
+- BUGFIX: a persisted result now reconstructs its declared type.
+  `_decodeResult` dispatched on the reified type argument, which is `dynamic` for
+  every result reached through `SurveyResult`, so `if (value is S)` always
+  matched and raw JSON was returned — `date` and `bool` answers came back as
+  `String`, `time` as a `Map`. Views casting those crashed on resume;
+  `TextChoice` answers did not crash but read as unanswered, so a regenerated PDF
+  silently omitted them. (ADO #1009)
+- BUGFIX: `CustomDateTimeConverter.toJson` shifted an already-UTC `DateTime` by
+  the local zone offset — it rebuilt the value with the local `DateTime`
+  constructor from its own field values and then called `toUtc()`. Latent while
+  the only values passing through were `startTime` / `endTime`, which come from
+  `DateTime.now()`; date answers now go through it too.
+- BUGFIX: five answer views (`date`, `boolean`, `time`,
+  `multiple_choice_auto_complete`, `text`) read the restored result with an
+  unchecked cast; they now type-test it like the other views.
+- CHANGE: a result that cannot be serialized now throws `ResultCodecException`
+  instead of being silently persisted as its `toString()`, which was
+  unrecoverable on read. If your `onResult` handler must not fail, wrap it.
+- CHANGE: `type` moves to the end of the emitted map for the 14 answer formats,
+  a consequence of `answerType` becoming a getter. Key order only; the decoded
+  map is unchanged. Same class of change as `1.0.0-dev.13`.
+- ADDED: `ResultCodecException`, carrying the step id and the answer-format
+  discriminator. Note the sealed `SurveyKitException` hierarchy gained a subtype,
+  which is breaking for an exhaustive `switch` over it.
+- REMOVED: four redundant `@JsonSerializable(explicitToJson: true)` annotations,
+  superseded by the global `explicit_to_json` build option. Generated output is
+  byte-identical.
+
 # 1.0.0-dev.14
 
 - ADDED: `SurveyKitException`, a sealed base type for every failure the library

@@ -4,7 +4,7 @@ import 'package:survey_kit/survey_kit.dart';
 
 part 'single_choice_answer_with_feedback_format.g.dart';
 
-@JsonSerializable(explicitToJson: true)
+@JsonSerializable()
 class SingleChoiceAnswerWithFeedbackFormat extends AnswerFormat {
   static const String type = 'single_with_feedback';
 

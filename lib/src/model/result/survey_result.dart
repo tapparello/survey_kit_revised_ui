@@ -6,7 +6,7 @@ import 'package:survey_kit/src/util/datetime_convert.dart';
 part 'survey_result.g.dart';
 
 @immutable
-@JsonSerializable(explicitToJson: true)
+@JsonSerializable()
 @CustomDateTimeConverter()
 class SurveyResult {
   final String id;
