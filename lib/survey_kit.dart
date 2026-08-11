@@ -3,6 +3,7 @@ export 'src/configuration/survey_registries.dart';
 export 'src/controller/survey_controller.dart';
 export 'src/exception/survey_kit_exception.dart';
 export 'src/model/answer/answer_format.dart';
+export 'src/model/answer/answer_format_type.dart';
 export 'src/model/answer/boolean_answer_format.dart';
 export 'src/model/answer/date_answer_format.dart';
 export 'src/model/answer/double_answer_format.dart';
