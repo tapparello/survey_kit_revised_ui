@@ -43,6 +43,14 @@
   loads rather than when a user reaches the step. `"type": "custom"` is
   deliberately not accepted — it is already `CustomNavigationRule`'s
   discriminator.
+- **BREAKING (behaviour): `SurveyRegistries.customStepTypes` is honoured.**
+  `resolveStep` was exported and documented but called by nothing in the
+  library, so a consumer that registered a custom step factory got silence.
+  `Step.fromJson` now consults it. This changes behaviour only for a consumer
+  that had registered `customStepTypes`; a survey that had not is unaffected.
+  An absent or unregistered step `type` still yields a built-in `Step` — steps
+  are deliberately the one family where a missing discriminator is not an
+  error.
 - ADDED: `AnswerFormatType`, the answer format dispatch table. Each member
   carries its wire string and its `fromJson` factory, so a member cannot exist
   without one, and `StepResult`'s result conversion is now a compiler-checked
@@ -65,11 +73,6 @@
   case in the dispatch, so any authored `"type": "section"` degraded to an empty
   `TextContent` even though the class was exported, declared its discriminator,
   and had a generated `fromJson`. (ADO #1006)
-- BUGFIX: `SurveyRegistries.customStepTypes` is honoured. `resolveStep` was
-  exported and documented but called by nothing in the library, so a consumer
-  that registered a custom step factory got silence. `Step.fromJson` now consults
-  it. An absent or unregistered step `type` still yields a built-in `Step` — steps
-  are deliberately the one family where a missing discriminator is not an error.
 - BUGFIX: content nested inside a `conditional` block now receives the
   registries. The dispatch dropped them, so a registry-provided type inside a
   conditional resolved without its factory.
