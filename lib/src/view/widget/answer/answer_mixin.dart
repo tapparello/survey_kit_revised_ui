@@ -26,11 +26,13 @@ mixin AnswerMixin<T extends StatefulWidget, R> on State<T> {
   bool isValid(R? result);
 
   set onValidationChanged(bool isValid) {
+    if (!mounted) return;
     SurveyKitLogger.d('onValidationChanged - $isValid');
     QuestionAnswer.of(context).setIsValid(isValid);
   }
 
   set onStepResultChanged(R? stepResult) {
+    if (!mounted) return;
     QuestionAnswer.of(context).setStepResult(stepResult);
   }
 }

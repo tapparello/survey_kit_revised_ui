@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' hide Step;
 import 'package:survey_kit/src/view/step_view.dart';
+import 'package:survey_kit/src/view/widget/answer/answer_session.dart';
 import 'package:survey_kit/survey_kit.dart';
 
 class AnswerView extends StatefulWidget {
@@ -19,6 +20,15 @@ class AnswerView extends StatefulWidget {
 }
 
 class _AnswerViewState extends State<AnswerView> {
+  late final AnswerSession<dynamic> _session =
+      AnswerSession<dynamic>(step: widget.step);
+
+  @override
+  void dispose() {
+    _session.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     Widget? answerView;
@@ -29,7 +39,7 @@ class _AnswerViewState extends State<AnswerView> {
         widget.step.stepShell ?? SurveyStateProvider.of(context).stepShell;
 
     return QuestionAnswer<dynamic>(
-      step: widget.step,
+      session: _session,
       child: Builder(
         builder: (context) => stepShell != null
             ? stepShell.call(widget.step, answerView, context)
