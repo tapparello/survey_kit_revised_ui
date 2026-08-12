@@ -1,3 +1,44 @@
+# 1.0.0-dev.17
+
+- **BREAKING: `SurveyStateProvider(...)` drops `results:` and requires
+  `session:`; the constructor is now `@internal`.** External code can no
+  longer construct `SurveyStateProvider` directly — only `SurveyKit` builds
+  one now. `SurveyStateProvider.of` and every accessor on it (`state`,
+  `results`, `startDate`, `surveyStateStream`, `getStepResultById`,
+  `updateState`) are unchanged and still public. (ADO #1033)
+- **BREAKING: `QuestionAnswer(...)` drops `step:` and requires `session:`;
+  the constructor is now `@internal`.** External code can no longer
+  construct `QuestionAnswer` either — for example to wrap a custom answer
+  view in a test. `QuestionAnswer.of` and every accessor on it (`step`,
+  `startTime`, `isValid`, `stepResult`, `setIsValid`, `setStepResult`) are
+  unchanged and still public. Use a full `SurveyKit` with `stepShell` to
+  inject a widget into the survey subtree instead — see
+  `test/api_surface_test.dart` for the pattern.
+- **BREAKING: `results`, `surveyStateStream` and `startDate` are getters,
+  not fields.** Their implicit setters are gone. Both widgets' mutable state
+  moved to `SurveySession` and `AnswerSession`, owned by `_SurveyKitState`
+  and `_AnswerViewState` respectively, so a parent rebuild no longer resets
+  them.
+- BUGFIX: a parent rebuild of `SurveyKit` no longer resets the survey
+  session. This previously froze the survey permanently — Next, Back and
+  save-and-close all became no-ops and `onResult` never fired.
+- BUGFIX: a parent rebuild no longer discards the in-progress answer. This
+  previously advanced the survey with a null result, defeating
+  mandatory-step gating.
+- BUGFIX: the leaked `StreamController` behind `surveyStateStream` is now
+  closed when `SurveyKit` is disposed.
+- CHANGE: `initialResults` is read once at mount and copied, not aliased.
+  The library no longer mutates the caller's `Set`, and
+  `SurveyKit(initialResults: Set.unmodifiable(...))` no longer crashes on
+  the first answer.
+- CHANGE: `results` is now one `Set` for the whole survey, aliased into
+  every `PresentingSurveyState.questionResults` and so into
+  `surveyStateStream`. Previously each parent rebuild handed out a fresh
+  set. `onResult`'s payload is unaffected — it still receives a copy via
+  `.toList()`.
+- CHANGE: a feedback dialog straddling a parent rebuild now completes
+  correctly.
+
 # 1.0.0-dev.16
 
 - **BREAKING: `AnswerFormat.answerType` returns `AnswerFormatType`, not
