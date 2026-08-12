@@ -16,8 +16,8 @@ import 'package:survey_kit/src/presenter/survey_state.dart';
 @internal
 class SurveySession {
   SurveySession({Set<StepResult>? initialResults})
-      : results = Set<StepResult>.of(initialResults ?? const <StepResult>{}),
-        startDate = DateTime.now();
+    : results = Set<StepResult>.of(initialResults ?? const <StepResult>{}),
+      startDate = DateTime.now();
 
   /// A copy, never the caller's collection: the session owns its own state, and
   /// aliasing meant `SurveyKit(initialResults: Set.unmodifiable(...))` threw on

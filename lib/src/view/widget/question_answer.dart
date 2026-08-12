@@ -16,6 +16,7 @@ class QuestionAnswer<R> extends InheritedWidget {
     required this.session,
   });
 
+  @internal
   final AnswerSession<R> session;
 
   // Delegations. All of these were mutable fields on this widget until ADO

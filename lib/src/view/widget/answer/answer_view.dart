@@ -20,8 +20,23 @@ class AnswerView extends StatefulWidget {
 }
 
 class _AnswerViewState extends State<AnswerView> {
-  late final AnswerSession<dynamic> _session =
-      AnswerSession<dynamic>(step: widget.step);
+  late final AnswerSession<dynamic> _session = AnswerSession<dynamic>(
+    step: widget.step,
+  );
+
+  @override
+  void didUpdateWidget(AnswerView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // AnswerSession is keyed to a step and created once. That is safe only
+    // while every transition pushes a new route, so this element is never
+    // reused across steps. If that ever changes, answers would be recorded
+    // under the previous step's id, silently. (ADO #1033)
+    assert(
+      _session.step.id == widget.step.id,
+      'AnswerView element reused across steps: AnswerSession is keyed to '
+      '${_session.step.id} but the widget now carries ${widget.step.id}.',
+    );
+  }
 
   @override
   void dispose() {

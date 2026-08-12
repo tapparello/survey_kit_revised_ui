@@ -21,18 +21,23 @@ void main() {
 
     expect(find.widgetWithText(TextButton, 'Cancel'), findsWidgets);
 
-    key.currentState!.setLocalizations(
-      const {'cancel': 'Abbrechen', 'next': 'Weiter'},
-    );
+    key.currentState!.setLocalizations(const {
+      'cancel': 'Abbrechen',
+      'next': 'Weiter',
+    });
     await tester.pumpAndSettle();
 
-    expect(find.widgetWithText(TextButton, 'Abbrechen'), findsWidgets,
-        reason: 'a real localizations change must reach dependents');
+    expect(
+      find.widgetWithText(TextButton, 'Abbrechen'),
+      findsWidgets,
+      reason: 'a real localizations change must reach dependents',
+    );
     expect(find.widgetWithText(TextButton, 'Cancel'), findsNothing);
   });
 
-  testWidgets('a no-op parent rebuild does not notify dependents',
-      (tester) async {
+  testWidgets('a no-op parent rebuild does not notify dependents', (
+    tester,
+  ) async {
     final key = GlobalKey<RebuildHostState>();
     await tester.pumpWidget(
       RebuildHost(
@@ -50,7 +55,10 @@ void main() {
     await tester.pump();
 
     final after = providerFrom(tester, find.text('One'));
-    expect(after.updateShouldNotify(before), isFalse,
-        reason: 'nothing structural changed, so dependents must not rebuild');
+    expect(
+      after.updateShouldNotify(before),
+      isFalse,
+      reason: 'nothing structural changed, so dependents must not rebuild',
+    );
   });
 }

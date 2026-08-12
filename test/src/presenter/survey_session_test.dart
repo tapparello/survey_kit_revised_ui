@@ -30,13 +30,22 @@ void main() {
     await tester.pump();
 
     final after = providerFrom(tester, find.text('Two'));
-    expect(after.results.map((r) => r.id).toSet(), resultsBefore,
-        reason: 'results must survive');
-    expect(after.state, isA<PresentingSurveyState>(),
-        reason: 'state must not reset to Loading');
+    expect(
+      after.results.map((r) => r.id).toSet(),
+      resultsBefore,
+      reason: 'results must survive',
+    );
+    expect(
+      after.state,
+      isA<PresentingSurveyState>(),
+      reason: 'state must not reset to Loading',
+    );
     expect(after.startDate, startBefore, reason: 'startDate must not reset');
-    expect(identical(after.surveyStateStream, streamBefore), isTrue,
-        reason: 'the controller must not be replaced');
+    expect(
+      identical(after.surveyStateStream, streamBefore),
+      isTrue,
+      reason: 'the controller must not be replaced',
+    );
   });
 
   testWidgets('after a parent rebuild, Next still advances', (tester) async {
@@ -54,12 +63,16 @@ void main() {
     await tester.tap(find.text('Next'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Two'), findsOneWidget,
-        reason: 'the survey froze: onEvent gates on PresentingSurveyState');
+    expect(
+      find.text('Two'),
+      findsOneWidget,
+      reason: 'the survey froze: onEvent gates on PresentingSurveyState',
+    );
   });
 
-  testWidgets('after a parent rebuild, Cancel still fires onResult',
-      (tester) async {
+  testWidgets('after a parent rebuild, Cancel still fires onResult', (
+    tester,
+  ) async {
     SurveyResult? captured;
     final key = GlobalKey<RebuildHostState>();
     await tester.pumpWidget(
@@ -75,14 +88,15 @@ void main() {
     await tester.tap(find.widgetWithText(TextButton, 'Cancel').first);
     await tester.pump(const Duration(seconds: 1));
 
-    expect(captured, isNotNull,
-        reason: 'onResult never fired, so the consumer can never pop');
+    expect(
+      captured,
+      isNotNull,
+      reason: 'onResult never fired, so the consumer can never pop',
+    );
   });
 
   testWidgets('disposing SurveyKit closes the stream', (tester) async {
-    await tester.pumpWidget(
-      RebuildHost(task: twoStepTask(), onResult: (_) {}),
-    );
+    await tester.pumpWidget(RebuildHost(task: twoStepTask(), onResult: (_) {}));
     await tester.pumpAndSettle();
 
     // Capture before unmounting: of(context) cannot reach it afterwards.
@@ -95,7 +109,9 @@ void main() {
     expect(stream.isClosed, isTrue, reason: 'the controller leaked');
   });
 
-  testWidgets('an unmodifiable initialResults no longer crashes', (tester) async {
+  testWidgets('an unmodifiable initialResults no longer crashes', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       RebuildHost(
         task: twoStepTask(),

@@ -24,6 +24,7 @@ class SurveyStateProvider extends InheritedWidget {
   final StepShell? stepShell;
   final GlobalKey<NavigatorState> navigatorKey;
   final Map<String, String>? localizations;
+  @internal
   final SurveySession session;
 
   // Delegations. Every one of these was a mutable field on this widget until
@@ -330,7 +331,8 @@ class SurveyStateProvider extends InheritedWidget {
     );
   }
 
-  void _addResult(StepResult? questionResult) => session.addResult(questionResult);
+  void _addResult(StepResult? questionResult) =>
+      session.addResult(questionResult);
 
   int get countSteps => taskNavigator.countSteps;
   int currentStepIndex(Step step) {
