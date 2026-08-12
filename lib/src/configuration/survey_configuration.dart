@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show mapEquals;
 import 'package:flutter/material.dart';
 import 'package:survey_kit/src/configuration/survey_registries.dart';
 import 'package:survey_kit/src/controller/survey_controller.dart';
@@ -45,5 +46,8 @@ class SurveyConfiguration extends InheritedWidget {
   bool updateShouldNotify(SurveyConfiguration oldWidget) =>
       surveyProgressConfiguration != oldWidget.surveyProgressConfiguration ||
       registries != oldWidget.registries ||
-      contentStyles != oldWidget.contentStyles;
+      contentStyles != oldWidget.contentStyles ||
+      // mapEquals, not identity: consumers pass an inline map literal, so
+      // identity would notify on every build and never on a real change.
+      !mapEquals(localizations, oldWidget.localizations);
 }

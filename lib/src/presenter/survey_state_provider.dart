@@ -48,11 +48,25 @@ class SurveyStateProvider extends InheritedWidget {
     return result;
   }
 
+  /// Compares what dependents actually read from this widget.
+  ///
+  /// `onResult` is deliberately absent: no dependent reads it, and every real
+  /// call site passes an inline closure whose identity changes on every build,
+  /// so comparing it notified constantly — which is what destroyed the
+  /// in-progress answer before ADO #1033.
+  ///
+  /// `stepShell` stays because `AnswerView` reads it — but note it is a function
+  /// compared by identity, so a consumer passing an inline `stepShell` closure
+  /// still gets a notification on every parent rebuild. That is now harmless:
+  /// `AnswerSession` holds the answer, not `QuestionAnswer`.
+  ///
+  /// `localizations` is **not** compared here. Nothing reads it from this
+  /// widget except `_showFeedbackDialog`, which reads it at call time. See (b).
   @override
   bool updateShouldNotify(SurveyStateProvider oldWidget) =>
       taskNavigator != oldWidget.taskNavigator ||
-      onResult != oldWidget.onResult ||
-      session != oldWidget.session;
+      session != oldWidget.session ||
+      stepShell != oldWidget.stepShell;
 
   void onEvent(SurveyEvent event) {
     if (event is StartSurvey) {
