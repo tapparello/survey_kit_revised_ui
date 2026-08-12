@@ -78,17 +78,21 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
-        home: SurveyStateProvider(
-          taskNavigator: OrderedTaskNavigator(
-            OrderedTask(id: 'probe-task', steps: [step]),
+        home: Scaffold(
+          body: SurveyKit(
+            task: OrderedTask(id: 'probe-task', steps: [step]),
+            initialResults: {seeded},
+            onResult: (_) {},
+            // stepShell injects the probe INSIDE the survey subtree. Without it
+            // probeKey is never attached to anything and the assertion below
+            // dies on a null check rather than failing cleanly.
+            stepShell: (step, answerWidget, context) =>
+                _ProbeWidget(key: probeKey),
           ),
-          onResult: (_) {},
-          navigatorKey: GlobalKey<NavigatorState>(),
-          results: {seeded},
-          child: _ProbeWidget(key: probeKey),
         ),
       ),
     );
+    await tester.pumpAndSettle();
 
     final lookedUp = probeKey.currentState!.lookedUp;
     expect(lookedUp, isNotNull);

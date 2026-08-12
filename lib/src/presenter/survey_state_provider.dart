@@ -1,39 +1,40 @@
 import 'dart:async';
 
-import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide Step;
 import 'package:flutter_html/flutter_html.dart' hide Content;
+import 'package:survey_kit/src/presenter/survey_session.dart';
 import 'package:survey_kit/survey_kit.dart';
 
-// ignore: must_be_immutable
 class SurveyStateProvider extends InheritedWidget {
-  SurveyStateProvider({
+  @internal
+  const SurveyStateProvider({
     super.key,
     required this.taskNavigator,
     required this.onResult,
     required super.child,
     required this.navigatorKey,
+    required this.session,
     this.stepShell,
-    required this.results,
     this.localizations,
-  }) : _state = LoadingSurveyState(),
-       startDate = DateTime.now();
+  });
 
   final TaskNavigator taskNavigator;
   final Function(SurveyResult) onResult;
   final StepShell? stepShell;
   final GlobalKey<NavigatorState> navigatorKey;
   final Map<String, String>? localizations;
+  final SurveySession session;
 
-  late SurveyState _state;
-  SurveyState get state => _state;
-  void updateState(SurveyState newState) {
-    _state = newState;
-    surveyStateStream.add(_state);
-  }
-
-  late StreamController<SurveyState> surveyStateStream =
-      StreamController<SurveyState>.broadcast();
+  // Delegations. Every one of these was a mutable field on this widget until
+  // ADO #1033; they stay on the public surface so no `of(context)` call site
+  // changed.
+  SurveyState get state => session.state;
+  Set<StepResult> get results => session.results;
+  DateTime get startDate => session.startDate;
+  StreamController<SurveyState> get surveyStateStream => session.stateStream;
+  void updateState(SurveyState newState) => session.updateState(newState);
+  StepResult? getStepResultById(String id) => session.resultById(id);
 
   static SurveyStateProvider of(BuildContext context) {
     final result = context
@@ -51,10 +52,7 @@ class SurveyStateProvider extends InheritedWidget {
   bool updateShouldNotify(SurveyStateProvider oldWidget) =>
       taskNavigator != oldWidget.taskNavigator ||
       onResult != oldWidget.onResult ||
-      _state != oldWidget._state;
-
-  Set<StepResult> results;
-  late final DateTime startDate;
+      session != oldWidget.session;
 
   void onEvent(SurveyEvent event) {
     if (event is StartSurvey) {
@@ -261,9 +259,8 @@ class SurveyStateProvider extends InheritedWidget {
     return state;
   }
 
-  StepResult? _getResultByStepIdentifier(String? identifier) {
-    return results.firstWhereOrNull((element) => element.id == identifier);
-  }
+  StepResult? _getResultByStepIdentifier(String? identifier) =>
+      identifier == null ? null : session.resultById(identifier);
 
   SurveyState _handleClose(
     CloseSurvey event,
@@ -319,22 +316,11 @@ class SurveyStateProvider extends InheritedWidget {
     );
   }
 
-  void _addResult(StepResult? questionResult) {
-    if (questionResult == null) {
-      return;
-    }
-    results
-      ..removeWhere((StepResult result) => result.id == questionResult.id)
-      ..add(questionResult);
-  }
+  void _addResult(StepResult? questionResult) => session.addResult(questionResult);
 
   int get countSteps => taskNavigator.countSteps;
   int currentStepIndex(Step step) {
     return taskNavigator.currentStepIndex(step);
-  }
-
-  StepResult? getStepResultById(String id) {
-    return results.firstWhereOrNull((element) => element.id == id);
   }
 
   /// Shows the answer feedback dialog. When [autoDismiss] is true the dialog

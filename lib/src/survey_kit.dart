@@ -12,6 +12,7 @@ import 'package:survey_kit/src/navigator/navigable_task_navigator.dart';
 import 'package:survey_kit/src/navigator/ordered_task_navigator.dart';
 import 'package:survey_kit/src/navigator/task_navigator.dart';
 import 'package:survey_kit/src/presenter/survey_event.dart';
+import 'package:survey_kit/src/presenter/survey_session.dart';
 import 'package:survey_kit/src/presenter/survey_state.dart';
 import 'package:survey_kit/src/presenter/survey_state_provider.dart';
 import 'package:survey_kit/src/task/navigable_task.dart';
@@ -48,6 +49,11 @@ class SurveyKit extends StatefulWidget {
   /// Step shell
   final StepShell? stepShell;
 
+  /// Results to seed the survey with, e.g. when resuming a saved run.
+  ///
+  /// Read once, when the widget mounts. Passing a different set on a later
+  /// build has no effect — changing it does not restart the survey. The same is
+  /// true of [task]. (ADO #1033)
   final Set<StepResult>? initialResults;
 
   /// Decoration which is applied to the survey container
@@ -81,12 +87,14 @@ class SurveyKit extends StatefulWidget {
 class _SurveyKitState extends State<SurveyKit> {
   late TaskNavigator _taskNavigator;
   late final GlobalKey<NavigatorState> _navigatorKey;
+  late final SurveySession _session;
 
   @override
   void initState() {
     super.initState();
     _taskNavigator = _createTaskNavigator();
     _navigatorKey = GlobalKey<NavigatorState>();
+    _session = SurveySession(initialResults: widget.initialResults);
   }
 
   TaskNavigator _createTaskNavigator() {
@@ -103,6 +111,7 @@ class _SurveyKitState extends State<SurveyKit> {
 
   @override
   void dispose() {
+    _session.dispose();
     super.dispose();
   }
 
@@ -123,7 +132,7 @@ class _SurveyKitState extends State<SurveyKit> {
         taskNavigator: _taskNavigator,
         onResult: widget.onResult,
         stepShell: widget.stepShell,
-        results: widget.initialResults ?? {},
+        session: _session,
         navigatorKey: _navigatorKey,
         localizations: widget.localizations,
         child: SurveyPage(
