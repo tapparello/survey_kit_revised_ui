@@ -36,6 +36,7 @@ class SurveyStateProvider extends InheritedWidget {
   StreamController<SurveyState> get surveyStateStream => session.stateStream;
   void updateState(SurveyState newState) => session.updateState(newState);
   StepResult? getStepResultById(String id) => session.resultById(id);
+  ValueListenable<bool> get isAdvancing => session.isAdvancing;
 
   static SurveyStateProvider of(BuildContext context) {
     final result = context
@@ -72,28 +73,43 @@ class SurveyStateProvider extends InheritedWidget {
   Future<void> onEvent(SurveyEvent event) async {
     try {
       if (event is StartSurvey) {
-        final newState = await _handleInitialStep();
-        updateState(newState);
-        unawaited(
-          navigatorKey.currentState?.pushNamed('/', arguments: newState),
-        );
+        if (!session.beginAdvance()) return;
+        try {
+          final newState = await _handleInitialStep();
+          updateState(newState);
+          unawaited(
+            navigatorKey.currentState?.pushNamed('/', arguments: newState),
+          );
+        } finally {
+          session.endAdvance();
+        }
       } else if (event is NextStep) {
         if (state is PresentingSurveyState) {
-          await _handleNextStep(event, state as PresentingSurveyState);
+          if (!session.beginAdvance()) return;
+          try {
+            await _handleNextStep(event, state as PresentingSurveyState);
+          } finally {
+            session.endAdvance();
+          }
         }
       } else if (event is StepBack) {
         if (state is PresentingSurveyState) {
-          final newState = _handleStepBack(
-            event,
-            state as PresentingSurveyState,
-          );
-          updateState(newState);
-          unawaited(
-            navigatorKey.currentState?.pushReplacementNamed(
-              '/',
-              arguments: newState,
-            ),
-          );
+          if (!session.beginAdvance()) return;
+          try {
+            final newState = _handleStepBack(
+              event,
+              state as PresentingSurveyState,
+            );
+            updateState(newState);
+            unawaited(
+              navigatorKey.currentState?.pushReplacementNamed(
+                '/',
+                arguments: newState,
+              ),
+            );
+          } finally {
+            session.endAdvance();
+          }
         }
       } else if (event is CloseSurvey) {
         if (state is PresentingSurveyState) {

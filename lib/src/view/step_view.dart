@@ -28,6 +28,7 @@ class _StepViewState extends State<StepView> {
         widget.controller ?? surveyConfiguration.surveyController;
 
     final questionAnswer = QuestionAnswer.of(context);
+    final surveyState = SurveyStateProvider.of(context);
 
     Widget? saveAndCloseButton = OutlinedButton(
       onPressed: () => _surveyController.closeSurvey(context: context),
@@ -41,7 +42,7 @@ class _StepViewState extends State<StepView> {
 
     if (!surveyConfiguration.taskNavigator.hasNextStep(
       widget.step,
-      SurveyStateProvider.of(context).results.toList(),
+      surveyState.results.toList(),
     )) {
       // ADO #968: a "forward-chrome" label (no explicit label, the literal
       // 'Next' default, or a resolved @next == the localized 'next') is not a
@@ -75,12 +76,17 @@ class _StepViewState extends State<StepView> {
               Padding(
                 padding: const EdgeInsets.all(4.0),
                 child: AnimatedBuilder(
-                  animation: questionAnswer.isValid,
+                  animation: Listenable.merge([
+                    questionAnswer.isValid,
+                    surveyState.isAdvancing,
+                  ]),
                   builder: (context, child) {
+                    final canAdvance =
+                        (questionAnswer.isValid.value ||
+                            !widget.step.isMandatory) &&
+                        !surveyState.isAdvancing.value;
                     return ElevatedButton(
-                      onPressed:
-                          questionAnswer.isValid.value ||
-                              !widget.step.isMandatory
+                      onPressed: canAdvance
                           ? () => _surveyController.nextStep(
                               context,
                               questionAnswer.stepResult,

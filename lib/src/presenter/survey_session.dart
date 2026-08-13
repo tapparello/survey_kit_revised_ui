@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:meta/meta.dart';
+import 'package:flutter/foundation.dart';
 import 'package:survey_kit/src/model/result/step_result.dart';
 import 'package:survey_kit/src/presenter/survey_state.dart';
 
@@ -56,5 +56,36 @@ class SurveySession {
   StepResult? resultById(String id) =>
       results.firstWhereOrNull((element) => element.id == id);
 
-  void dispose() => stateStream.close();
+  /// True while an advance is in flight.
+  ///
+  /// `StepView` disables its Next button off this, and `onEvent` ignores
+  /// StartSurvey/NextStep/StepBack while it is set. CloseSurvey is deliberately
+  /// NOT guarded — see the spec, section 5.
+  final ValueNotifier<bool> isAdvancing = ValueNotifier<bool>(false);
+
+  bool _disposed = false;
+
+  /// Sets [isAdvancing]. Returns false if an advance is already in flight, in
+  /// which case the caller must not proceed.
+  bool beginAdvance() {
+    if (_disposed || isAdvancing.value) return false;
+    isAdvancing.value = true;
+    return true;
+  }
+
+  /// Clears [isAdvancing]. No-ops after [dispose].
+  ///
+  /// The guard is not defensive tidiness: this runs in a `finally` that can
+  /// execute after `SurveyKit` unmounts, and `ValueNotifier`'s value setter
+  /// calls `notifyListeners()`, which asserts the notifier is not disposed.
+  void endAdvance() {
+    if (_disposed) return;
+    isAdvancing.value = false;
+  }
+
+  void dispose() {
+    _disposed = true;
+    isAdvancing.dispose();
+    stateStream.close();
+  }
 }
