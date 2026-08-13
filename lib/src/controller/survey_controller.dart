@@ -39,27 +39,33 @@ class SurveyController {
 
   SurveyController({this.onNextStep, this.onStepBack, this.onCloseSurvey});
 
-  void nextStep(BuildContext context, StepResult? stepResult) {
+  Future<void> nextStep(BuildContext context, StepResult? stepResult) async {
     if (onNextStep != null) {
-      onNextStep!(context, stepResult);
+      await onNextStep!(context, stepResult);
       return;
     }
-    SurveyStateProvider.of(context).onEvent(NextStep(stepResult));
+    await SurveyStateProvider.of(context).onEvent(NextStep(stepResult));
   }
 
-  void stepBack({required BuildContext context, StepResult? stepResult}) {
+  Future<void> stepBack({
+    required BuildContext context,
+    StepResult? stepResult,
+  }) async {
     if (onStepBack != null) {
-      onStepBack!(context, stepResult);
+      await onStepBack!(context, stepResult);
       return;
     }
-    SurveyStateProvider.of(context).onEvent(StepBack(stepResult));
+    await SurveyStateProvider.of(context).onEvent(StepBack(stepResult));
   }
 
-  void closeSurvey({required BuildContext context, StepResult? stepResult}) {
+  Future<void> closeSurvey({
+    required BuildContext context,
+    StepResult? stepResult,
+  }) async {
     if (onCloseSurvey != null) {
-      onCloseSurvey!(context, stepResult);
+      await onCloseSurvey!(context, stepResult);
       return;
     }
-    SurveyStateProvider.of(context).onEvent(CloseSurvey(stepResult));
+    await SurveyStateProvider.of(context).onEvent(CloseSurvey(stepResult));
   }
 }

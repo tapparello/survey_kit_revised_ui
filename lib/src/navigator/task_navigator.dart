@@ -1,5 +1,6 @@
 import 'dart:collection';
 
+import 'package:survey_kit/src/configuration/action_context.dart';
 import 'package:survey_kit/src/model/result/step_result.dart';
 import 'package:survey_kit/src/model/step.dart';
 import 'package:survey_kit/src/task/task.dart';
@@ -12,12 +13,13 @@ abstract class TaskNavigator {
 
   Step? firstStep();
 
-  /// Advances past [step]: records it in [history] and fires the side effect of
-  /// any [ActionNavigationRule] on it.
-  Step? nextStep({
+  /// Advances past [step]: records it in [history], then fires and **awaits**
+  /// the handler for any [ActionNavigationRule] on it.
+  Future<Step?> nextStep({
     required Step step,
     required List<StepResult> previousResults,
     StepResult? questionResult,
+    ActionTrigger trigger = ActionTrigger.advance,
   });
 
   /// Resolves the destination without advancing. Does not record [step] in

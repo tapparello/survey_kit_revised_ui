@@ -175,7 +175,11 @@ void main() {
       // now the id alone expresses it, since results are keyed by id.
       List<StepResult>? captured;
       final registries = SurveyRegistries(
-        actionHandlers: {'capture': (results, variables) => captured = results},
+        actionHandlers: {
+          'capture': (ctx) async {
+            captured = ctx.results;
+          },
+        },
       );
 
       await tester.pumpWidget(

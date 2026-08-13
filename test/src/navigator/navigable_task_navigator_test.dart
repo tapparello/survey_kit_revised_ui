@@ -13,8 +13,8 @@ void main() {
   NavigableTaskNavigator buildNavigator() {
     final registries = SurveyRegistries(
       actionHandlers: {
-        'side_effect': (results, variables) {
-          variables['fired'] = (variables['fired'] as int? ?? 0) + 1;
+        'side_effect': (ctx) async {
+          ctx.variables['fired'] = (ctx.variables['fired'] as int? ?? 0) + 1;
         },
       },
     );
@@ -49,10 +49,10 @@ void main() {
     expect(navigator.history, isEmpty);
   });
 
-  test('nextStep fires the action handler once and records the step', () {
+  test('nextStep fires the action handler once and records the step', () async {
     final navigator = buildNavigator();
 
-    final next = navigator.nextStep(
+    final next = await navigator.nextStep(
       step: navigator.task.steps.first,
       previousResults: const [],
     );

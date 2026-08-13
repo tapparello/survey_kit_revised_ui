@@ -1,3 +1,4 @@
+import 'package:survey_kit/src/configuration/action_context.dart';
 import 'package:survey_kit/src/model/result/step_result.dart';
 import 'package:survey_kit/src/model/step.dart';
 import 'package:survey_kit/src/navigator/task_navigator.dart';
@@ -8,11 +9,12 @@ class OrderedTaskNavigator extends TaskNavigator {
   OrderedTaskNavigator(Task task) : super(task);
 
   @override
-  Step? nextStep({
+  Future<Step?> nextStep({
     required Step step,
     required List<StepResult> previousResults,
     StepResult? questionResult,
-  }) {
+    ActionTrigger trigger = ActionTrigger.advance,
+  }) async {
     record(step);
     return nextInList(step);
   }

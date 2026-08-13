@@ -69,116 +69,155 @@ class SurveyStateProvider extends InheritedWidget {
       session != oldWidget.session ||
       stepShell != oldWidget.stepShell;
 
-  void onEvent(SurveyEvent event) {
-    if (event is StartSurvey) {
-      final newState = _handleInitialStep();
-      updateState(newState);
-      navigatorKey.currentState?.pushNamed('/', arguments: newState);
-    } else if (event is NextStep) {
-      if (state is PresentingSurveyState) {
-        final currentState = state as PresentingSurveyState;
-        _addResult(event.questionResult);
-
-        final nextStep = taskNavigator.nextStep(
-          step: currentState.currentStep,
-          previousResults: results.toList(),
-          questionResult: event.questionResult,
+  Future<void> onEvent(SurveyEvent event) async {
+    try {
+      if (event is StartSurvey) {
+        final newState = await _handleInitialStep();
+        updateState(newState);
+        unawaited(
+          navigatorKey.currentState?.pushNamed('/', arguments: newState),
         );
-
-        // Advance the survey once any feedback has been acknowledged: present the
-        // next step, or — when there is none — finish the survey. Finishing
-        // (which calls onResult and pops the host) is deferred into this callback
-        // so a feedback dialog on the TERMINAL step is shown and dismissed BEFORE
-        // the survey closes, instead of stranding over the screen behind it.
-        void proceed() {
-          if (nextStep == null) {
-            final finished = _handleSurveyFinished(currentState);
-            updateState(finished);
-            navigatorKey.currentState?.pushNamed('/', arguments: finished);
-          } else {
-            final presenting = _presentStep(nextStep);
-            updateState(presenting);
-            navigatorKey.currentState?.pushNamed('/', arguments: presenting);
-          }
+      } else if (event is NextStep) {
+        if (state is PresentingSurveyState) {
+          await _handleNextStep(event, state as PresentingSurveyState);
         }
-
-        final answerFormat = currentState.currentStep.answerFormat;
-        if (answerFormat is SingleChoiceAnswerWithFeedbackFormat) {
-          final selectedChoice = event.questionResult?.result as TextChoice?;
-          final isCorrect = selectedChoice?.value == 'correct';
-          _showFeedbackDialog(
-            message:
-                (isCorrect
-                    ? answerFormat.feedbackCorrect
-                    : answerFormat.feedbackWrong) ??
-                (isCorrect
-                    ? 'You selected the correct answer!'
-                    : 'You selected the incorrect answer!'),
-            backgroundColor: isCorrect ? Colors.green : Colors.red,
-            autoDismiss: isCorrect,
-            onContinue: proceed,
+      } else if (event is StepBack) {
+        if (state is PresentingSurveyState) {
+          final newState = _handleStepBack(
+            event,
+            state as PresentingSurveyState,
           );
-        } else if (answerFormat is MultipleChoiceAnswerWithFeedbackFormat) {
-          final rawChoices = event.questionResult?.result;
-          final selectedChoices = rawChoices is List<TextChoice>
-              ? rawChoices
-              : rawChoices is List
-              ? rawChoices.map((item) {
-                  if (item is TextChoice) return item;
-                  if (item is Map<String, dynamic>) {
-                    return TextChoice.fromJson(item);
-                  }
-                  return TextChoice(
-                    text: item.toString(),
-                    value: item.toString(),
-                  );
-                }).toList()
-              : <TextChoice>[];
-
-          final hasWrong = selectedChoices.any(
-            (choice) => choice.value == 'wrong',
+          updateState(newState);
+          unawaited(
+            navigatorKey.currentState?.pushReplacementNamed(
+              '/',
+              arguments: newState,
+            ),
           );
-          final colored = answerFormat.coloredFeedback;
-          _showFeedbackDialog(
-            message:
-                (hasWrong
-                    ? answerFormat.feedbackWrong
-                    : answerFormat.feedbackCorrect) ??
-                (hasWrong
-                    ? 'You selected the incorrect answers!'
-                    : 'You selected the correct answers!'),
-            backgroundColor: colored
-                ? (hasWrong ? Colors.red : Colors.green)
-                : null,
-            // Auto-dismiss only the all-correct coloured case (matches prior
-            // behaviour); every other case shows a tappable "Next" button.
-            autoDismiss: colored && !hasWrong,
-            onContinue: proceed,
-          );
-        } else {
-          proceed();
+        }
+      } else if (event is CloseSurvey) {
+        if (state is PresentingSurveyState) {
+          final newState = _handleClose(event, state as PresentingSurveyState);
+          updateState(newState);
+          navigatorKey.currentState?.pop();
         }
       }
-    } else if (event is StepBack) {
-      if (state is PresentingSurveyState) {
-        final newState = _handleStepBack(event, state as PresentingSurveyState);
-        updateState(newState);
-
-        navigatorKey.currentState?.pushReplacementNamed(
-          '/',
-          arguments: newState,
-        );
-      }
-    } else if (event is CloseSurvey) {
-      if (state is PresentingSurveyState) {
-        final newState = _handleClose(event, state as PresentingSurveyState);
-        updateState(newState);
-        navigatorKey.currentState?.pop();
-      }
+    } catch (e, s) {
+      // onEvent's Future is discarded at every dispatch site (survey_kit.dart,
+      // step_view.dart, survey_app_bar.dart), so a throw past the first
+      // suspension would become an unhandled ASYNC error and vanish — the exact
+      // defect this phase removes from the navigator. Before 3b these throws
+      // were synchronous and reached FlutterError.onError.
+      SurveyKitLogger.e('SurveyKit failed to handle $event', e, s);
     }
   }
 
-  SurveyState _handleInitialStep() {
+  Future<void> _handleNextStep(
+    NextStep event,
+    PresentingSurveyState currentState,
+  ) async {
+    _addResult(event.questionResult);
+
+    // Feedback BEFORE the action, reversing the pre-3b order. Awaiting the
+    // action first would stall the dialog behind (e.g.) PDF generation. Safe
+    // because an action handler's writes are consumed by the NEXT step's
+    // content, which renders after acknowledgement either way, and nothing
+    // observes history in between: hasNextStep goes through peekNextStep, which
+    // does not record, and SurveyProgress reads the state, not the navigator.
+    await _showFeedbackIfAny(
+      currentState.currentStep.answerFormat,
+      event.questionResult,
+    );
+
+    final next = await taskNavigator.nextStep(
+      step: currentState.currentStep,
+      previousResults: results.toList(),
+      questionResult: event.questionResult,
+    );
+
+    // CloseSurvey is deliberately NOT blocked while an advance is in flight, so
+    // the state can have moved on across the two awaits above. Publishing now
+    // would emit a PresentingSurveyState AFTER a terminal SurveyResultState on
+    // the public stream, and push onto a popped route.
+    if (!identical(state, currentState)) {
+      return;
+    }
+
+    if (next == null) {
+      final finished = _handleSurveyFinished(currentState);
+      updateState(finished);
+      unawaited(
+        navigatorKey.currentState?.pushNamed('/', arguments: finished),
+      );
+    } else {
+      final presenting = _presentStep(next);
+      updateState(presenting);
+      unawaited(
+        navigatorKey.currentState?.pushNamed('/', arguments: presenting),
+      );
+    }
+  }
+
+  /// Shows the feedback dialog for the two feedback answer formats and completes
+  /// when it has been acknowledged. Completes immediately for every other
+  /// format.
+  Future<void> _showFeedbackIfAny(
+    AnswerFormat? answerFormat,
+    StepResult? questionResult,
+  ) {
+    if (answerFormat is SingleChoiceAnswerWithFeedbackFormat) {
+      final selectedChoice = questionResult?.result as TextChoice?;
+      final isCorrect = selectedChoice?.value == 'correct';
+      return _showFeedbackDialog(
+        message:
+            (isCorrect
+                ? answerFormat.feedbackCorrect
+                : answerFormat.feedbackWrong) ??
+            (isCorrect
+                ? 'You selected the correct answer!'
+                : 'You selected the incorrect answer!'),
+        backgroundColor: isCorrect ? Colors.green : Colors.red,
+        autoDismiss: isCorrect,
+      );
+    }
+
+    if (answerFormat is MultipleChoiceAnswerWithFeedbackFormat) {
+      final rawChoices = questionResult?.result;
+      final selectedChoices = rawChoices is List<TextChoice>
+          ? rawChoices
+          : rawChoices is List
+          ? rawChoices.map((item) {
+              if (item is TextChoice) return item;
+              if (item is Map<String, dynamic>) {
+                return TextChoice.fromJson(item);
+              }
+              return TextChoice(text: item.toString(), value: item.toString());
+            }).toList()
+          : <TextChoice>[];
+
+      final hasWrong = selectedChoices.any((choice) => choice.value == 'wrong');
+      final colored = answerFormat.coloredFeedback;
+      return _showFeedbackDialog(
+        message:
+            (hasWrong
+                ? answerFormat.feedbackWrong
+                : answerFormat.feedbackCorrect) ??
+            (hasWrong
+                ? 'You selected the incorrect answers!'
+                : 'You selected the correct answers!'),
+        backgroundColor: colored
+            ? (hasWrong ? Colors.red : Colors.green)
+            : null,
+        // Auto-dismiss only the all-correct coloured case (matches prior
+        // behaviour); every other case shows a tappable "Next" button.
+        autoDismiss: colored && !hasWrong,
+      );
+    }
+
+    return Future<void>.value();
+  }
+
+  Future<SurveyState> _handleInitialStep() async {
     final step = taskNavigator.firstStep();
     if (step != null) {
       // Check if we need to recreate the history
@@ -188,12 +227,23 @@ class SurveyStateProvider extends InheritedWidget {
         SurveyKitLogger.d('Visiting steps starting from: ${currentStep.id}');
         while (currentStep.id != step.id) {
           final questionResult = _getResultByStepIdentifier(currentStep.id);
-          // _addResult(questionResult);
-          nextStepToVisit = taskNavigator.nextStep(
-            step: currentStep,
-            previousResults: results.toList(),
-            questionResult: questionResult,
-          );
+          try {
+            nextStepToVisit = await taskNavigator.nextStep(
+              step: currentStep,
+              previousResults: results.toList(),
+              questionResult: questionResult,
+              trigger: ActionTrigger.replay,
+            );
+          } catch (e, s) {
+            // A replay that cannot finish must not leave the survey on the
+            // startup spinner forever: the inner Navigator renders
+            // CircularProgressIndicator until the route arguments become a
+            // PresentingSurveyState, and onEvent's Future is discarded by the
+            // post-frame callback, so an escaping throw would be invisible.
+            // Report and present the furthest step reached.
+            SurveyKitLogger.e('Replay failed at step ${currentStep.id}', e, s);
+            break;
+          }
 
           SurveyKitLogger.d('Recorded step: ${currentStep.id}');
 
@@ -339,16 +389,19 @@ class SurveyStateProvider extends InheritedWidget {
     return taskNavigator.currentStepIndex(step);
   }
 
-  /// Shows the answer feedback dialog. When [autoDismiss] is true the dialog
-  /// closes itself after a short delay and then calls [onContinue]; otherwise it
-  /// shows a "Next" button that closes the dialog and calls [onContinue] on tap.
-  /// [onContinue] is what advances or finishes the survey, so the survey only
-  /// moves on (or closes) AFTER the feedback has been acknowledged.
-  void _showFeedbackDialog({
+  /// Shows the answer feedback dialog and completes when it closes.
+  ///
+  /// The returned future is `showDialog`'s own, NOT a Completer resolved from
+  /// the tap handler and the auto-dismiss timer. `barrierDismissible: false`
+  /// disables the barrier TAP only; the Android hardware back button still pops
+  /// the dialog route without running either. A Completer would therefore never
+  /// complete on a back-dismissal — hanging this await forever and, once Task 4
+  /// adds the re-entrancy guard, freezing the survey permanently. `showDialog`'s
+  /// future completes on every dismissal path.
+  Future<void> _showFeedbackDialog({
     required String message,
     required Color? backgroundColor,
     required bool autoDismiss,
-    required VoidCallback onContinue,
   }) {
     final htmlStyle = <String, Style>{
       'p': Style(
@@ -359,7 +412,7 @@ class SurveyStateProvider extends InheritedWidget {
       'ul': Style(fontSize: FontSize(16.0)),
     };
 
-    showDialog(
+    final dialogClosed = showDialog<void>(
       context: navigatorKey.currentContext!,
       barrierDismissible: false,
       builder: (context) {
@@ -375,10 +428,7 @@ class SurveyStateProvider extends InheritedWidget {
                 const SizedBox(height: 15),
                 if (!autoDismiss)
                   TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      onContinue();
-                    },
+                    onPressed: () => Navigator.of(context).pop(),
                     child: Text(
                       localizations?['next'] ?? 'Next',
                       style: TextStyle(
@@ -399,11 +449,28 @@ class SurveyStateProvider extends InheritedWidget {
       },
     );
 
+    // Scheduled AFTER showDialog, preserving the pre-3b ordering. Scheduling it
+    // before would start the timer before the route exists.
+    //
+    // The `isCompleted` check is NOT belt-and-braces. On the autoDismiss branch
+    // the dialog renders SizedBox.shrink() instead of a button, so the timer and
+    // the hardware back button are its only two exits — and 3b promotes back
+    // dismissal to a supported path. Without the check, a back press at t=0.5s
+    // pops the dialog and advances the survey, and then at t=1.0s this pops
+    // AGAIN, this time taking the host's own route with it.
     if (autoDismiss) {
-      Future.delayed(const Duration(seconds: 1), () {
-        Navigator.of(navigatorKey.currentContext!, rootNavigator: true).pop();
-        onContinue();
-      });
+      var closed = false;
+      unawaited(dialogClosed.whenComplete(() => closed = true));
+      unawaited(
+        Future.delayed(const Duration(seconds: 1), () {
+          if (closed) return;
+          final context = navigatorKey.currentContext;
+          if (context == null) return;
+          Navigator.of(context, rootNavigator: true).pop();
+        }),
+      );
     }
+
+    return dialogClosed;
   }
 }

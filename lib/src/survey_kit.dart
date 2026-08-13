@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart' hide Step;
 import 'package:survey_kit/src/configuration/survey_configuration.dart';
@@ -173,7 +175,7 @@ class _SurveyPageState extends State<SurveyPage>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback(
-      (_) => SurveyStateProvider.of(context).onEvent(StartSurvey()),
+      (_) => unawaited(SurveyStateProvider.of(context).onEvent(StartSurvey())),
     );
   }
 

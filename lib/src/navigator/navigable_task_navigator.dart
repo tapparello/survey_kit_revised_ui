@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:survey_kit/src/configuration/action_context.dart';
 import 'package:survey_kit/src/configuration/survey_registries.dart';
 import 'package:survey_kit/src/model/result/step_result.dart';
 import 'package:survey_kit/src/model/step.dart';
@@ -26,15 +27,16 @@ class NavigableTaskNavigator extends TaskNavigator {
   }
 
   @override
-  Step? nextStep({
+  Future<Step?> nextStep({
     required Step step,
     required List<StepResult> previousResults,
     StepResult? questionResult,
-  }) {
+    ActionTrigger trigger = ActionTrigger.advance,
+  }) async {
     record(step);
     final rule = (task as NavigableTask).getRuleByStepIdentifier(step.id);
     if (rule is ActionNavigationRule) {
-      _fireAction(rule, previousResults);
+      await _fireAction(rule, previousResults, trigger);
       return _destinationOf(rule);
     }
     return _resolveWithoutAction(step, rule, previousResults, questionResult);
@@ -85,10 +87,11 @@ class NavigableTaskNavigator extends TaskNavigator {
     return task.steps.firstWhereOrNull((s) => s.id == rule.nextStepIdentifier);
   }
 
-  void _fireAction(
+  Future<void> _fireAction(
     ActionNavigationRule rule,
     List<StepResult> previousResults,
-  ) {
+    ActionTrigger trigger,
+  ) async {
     final handler = _registries?.actionHandlers[rule.actionId];
     if (handler == null) {
       SurveyKitLogger.d('No action handler registered for: ${rule.actionId}');
@@ -105,9 +108,20 @@ class NavigableTaskNavigator extends TaskNavigator {
         .where((r) => visitedStepIds.contains(r.id))
         .toList();
     try {
-      handler(onPathResults, task.variables);
-    } catch (e) {
-      SurveyKitLogger.d('Action handler "${rule.actionId}" threw: $e');
+      await handler(
+        ActionContext(
+          actionId: rule.actionId,
+          results: onPathResults,
+          variables: task.variables,
+          trigger: trigger,
+        ),
+      );
+    } catch (e, s) {
+      // Report and advance. The destination is rule.nextStepIdentifier
+      // regardless of the handler's outcome, and halting would strand the user
+      // on a step whose Next keeps failing with no retry affordance.
+      // Task 3 replaces this with the onHandlerError channel.
+      SurveyKitLogger.e('Action handler "${rule.actionId}" threw', e, s);
     }
   }
 

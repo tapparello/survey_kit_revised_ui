@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:survey_kit/src/configuration/action_context.dart';
 import 'package:survey_kit/src/configuration/survey_registries.dart';
 import 'package:survey_kit/src/model/content/html_content.dart';
 import 'package:survey_kit/src/model/result/step_result.dart';
@@ -31,7 +32,7 @@ void main() {
     });
 
     test('stores and retrieves action handler', () {
-      void handler(List<StepResult> r, Map<String, dynamic> v) {}
+      Future<void> handler(ActionContext ctx) async {}
       final registries = SurveyRegistries(
         actionHandlers: {'my_action': handler},
       );

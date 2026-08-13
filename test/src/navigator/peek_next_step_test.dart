@@ -73,7 +73,9 @@ void main() {
       task,
       registries: SurveyRegistries(
         actionHandlers: {
-          'side_effect': (results, variables) => variables['fired'] = true,
+          'side_effect': (ctx) async {
+            ctx.variables['fired'] = true;
+          },
         },
       ),
     );

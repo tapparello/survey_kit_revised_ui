@@ -1,3 +1,4 @@
+export 'src/configuration/action_context.dart';
 export 'src/configuration/survey_configuration.dart';
 export 'src/configuration/survey_registries.dart';
 export 'src/controller/survey_controller.dart';

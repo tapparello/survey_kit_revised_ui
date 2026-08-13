@@ -1,3 +1,4 @@
+import 'package:survey_kit/src/configuration/action_context.dart';
 import 'package:survey_kit/src/model/content/content.dart';
 import 'package:survey_kit/src/model/result/step_result.dart';
 import 'package:survey_kit/src/model/step.dart';
@@ -10,8 +11,19 @@ typedef NavigationRuleHandler =
       StepResult? currentResult,
       Map<String, dynamic> variables,
     );
-typedef ActionHandler =
-    void Function(List<StepResult> results, Map<String, dynamic> variables);
+
+/// A handler for an [ActionNavigationRule].
+///
+/// The returned future is what SurveyKit awaits: the survey does not present
+/// the next step until it completes. A handler that starts asynchronous work
+/// without returning its future is not awaited.
+///
+/// `Future<void>` rather than `FutureOr<void>` deliberately. `void` is a top
+/// type in Dart, so `FutureOr<void>` would accept a statement-bodied handler
+/// that returns null — and `await null` resolves instantly, so the
+/// fire-and-forget defect this phase removes would survive the typedef change
+/// silently. A handler with no asynchronous work is written `(ctx) async {}`.
+typedef ActionHandler = Future<void> Function(ActionContext context);
 
 class SurveyRegistries {
   final Map<String, ContentFactory> customContentTypes;
