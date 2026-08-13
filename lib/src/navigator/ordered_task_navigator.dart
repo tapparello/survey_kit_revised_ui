@@ -12,13 +12,17 @@ class OrderedTaskNavigator extends TaskNavigator {
     required Step step,
     required List<StepResult> previousResults,
     StepResult? questionResult,
-    bool recordStep = true,
   }) {
-    if (recordStep) {
-      record(step);
-    }
+    record(step);
     return nextInList(step);
   }
+
+  @override
+  Step? peekNextStep({
+    required Step step,
+    required List<StepResult> previousResults,
+    StepResult? questionResult,
+  }) => nextInList(step);
 
   @override
   Step? previousInList(Step step) {

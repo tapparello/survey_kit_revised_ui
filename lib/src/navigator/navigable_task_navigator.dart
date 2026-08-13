@@ -6,6 +6,7 @@ import 'package:survey_kit/src/navigator/rules/action_navigation_rule.dart';
 import 'package:survey_kit/src/navigator/rules/conditional_navigation_rule.dart';
 import 'package:survey_kit/src/navigator/rules/custom_navigation_rule.dart';
 import 'package:survey_kit/src/navigator/rules/direct_navigation_rule.dart';
+import 'package:survey_kit/src/navigator/rules/navigation_rule.dart';
 import 'package:survey_kit/src/navigator/task_navigator.dart';
 import 'package:survey_kit/src/task/navigable_task.dart';
 import 'package:survey_kit/src/task/task.dart';
@@ -29,13 +30,39 @@ class NavigableTaskNavigator extends TaskNavigator {
     required Step step,
     required List<StepResult> previousResults,
     StepResult? questionResult,
-    bool recordStep = true,
   }) {
-    if (recordStep) {
-      record(step);
+    record(step);
+    final rule = (task as NavigableTask).getRuleByStepIdentifier(step.id);
+    if (rule is ActionNavigationRule) {
+      _fireAction(rule, previousResults);
+      return _destinationOf(rule);
     }
-    final navigableTask = task as NavigableTask;
-    final rule = navigableTask.getRuleByStepIdentifier(step.id);
+    return _resolveWithoutAction(step, rule, previousResults, questionResult);
+  }
+
+  @override
+  Step? peekNextStep({
+    required Step step,
+    required List<StepResult> previousResults,
+    StepResult? questionResult,
+  }) {
+    final rule = (task as NavigableTask).getRuleByStepIdentifier(step.id);
+    // An ActionNavigationRule's destination is a literal, so the probe can
+    // answer it without firing. The other rule families' destinations are not.
+    if (rule is ActionNavigationRule) {
+      return _destinationOf(rule);
+    }
+    return _resolveWithoutAction(step, rule, previousResults, questionResult);
+  }
+
+  /// Every rule family except [ActionNavigationRule]. Shared by the advance and
+  /// the probe, because these arms behave identically in both.
+  Step? _resolveWithoutAction(
+    Step step,
+    NavigationRule? rule,
+    List<StepResult> previousResults,
+    StepResult? questionResult,
+  ) {
     if (rule == null) {
       return nextInList(step);
     }
@@ -50,19 +77,38 @@ class NavigableTaskNavigator extends TaskNavigator {
     if (rule is CustomNavigationRule) {
       return _evaluateCustomRule(step, rule, previousResults, questionResult);
     }
-    if (rule is ActionNavigationRule) {
-      // recordStep is false for the read-only hasNextStep probe (step_view
-      // evaluates the next step to pick the Next/Done label). Do not fire the
-      // side-effecting action handler during that probe — the destination is
-      // fixed regardless, so only fire it on real forward navigation (#976).
-      return _evaluateActionRule(
-        step,
-        rule,
-        previousResults,
-        fireAction: recordStep,
-      );
-    }
     return nextInList(step);
+  }
+
+  Step? _destinationOf(ActionNavigationRule rule) {
+    if (rule.nextStepIdentifier == 'end_task') return null;
+    return task.steps.firstWhereOrNull((s) => s.id == rule.nextStepIdentifier);
+  }
+
+  void _fireAction(
+    ActionNavigationRule rule,
+    List<StepResult> previousResults,
+  ) {
+    final handler = _registries?.actionHandlers[rule.actionId];
+    if (handler == null) {
+      SurveyKitLogger.d('No action handler registered for: ${rule.actionId}');
+      return;
+    }
+    // ADO #969: action handlers (e.g. exercise-PDF generation) aggregate step
+    // results. The action fires mid-survey, before completion pruning, so feed
+    // the handler only results for steps on the path actually taken (history) —
+    // otherwise answers seeded from a prior run for off-path steps leak into
+    // the PDF. Routing uses rule.nextStepIdentifier (fixed), so pruning the
+    // handler's input cannot change navigation.
+    final visitedStepIds = history.map((s) => s.id).toSet();
+    final onPathResults = previousResults
+        .where((r) => visitedStepIds.contains(r.id))
+        .toList();
+    try {
+      handler(onPathResults, task.variables);
+    } catch (e) {
+      SurveyKitLogger.d('Action handler "${rule.actionId}" threw: $e');
+    }
   }
 
   @override
@@ -118,48 +164,18 @@ class NavigableTaskNavigator extends TaskNavigator {
     return task.steps.firstWhereOrNull((s) => s.id == nextStepId);
   }
 
-  Step? _evaluateActionRule(
-    Step step,
-    ActionNavigationRule rule,
-    List<StepResult> previousResults, {
-    bool fireAction = true,
-  }) {
-    if (fireAction) {
-      final handler = _registries?.actionHandlers[rule.actionId];
-      if (handler != null) {
-        // ADO #969: action handlers (e.g. exercise-PDF generation) aggregate
-        // step results. The action fires mid-survey, before completion pruning,
-        // so feed the handler only results for steps on the path actually taken
-        // (history) — otherwise answers seeded from a prior run for off-path
-        // steps leak into the PDF. Routing below uses rule.nextStepIdentifier
-        // (fixed), so pruning the handler's input cannot change navigation.
-        final visitedStepIds = history.map((s) => s.id).toSet();
-        final onPathResults = previousResults
-            .where((r) => visitedStepIds.contains(r.id))
-            .toList();
-        try {
-          handler(onPathResults, task.variables);
-        } catch (e) {
-          SurveyKitLogger.d('Action handler "${rule.actionId}" threw: $e');
-        }
-      } else {
-        SurveyKitLogger.d('No action handler registered for: ${rule.actionId}');
-      }
-    }
-    if (rule.nextStepIdentifier == 'end_task') return null;
-    return task.steps.firstWhereOrNull((s) => s.id == rule.nextStepIdentifier);
-  }
-
   @override
   Step? firstStep() {
     final previousStep = peekHistory();
 
+    // peekNextStep, not nextStep: previousStep IS history.last, so advancing
+    // would record it a second time and corrupt currentStepIndex (which uses
+    // history.length when task.stepCount is set), and would re-fire an action
+    // the user has already passed. Unreachable through SurveyKit's own dispatch
+    // — history is empty when StartSurvey fires — but reachable by a consumer
+    // dispatching StartSurvey twice, since SurveyEvent and onEvent are exported.
     return previousStep == null
         ? task.initialStep ?? task.steps.first
-        : nextStep(
-            step: previousStep,
-            previousResults: [],
-            questionResult: null,
-          );
+        : peekNextStep(step: previousStep, previousResults: const []);
   }
 }

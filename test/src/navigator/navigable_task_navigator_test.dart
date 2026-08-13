@@ -1,30 +1,16 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:survey_kit/src/configuration/survey_registries.dart';
-import 'package:survey_kit/src/model/step.dart';
 import 'package:survey_kit/src/navigator/navigable_task_navigator.dart';
-import 'package:survey_kit/src/navigator/rules/action_navigation_rule.dart';
-import 'package:survey_kit/src/task/navigable_task.dart';
 
-/// Guards ADO #976: step_view evaluates the next step at build time (via
-/// hasNextStep) to choose the Next vs Done button label. hasNextStep calls
-/// nextStep(recordStep: false) — a read-only probe. An ActionNavigationRule
-/// must NOT fire its (side-effecting, e.g. PDF-generating) handler during that
-/// probe, otherwise the action runs on every rebuild of the trigger step.
-/// Real forward navigation (recordStep: true) must still fire it.
+import 'action_task_harness.dart';
+
+/// Guards ADO #976 through the ADO #1040 API. step_view evaluates the next step
+/// at build time (via hasNextStep) to choose the Next vs Done button label.
+/// hasNextStep now calls peekNextStep — a probe that must NOT fire a
+/// side-effecting ActionNavigationRule handler and must NOT record the step.
+/// Real forward navigation (nextStep) must still do both.
 void main() {
   NavigableTaskNavigator buildNavigator() {
-    final step1 = Step(id: 's1', content: const []);
-    final step2 = Step(id: 's2', content: const []);
-    final task = NavigableTask(
-      id: 't',
-      steps: [step1, step2],
-      navigationRules: const {
-        's1': ActionNavigationRule(
-          actionId: 'side_effect',
-          nextStepIdentifier: 's2',
-        ),
-      },
-    );
     final registries = SurveyRegistries(
       actionHandlers: {
         'side_effect': (results, variables) {
@@ -32,36 +18,47 @@ void main() {
         },
       },
     );
-    return NavigableTaskNavigator(task, registries: registries);
+    return NavigableTaskNavigator(actionTask(), registries: registries);
   }
 
-  test(
-    'hasNextStep probe does NOT fire the action handler but sees the next step',
-    () {
-      final navigator = buildNavigator();
-      final step1 = navigator.task.steps.first;
+  test('hasNextStep probe does NOT fire the action handler but sees s2', () {
+    final navigator = buildNavigator();
+    final step1 = navigator.task.steps.first;
 
-      final hasNext = navigator.hasNextStep(step1, const []);
+    expect(
+      navigator.hasNextStep(step1, const []),
+      isTrue,
+      reason: 's2 follows s1',
+    );
+    expect(
+      navigator.task.variables['fired'],
+      isNull,
+      reason: 'action handler must not run during the read-only probe',
+    );
+  });
 
-      expect(hasNext, isTrue, reason: 's2 follows s1');
-      expect(
-        navigator.task.variables['fired'],
-        isNull,
-        reason: 'action handler must not run during the read-only probe',
-      );
-    },
-  );
+  test('peekNextStep resolves the destination without recording', () {
+    final navigator = buildNavigator();
 
-  test(
-    'real forward navigation (recordStep: true) fires the action handler once',
-    () {
-      final navigator = buildNavigator();
-      final step1 = navigator.task.steps.first;
+    final next = navigator.peekNextStep(
+      step: navigator.task.steps.first,
+      previousResults: const [],
+    );
 
-      final next = navigator.nextStep(step: step1, previousResults: const []);
+    expect(next?.id, 's2', reason: 'the destination is a literal on the rule');
+    expect(navigator.history, isEmpty);
+  });
 
-      expect(next?.id, 's2');
-      expect(navigator.task.variables['fired'], 1);
-    },
-  );
+  test('nextStep fires the action handler once and records the step', () {
+    final navigator = buildNavigator();
+
+    final next = navigator.nextStep(
+      step: navigator.task.steps.first,
+      previousResults: const [],
+    );
+
+    expect(next?.id, 's2');
+    expect(navigator.task.variables['fired'], 1);
+    expect(navigator.history.map((s) => s.id), ['s1']);
+  });
 }

@@ -11,12 +11,29 @@ abstract class TaskNavigator {
   TaskNavigator(this.task);
 
   Step? firstStep();
+
+  /// Advances past [step]: records it in [history] and fires the side effect of
+  /// any [ActionNavigationRule] on it.
   Step? nextStep({
     required Step step,
     required List<StepResult> previousResults,
     StepResult? questionResult,
-    bool recordStep = true,
   });
+
+  /// Resolves the destination without advancing. Does not record [step] in
+  /// [history] and does not fire an action handler.
+  ///
+  /// It is **not** side-effect free, and the name is `peek`, not `preview`, for
+  /// that reason. It evaluates `CustomNavigationRule` and
+  /// `ConditionalNavigationRule` handlers — consumer code, and the only way to
+  /// learn where those rules lead — passing a null `questionResult`. It also
+  /// writes `task.variables['_currentStepId']`.
+  Step? peekNextStep({
+    required Step step,
+    required List<StepResult> previousResults,
+    StepResult? questionResult,
+  });
+
   Step? previousInList(Step step);
 
   Step? nextInList(Step? step) {
@@ -35,14 +52,8 @@ abstract class TaskNavigator {
     return history.last;
   }
 
-  bool hasNextStep(Step step, List<StepResult> previousResults) {
-    return nextStep(
-          step: step,
-          previousResults: previousResults,
-          recordStep: false,
-        ) !=
-        null;
-  }
+  bool hasNextStep(Step step, List<StepResult> previousResults) =>
+      peekNextStep(step: step, previousResults: previousResults) != null;
 
   bool hasPreviousStep() {
     final step = peekHistory();
