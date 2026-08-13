@@ -3,6 +3,13 @@ import 'package:survey_kit/src/model/result/step_result.dart';
 import 'package:survey_kit/src/navigator/rules/navigation_rule.dart';
 
 class ConditionalNavigationRule implements NavigationRule {
+  /// Chooses the next step's id from the results so far.
+  ///
+  /// The `fromJson` factory supplies a pure closure over an authored value map,
+  /// but this is a public constructor field: a rule built in Dart carries
+  /// arbitrary consumer code. Like [NavigationRuleHandler], it is invoked for
+  /// read-only probes as well as real advances, with a **null** second argument
+  /// on a probe, so it must be safe to re-run and free of side effects.
   final String? Function(List<StepResult>, StepResult?)
   resultToStepIdentifierMapper;
 

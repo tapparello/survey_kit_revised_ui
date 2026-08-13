@@ -1,3 +1,58 @@
+# 1.0.0-dev.18
+
+- **BREAKING: `ActionHandler` is now
+  `Future<void> Function(ActionContext context)`.** It was
+  `void Function(List<StepResult>, Map<String, dynamic>)`. Rewrite each handler
+  to read `context.results` and `context.variables`; a handler with no
+  asynchronous work is written `(ctx) async {}`. `Future<void>` rather than
+  `FutureOr<void>` is deliberate: `void` is a top type, so `FutureOr<void>`
+  would have accepted a statement-bodied handler that is silently never
+  awaited. (ADO #1040)
+- **BREAKING: `TaskNavigator.nextStep` returns `Future<Step?>`, loses
+  `recordStep`, and gains `ActionTrigger trigger`.** It now always records the
+  step and always fires the action. The read-only probe moved to the new
+  synchronous `TaskNavigator.peekNextStep`, which does neither — subclasses
+  outside this package must implement it.
+- **BREAKING: `SurveyStateProvider.onEvent` and `SurveyController.nextStep` /
+  `.stepBack` / `.closeSurvey` return `Future<void>`.** Source-compatible for
+  callers that ignore the return value.
+- NEW: `SurveyKit(onHandlerError:)`, typed `SurveyHandlerErrorCallback`, reports
+  a failed action handler, an unregistered action id, or a throwing custom
+  navigation rule handler. Navigation proceeds either way. When unset, failures
+  are logged at error level. Previously an async handler's failure reached the
+  top-level zone and **nothing was logged at all**.
+- NEW: `SurveyHandlerFailure` (`kind`, `handlerId`, `error`, `stackTrace`,
+  `trigger`) and `SurveyHandlerKind` (`action`, `navigationRule`) — the payload
+  of that callback.
+- NEW: `UnregisteredActionException`, a new member of the sealed
+  `SurveyKitException` hierarchy. A `switch` over that hierarchy with no
+  `default` will need a new arm.
+- NEW: `ActionContext` and `ActionTrigger`. `trigger` distinguishes
+  `ActionTrigger.advance` from `ActionTrigger.replay`, so a handler can decide
+  whether resuming a survey past its rule should re-run its side effect.
+- NEW: `SurveyStateProvider.isAdvancing`, a `ValueListenable<bool>` a host can
+  render a progress affordance from.
+- BUGFIX: the survey no longer presents a step before the action that feeds it
+  has finished. A handler that writes `variables` after its first `await` used
+  to race the step that renders them.
+- BUGFIX: a feedback dialog dismissed with the hardware back button now
+  advances the survey. It previously stranded the user on the step.
+- BUGFIX: a `CustomNavigationRule` handler that throws no longer propagates; it
+  is reported and navigation falls back to the next step in the list.
+- CHANGE: the action fires *after* the feedback dialog is acknowledged rather
+  than concurrently with it, so awaiting it does not delay the dialog.
+- CHANGE: `firstStep()` no longer re-fires an action or double-records
+  `history.last` when `StartSurvey` is dispatched a second time.
+
+**Migrating is not purely mechanical, and a changelog cannot tell you the
+substantive half.** Rewriting the lambdas is uniform. Deciding which handlers
+need `if (ctx.trigger == ActionTrigger.replay) return;` is not: it depends on
+whether each action rule's trigger step has steps after it in its own task, and
+therefore whether a resume can replay across it. Audit your rules; a handler
+whose effect is a side effect (writing a file, inserting a row) almost always
+wants the short-circuit, and one that populates a variable a later step renders
+must not have it.
+
 # 1.0.0-dev.17
 
 - **BREAKING: `SurveyStateProvider(...)` drops `results:` and requires
