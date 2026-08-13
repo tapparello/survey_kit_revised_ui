@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart' hide Step;
 import 'package:survey_kit/src/configuration/survey_configuration.dart';
+import 'package:survey_kit/src/configuration/survey_handler_failure.dart';
 import 'package:survey_kit/src/configuration/survey_registries.dart';
 import 'package:survey_kit/src/controller/survey_controller.dart';
 import 'package:survey_kit/src/exception/survey_kit_exception.dart';
@@ -55,7 +56,7 @@ class SurveyKit extends StatefulWidget {
   ///
   /// Read once, when the widget mounts. Passing a different set on a later
   /// build has no effect — changing it does not restart the survey. The same is
-  /// true of [task]. (ADO #1033)
+  /// true of [task], [registries] and [onHandlerError]. (ADO #1033)
   final Set<StepResult>? initialResults;
 
   /// Decoration which is applied to the survey container
@@ -66,6 +67,17 @@ class SurveyKit extends StatefulWidget {
 
   /// Named content styles keyed by style name
   final Map<String, StyledTextContent>? contentStyles;
+
+  /// Called when a registered handler fails while the survey is navigating —
+  /// an action handler throwing, a rule naming an unregistered action id, or a
+  /// custom navigation rule handler throwing.
+  ///
+  /// Reporting only: navigation proceeds either way. When null, failures are
+  /// logged through `SurveyKitLogger` at error level.
+  ///
+  /// Read once, when the widget mounts, like [task] and [initialResults] —
+  /// the navigator is built in `initState`. The same is true of [registries].
+  final SurveyHandlerErrorCallback? onHandlerError;
 
   const SurveyKit({
     super.key,
@@ -80,6 +92,7 @@ class SurveyKit extends StatefulWidget {
     this.decoration,
     this.registries,
     this.contentStyles,
+    this.onHandlerError,
   });
 
   @override
@@ -105,7 +118,11 @@ class _SurveyKitState extends State<SurveyKit> {
       return OrderedTaskNavigator(widget.task);
     }
     if (task is NavigableTask) {
-      return NavigableTaskNavigator(widget.task, registries: widget.registries);
+      return NavigableTaskNavigator(
+        widget.task,
+        registries: widget.registries,
+        onHandlerError: widget.onHandlerError,
+      );
     }
 
     throw UnsupportedTaskException(taskType: '${task.runtimeType}');

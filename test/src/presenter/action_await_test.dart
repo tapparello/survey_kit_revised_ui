@@ -4,6 +4,8 @@ import 'package:flutter/material.dart' hide Step;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:survey_kit/survey_kit.dart';
 
+import 'action_harness.dart';
+
 /// THE headline test for ADO #1040.
 ///
 /// Before 3b, ActionHandler was `void Function(...)` and every real handler
@@ -60,14 +62,10 @@ void main() {
     );
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: SurveyKit(
-            task: taskWithActionThen('s2'),
-            registries: registries,
-            onResult: (_) {},
-          ),
-        ),
+      ActionHost(
+        task: taskWithActionThen('s2'),
+        registries: registries,
+        onResult: (_) {},
       ),
     );
     await tester.pumpAndSettle();
@@ -101,14 +99,10 @@ void main() {
     );
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: SurveyKit(
-            task: taskWithActionThen('s2'),
-            registries: registries,
-            onResult: (_) {},
-          ),
-        ),
+      ActionHost(
+        task: taskWithActionThen('s2'),
+        registries: registries,
+        onResult: (_) {},
       ),
     );
     await tester.pumpAndSettle();
@@ -148,11 +142,7 @@ void main() {
     );
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: SurveyKit(task: task, registries: registries, onResult: (_) {}),
-        ),
-      ),
+      ActionHost(task: task, registries: registries, onResult: (_) {}),
     );
     await tester.pumpAndSettle();
 
@@ -190,15 +180,90 @@ void main() {
     );
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: SurveyKit(task: task, registries: registries, onResult: (_) {}),
-        ),
-      ),
+      ActionHost(task: task, registries: registries, onResult: (_) {}),
     );
     await tester.pumpAndSettle();
 
     expect(effectRuns, 0, reason: 'the PDF-equivalent must not run on resume');
     expect(find.text('summary'), findsOneWidget);
+  });
+
+  testWidgets('a rule that throws during replay still presents the resumed step', (
+    tester,
+  ) async {
+    final failures = <SurveyHandlerFailure>[];
+    final task = NavigableTask(
+      id: 't',
+      steps: [
+        Step(id: 's1', content: const [TextContent(text: 'first')]),
+        Step(id: 's2', content: const [TextContent(text: 'second')]),
+      ],
+      navigationRules: const {'s1': CustomNavigationRule(ruleId: 'route')},
+      initialStepId: 's2',
+    );
+
+    await tester.pumpWidget(
+      ActionHost(
+        task: task,
+        registries: SurveyRegistries(
+          customNavigationRules: {
+            'route': (results, currentResult, variables) =>
+                throw StateError('rule boom'),
+          },
+        ),
+        onHandlerError: failures.add,
+        onResult: (_) {},
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(failures, hasLength(1));
+    expect(
+      find.byType(CircularProgressIndicator),
+      findsNothing,
+      reason: 'the survey must not sit on the startup spinner',
+    );
+  });
+
+  testWidgets('a conditional mapper that throws during replay still presents', (
+    tester,
+  ) async {
+    // This one exercises the PRESENTER's guard, not the navigator's. Decision 8
+    // wraps action handlers and CustomNavigationRule handlers, but NOT
+    // ConditionalNavigationRule mappers — so this throw reaches
+    // _handleInitialStep's replay loop, which is the "second line of defence"
+    // the spec names. Without that try/catch the survey sits on the startup
+    // spinner forever with nothing logged, because onEvent's Future is
+    // discarded by the post-frame callback. Remove the presenter guard and this
+    // test is the only one that fails.
+    final task = NavigableTask(
+      id: 't',
+      steps: [
+        Step(id: 's1', content: const [TextContent(text: 'first')]),
+        Step(id: 's2', content: const [TextContent(text: 'second')]),
+      ],
+      navigationRules: {
+        's1': ConditionalNavigationRule(
+          resultToStepIdentifierMapper: (results, input) =>
+              throw StateError('mapper boom'),
+        ),
+      },
+      initialStepId: 's2',
+    );
+
+    await tester.pumpWidget(
+      ActionHost(
+        task: task,
+        registries: const SurveyRegistries(),
+        onResult: (_) {},
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byType(CircularProgressIndicator),
+      findsNothing,
+      reason: 'the replay guard must present the furthest step reached',
+    );
   });
 }

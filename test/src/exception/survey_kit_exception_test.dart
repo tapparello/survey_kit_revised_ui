@@ -14,6 +14,7 @@ String describe(SurveyKitException e) => switch (e) {
   UnsupportedTaskException() => 'unsupported',
   UnknownTypeException() => 'unknown',
   ResultCodecException() => 'resultCodec',
+  UnregisteredActionException() => 'unregisteredAction',
 };
 
 void main() {
@@ -37,6 +38,7 @@ void main() {
         UnsupportedTaskException(taskType: 'T'),
         UnknownTypeException(kind: 'K'),
         ResultCodecException(stepId: 's', answerType: 'text', cause: 'c'),
+        UnregisteredActionException(actionId: 'a'),
       ];
       for (final e in subtypes) {
         expect(e, isA<Exception>());

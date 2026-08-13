@@ -168,3 +168,15 @@ final class ResultCodecException extends SurveyKitException {
   /// Description of the underlying failure.
   final String cause;
 }
+
+/// A navigation rule named an action id with no registered handler.
+final class UnregisteredActionException extends SurveyKitException {
+  const UnregisteredActionException({required this.actionId})
+    : super(
+        "No action handler is registered for '$actionId'. Register one in "
+        'SurveyRegistries.actionHandlers.',
+      );
+
+  /// The unmatched action id, as authored in the rule.
+  final String actionId;
+}

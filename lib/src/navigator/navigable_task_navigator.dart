@@ -1,6 +1,8 @@
 import 'package:collection/collection.dart';
 import 'package:survey_kit/src/configuration/action_context.dart';
+import 'package:survey_kit/src/configuration/survey_handler_failure.dart';
 import 'package:survey_kit/src/configuration/survey_registries.dart';
+import 'package:survey_kit/src/exception/survey_kit_exception.dart';
 import 'package:survey_kit/src/model/result/step_result.dart';
 import 'package:survey_kit/src/model/step.dart';
 import 'package:survey_kit/src/navigator/rules/action_navigation_rule.dart';
@@ -15,10 +17,15 @@ import 'package:survey_kit/src/util/survey_kit_logger.dart';
 
 class NavigableTaskNavigator extends TaskNavigator {
   final SurveyRegistries? _registries;
+  final SurveyHandlerErrorCallback? _onHandlerError;
 
-  NavigableTaskNavigator(Task task, {SurveyRegistries? registries})
-    : _registries = registries,
-      super(task) {
+  NavigableTaskNavigator(
+    Task task, {
+    SurveyRegistries? registries,
+    SurveyHandlerErrorCallback? onHandlerError,
+  }) : _registries = registries,
+       _onHandlerError = onHandlerError,
+       super(task) {
     _init();
   }
 
@@ -87,6 +94,34 @@ class NavigableTaskNavigator extends TaskNavigator {
     return task.steps.firstWhereOrNull((s) => s.id == rule.nextStepIdentifier);
   }
 
+  /// Reports and returns. Never rethrows: every caller's contract is to keep
+  /// navigating.
+  void _report(
+    SurveyHandlerKind kind,
+    String handlerId,
+    Object error,
+    StackTrace stackTrace, {
+    ActionTrigger? trigger,
+  }) {
+    final failure = SurveyHandlerFailure(
+      kind: kind,
+      handlerId: handlerId,
+      error: error,
+      stackTrace: stackTrace,
+      trigger: trigger,
+    );
+    final callback = _onHandlerError;
+    if (callback == null) {
+      SurveyKitLogger.e(
+        '${kind.name} handler "$handlerId" failed',
+        error,
+        stackTrace,
+      );
+      return;
+    }
+    callback(failure);
+  }
+
   Future<void> _fireAction(
     ActionNavigationRule rule,
     List<StepResult> previousResults,
@@ -94,7 +129,14 @@ class NavigableTaskNavigator extends TaskNavigator {
   ) async {
     final handler = _registries?.actionHandlers[rule.actionId];
     if (handler == null) {
-      SurveyKitLogger.d('No action handler registered for: ${rule.actionId}');
+      // Nothing threw, so there is no captured trace.
+      _report(
+        SurveyHandlerKind.action,
+        rule.actionId,
+        UnregisteredActionException(actionId: rule.actionId),
+        StackTrace.current,
+        trigger: trigger,
+      );
       return;
     }
     // ADO #969: action handlers (e.g. exercise-PDF generation) aggregate step
@@ -120,8 +162,12 @@ class NavigableTaskNavigator extends TaskNavigator {
       // Report and advance. The destination is rule.nextStepIdentifier
       // regardless of the handler's outcome, and halting would strand the user
       // on a step whose Next keeps failing with no retry affordance.
-      // Task 3 replaces this with the onHandlerError channel.
-      SurveyKitLogger.e('Action handler "${rule.actionId}" threw', e, s);
+      //
+      // The bare `catch` now covers the handler's whole async body, Errors
+      // included — deliberately. An action handler is consumer code running
+      // mid-navigation, and letting an Error escape puts the survey back in the
+      // frozen state ADO #1033 removed.
+      _report(SurveyHandlerKind.action, rule.actionId, e, s, trigger: trigger);
     }
   }
 
@@ -173,7 +219,13 @@ class NavigableTaskNavigator extends TaskNavigator {
       return nextInList(step);
     }
     task.variables['_currentStepId'] = step.id;
-    final nextStepId = handler(previousResults, questionResult, task.variables);
+    final String? nextStepId;
+    try {
+      nextStepId = handler(previousResults, questionResult, task.variables);
+    } catch (e, s) {
+      _report(SurveyHandlerKind.navigationRule, rule.ruleId, e, s);
+      return nextInList(step);
+    }
     if (nextStepId == 'end_task') return null;
     return task.steps.firstWhereOrNull((s) => s.id == nextStepId);
   }

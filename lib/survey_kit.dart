@@ -1,5 +1,6 @@
 export 'src/configuration/action_context.dart';
 export 'src/configuration/survey_configuration.dart';
+export 'src/configuration/survey_handler_failure.dart';
 export 'src/configuration/survey_registries.dart';
 export 'src/controller/survey_controller.dart';
 export 'src/exception/survey_kit_exception.dart';
