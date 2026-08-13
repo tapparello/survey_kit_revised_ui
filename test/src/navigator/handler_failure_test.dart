@@ -59,6 +59,7 @@ void main() {
       );
 
       expect(next?.id, 's2');
+      expect(failures.single.trigger, ActionTrigger.advance);
       expect(failures.single.error, isA<UnregisteredActionException>());
       expect(
         (failures.single.error as UnregisteredActionException).actionId,

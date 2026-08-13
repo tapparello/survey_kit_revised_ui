@@ -42,7 +42,19 @@
 - CHANGE: the action fires *after* the feedback dialog is acknowledged rather
   than concurrently with it, so awaiting it does not delay the dialog.
 - CHANGE: `firstStep()` no longer re-fires an action or double-records
-  `history.last` when `StartSurvey` is dispatched a second time.
+  `history.last` for the step it resumes from — it now probes via
+  `peekNextStep` rather than advancing. A second `StartSurvey` dispatch is
+  still not fully clean, though: `_handleInitialStep`'s replay loop walks the
+  path to that step regardless, firing its action once more (as
+  `ActionTrigger.replay`) and recording it a second time. Still an
+  improvement — before this change, the same sequence double-fired the
+  action and triple-recorded the step.
+- CHANGE: a `CustomNavigationRule` handler that throws is now reported
+  through `onHandlerError` on every rebuild of its trigger step, not once —
+  `StepView` calls `hasNextStep` on every build, and that path reaches the
+  handler through `peekNextStep`. Previously such a throw propagated out of
+  `build` loudly, and only once. The destination still falls back to the
+  next step in the list.
 
 **Migrating is not purely mechanical, and a changelog cannot tell you the
 substantive half.** Rewriting the lambdas is uniform. Deciding which handlers

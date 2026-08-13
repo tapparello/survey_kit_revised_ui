@@ -466,7 +466,7 @@ class SurveyStateProvider extends InheritedWidget {
     // Scheduled AFTER showDialog, preserving the pre-3b ordering. Scheduling it
     // before would start the timer before the route exists.
     //
-    // The `isCompleted` check is NOT belt-and-braces. On the autoDismiss branch
+    // The `closed` check is NOT belt-and-braces. On the autoDismiss branch
     // the dialog renders SizedBox.shrink() instead of a button, so the timer and
     // the hardware back button are its only two exits — and 3b promotes back
     // dismissal to a supported path. Without the check, a back press at t=0.5s
