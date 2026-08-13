@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart' hide Step;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:survey_kit/survey_kit.dart';
@@ -39,11 +41,19 @@ void main() {
   testWidgets('the next step renders a variable written AFTER an await', (
     tester,
   ) async {
+    // Gated on a test-controlled Completer rather than a delay: a delay leaves
+    // this test unable to discriminate a fire-and-forget implementation from a
+    // correctly-awaited one (a short delay passes either way once
+    // pumpAndSettle drains it; a long delay fails either way, since
+    // pumpAndSettle stops as soon as no frame is scheduled and never advances
+    // the fake clock far enough). The Completer lets the test observe the
+    // survey BEFORE the handler resolves, which is the actual discriminator.
+    final handlerGate = Completer<void>();
     final registries = SurveyRegistries(
       actionHandlers: {
         'write_x': (ctx) async {
           // The whole point: the write is on the far side of a suspension.
-          await Future<void>.delayed(const Duration(milliseconds: 10));
+          await handlerGate.future;
           ctx.variables['x'] = 'WRITTEN_LATE';
         },
       },
@@ -63,6 +73,15 @@ void main() {
     await tester.pumpAndSettle();
 
     await tester.tap(find.byType(ElevatedButton));
+    await tester.pumpAndSettle();
+
+    // The discriminating assertion: under a fire-and-forget implementation the
+    // survey would have already advanced to s2 here, before the handler (and
+    // its variable write) ever completes.
+    expect(find.text('first'), findsOneWidget, reason: 'must not advance yet');
+    expect(find.text('WRITTEN_LATE'), findsNothing);
+
+    handlerGate.complete();
     await tester.pumpAndSettle();
 
     expect(find.text('WRITTEN_LATE'), findsOneWidget);
