@@ -162,9 +162,7 @@ class SurveyStateProvider extends InheritedWidget {
     if (next == null) {
       final finished = _handleSurveyFinished(currentState);
       updateState(finished);
-      unawaited(
-        navigatorKey.currentState?.pushNamed('/', arguments: finished),
-      );
+      unawaited(navigatorKey.currentState?.pushNamed('/', arguments: finished));
     } else {
       final presenting = _presentStep(next);
       updateState(presenting);

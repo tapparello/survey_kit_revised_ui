@@ -42,4 +42,5 @@ class SurveyHandlerFailure {
 /// Must not throw and must not be `async`. It is invoked from inside the
 /// navigator's own failure path, and a throwing or fire-and-forget reporter
 /// would recreate the swallow this callback exists to remove.
-typedef SurveyHandlerErrorCallback = void Function(SurveyHandlerFailure failure);
+typedef SurveyHandlerErrorCallback =
+    void Function(SurveyHandlerFailure failure);

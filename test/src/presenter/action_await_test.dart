@@ -35,7 +35,10 @@ void main() {
         ),
       ],
       navigationRules: const {
-        's1': ActionNavigationRule(actionId: 'write_x', nextStepIdentifier: 's2'),
+        's1': ActionNavigationRule(
+          actionId: 'write_x',
+          nextStepIdentifier: 's2',
+        ),
       },
     );
   }
@@ -132,11 +135,20 @@ void main() {
     final task = NavigableTask(
       id: 't',
       steps: [
-        Step(id: 's1', content: const [TextContent(text: 'first')]),
-        Step(id: 's2', content: const [TextContent(text: '{{x}}')]),
+        Step(
+          id: 's1',
+          content: const [TextContent(text: 'first')],
+        ),
+        Step(
+          id: 's2',
+          content: const [TextContent(text: '{{x}}')],
+        ),
       ],
       navigationRules: const {
-        's1': ActionNavigationRule(actionId: 'write_x', nextStepIdentifier: 's2'),
+        's1': ActionNavigationRule(
+          actionId: 'write_x',
+          nextStepIdentifier: 's2',
+        ),
       },
       initialStepId: 's2',
     );
@@ -150,80 +162,101 @@ void main() {
     expect(find.text('replayed'), findsOneWidget);
   });
 
-  testWidgets('a handler that short-circuits on replay still writes its variable', (
-    tester,
-  ) async {
-    // The 8_5_20 shape, reproduced in-library: the effect is skipped on resume
-    // but the pre-return variable write is still visible to the resumed step.
-    var effectRuns = 0;
-    final registries = SurveyRegistries(
-      actionHandlers: {
-        'write_x': (ctx) async {
-          ctx.variables['x'] = 'summary';
-          if (ctx.trigger == ActionTrigger.replay) return;
-          effectRuns++;
-          await Future<void>.delayed(const Duration(milliseconds: 10));
-        },
-      },
-    );
-
-    final task = NavigableTask(
-      id: 't',
-      steps: [
-        Step(id: 's1', content: const [TextContent(text: 'first')]),
-        Step(id: 's2', content: const [TextContent(text: '{{x}}')]),
-      ],
-      navigationRules: const {
-        's1': ActionNavigationRule(actionId: 'write_x', nextStepIdentifier: 's2'),
-      },
-      initialStepId: 's2',
-    );
-
-    await tester.pumpWidget(
-      ActionHost(task: task, registries: registries, onResult: (_) {}),
-    );
-    await tester.pumpAndSettle();
-
-    expect(effectRuns, 0, reason: 'the PDF-equivalent must not run on resume');
-    expect(find.text('summary'), findsOneWidget);
-  });
-
-  testWidgets('a rule that throws during replay still presents the resumed step', (
-    tester,
-  ) async {
-    final failures = <SurveyHandlerFailure>[];
-    final task = NavigableTask(
-      id: 't',
-      steps: [
-        Step(id: 's1', content: const [TextContent(text: 'first')]),
-        Step(id: 's2', content: const [TextContent(text: 'second')]),
-      ],
-      navigationRules: const {'s1': CustomNavigationRule(ruleId: 'route')},
-      initialStepId: 's2',
-    );
-
-    await tester.pumpWidget(
-      ActionHost(
-        task: task,
-        registries: SurveyRegistries(
-          customNavigationRules: {
-            'route': (results, currentResult, variables) =>
-                throw StateError('rule boom'),
+  testWidgets(
+    'a handler that short-circuits on replay still writes its variable',
+    (tester) async {
+      // The 8_5_20 shape, reproduced in-library: the effect is skipped on resume
+      // but the pre-return variable write is still visible to the resumed step.
+      var effectRuns = 0;
+      final registries = SurveyRegistries(
+        actionHandlers: {
+          'write_x': (ctx) async {
+            ctx.variables['x'] = 'summary';
+            if (ctx.trigger == ActionTrigger.replay) return;
+            effectRuns++;
+            await Future<void>.delayed(const Duration(milliseconds: 10));
           },
-        ),
-        onHandlerError: failures.add,
-        onResult: (_) {},
-      ),
-    );
-    await tester.pumpAndSettle();
+        },
+      );
 
-    expect(failures, hasLength(1));
-    expect(
-      find.byType(CircularProgressIndicator),
-      findsNothing,
-      reason: 'the survey must not sit on the startup spinner',
-    );
-  });
+      final task = NavigableTask(
+        id: 't',
+        steps: [
+          Step(
+            id: 's1',
+            content: const [TextContent(text: 'first')],
+          ),
+          Step(
+            id: 's2',
+            content: const [TextContent(text: '{{x}}')],
+          ),
+        ],
+        navigationRules: const {
+          's1': ActionNavigationRule(
+            actionId: 'write_x',
+            nextStepIdentifier: 's2',
+          ),
+        },
+        initialStepId: 's2',
+      );
+
+      await tester.pumpWidget(
+        ActionHost(task: task, registries: registries, onResult: (_) {}),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        effectRuns,
+        0,
+        reason: 'the PDF-equivalent must not run on resume',
+      );
+      expect(find.text('summary'), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'a rule that throws during replay still presents the resumed step',
+    (tester) async {
+      final failures = <SurveyHandlerFailure>[];
+      final task = NavigableTask(
+        id: 't',
+        steps: [
+          Step(
+            id: 's1',
+            content: const [TextContent(text: 'first')],
+          ),
+          Step(
+            id: 's2',
+            content: const [TextContent(text: 'second')],
+          ),
+        ],
+        navigationRules: const {'s1': CustomNavigationRule(ruleId: 'route')},
+        initialStepId: 's2',
+      );
+
+      await tester.pumpWidget(
+        ActionHost(
+          task: task,
+          registries: SurveyRegistries(
+            customNavigationRules: {
+              'route': (results, currentResult, variables) =>
+                  throw StateError('rule boom'),
+            },
+          ),
+          onHandlerError: failures.add,
+          onResult: (_) {},
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(failures, hasLength(1));
+      expect(
+        find.byType(CircularProgressIndicator),
+        findsNothing,
+        reason: 'the survey must not sit on the startup spinner',
+      );
+    },
+  );
 
   testWidgets('a conditional mapper that throws during replay still presents', (
     tester,
@@ -239,8 +272,14 @@ void main() {
     final task = NavigableTask(
       id: 't',
       steps: [
-        Step(id: 's1', content: const [TextContent(text: 'first')]),
-        Step(id: 's2', content: const [TextContent(text: 'second')]),
+        Step(
+          id: 's1',
+          content: const [TextContent(text: 'first')],
+        ),
+        Step(
+          id: 's2',
+          content: const [TextContent(text: 'second')],
+        ),
       ],
       navigationRules: {
         's1': ConditionalNavigationRule(

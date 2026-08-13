@@ -28,7 +28,10 @@ void main() {
           feedbackWrong: 'Nope.',
         ),
       ),
-      Step(id: 's2', content: const [TextContent(text: 'second')]),
+      Step(
+        id: 's2',
+        content: const [TextContent(text: 'second')],
+      ),
     ],
   );
 
@@ -36,9 +39,7 @@ void main() {
   Future<void> pressSystemBack(WidgetTester tester) async {
     await tester.binding.defaultBinaryMessenger.handlePlatformMessage(
       'flutter/navigation',
-      const JSONMethodCodec().encodeMethodCall(
-        const MethodCall('popRoute'),
-      ),
+      const JSONMethodCodec().encodeMethodCall(const MethodCall('popRoute')),
       (_) {},
     );
     await tester.pumpAndSettle();
@@ -61,7 +62,11 @@ void main() {
     await tester.tap(find.byType(ElevatedButton));
     await tester.pumpAndSettle();
 
-    expect(find.textContaining('Nope.'), findsOneWidget, reason: 'dialog is up');
+    expect(
+      find.textContaining('Nope.'),
+      findsOneWidget,
+      reason: 'dialog is up',
+    );
 
     await pressSystemBack(tester);
 
@@ -90,7 +95,9 @@ void main() {
     expect(find.text('second'), findsOneWidget);
   });
 
-  testWidgets('the auto-dismiss path still advances the survey', (tester) async {
+  testWidgets('the auto-dismiss path still advances the survey', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
@@ -126,7 +133,9 @@ void main() {
     // top route is now the host page.
     await tester.pumpWidget(
       MaterialApp(
-        home: Scaffold(body: SurveyKit(task: feedbackTask(), onResult: (_) {})),
+        home: Scaffold(
+          body: SurveyKit(task: feedbackTask(), onResult: (_) {}),
+        ),
       ),
     );
     await tester.pumpAndSettle();
@@ -176,7 +185,10 @@ void main() {
             feedbackWrong: 'Nope.',
           ),
         ),
-        Step(id: 's2', content: const [TextContent(text: '{{x}}')]),
+        Step(
+          id: 's2',
+          content: const [TextContent(text: '{{x}}')],
+        ),
       ],
       navigationRules: const {
         's1': ActionNavigationRule(
@@ -197,36 +209,37 @@ void main() {
 
     setUp(() => events = <String>[]);
 
-    testWidgets('tap path: the handler has not started while the dialog is up', (
-      tester,
-    ) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: SurveyKit(
-              task: task(),
-              registries: registries(),
-              onResult: (_) {},
+    testWidgets(
+      'tap path: the handler has not started while the dialog is up',
+      (tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: SurveyKit(
+                task: task(),
+                registries: registries(),
+                onResult: (_) {},
+              ),
             ),
           ),
-        ),
-      );
-      await tester.pumpAndSettle();
+        );
+        await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Wrong'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.byType(ElevatedButton));
-      await tester.pumpAndSettle();
+        await tester.tap(find.text('Wrong'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byType(ElevatedButton));
+        await tester.pumpAndSettle();
 
-      expect(find.textContaining('Nope.'), findsOneWidget);
-      expect(events, isEmpty, reason: 'the action must not have fired yet');
+        expect(find.textContaining('Nope.'), findsOneWidget);
+        expect(events, isEmpty, reason: 'the action must not have fired yet');
 
-      await tester.tap(find.widgetWithText(TextButton, 'Next'));
-      await tester.pumpAndSettle();
+        await tester.tap(find.widgetWithText(TextButton, 'Next'));
+        await tester.pumpAndSettle();
 
-      expect(events, ['handler']);
-      expect(find.text('AFTER_FEEDBACK'), findsOneWidget);
-    });
+        expect(events, ['handler']);
+        expect(find.text('AFTER_FEEDBACK'), findsOneWidget);
+      },
+    );
 
     testWidgets('auto-dismiss path: same ordering', (tester) async {
       await tester.pumpWidget(

@@ -11,15 +11,26 @@ import 'action_harness.dart';
 /// close it. Each one is only falsifiable if the test pumps STRICTLY INSIDE the
 /// await window, which is what the Completer-gated handler is for.
 void main() {
-  ({NavigableTask task, SurveyRegistries registries, Completer<void> gate, List<int> fires})
+  ({
+    NavigableTask task,
+    SurveyRegistries registries,
+    Completer<void> gate,
+    List<int> fires,
+  })
   gatedFixture() {
     final gate = Completer<void>();
     final fires = <int>[];
     final task = NavigableTask(
       id: 't',
       steps: [
-        Step(id: 's1', content: const [TextContent(text: 'first')]),
-        Step(id: 's2', content: const [TextContent(text: 'second')]),
+        Step(
+          id: 's1',
+          content: const [TextContent(text: 'first')],
+        ),
+        Step(
+          id: 's2',
+          content: const [TextContent(text: 'second')],
+        ),
       ],
       navigationRules: const {
         's1': ActionNavigationRule(actionId: 'slow', nextStepIdentifier: 's2'),
@@ -62,7 +73,11 @@ void main() {
 
     expect(f.fires, hasLength(1), reason: 'handler fired once');
     expect(find.text('second'), findsOneWidget);
-    expect(find.text('first'), findsNothing, reason: 'advanced exactly one step');
+    expect(
+      find.text('first'),
+      findsNothing,
+      reason: 'advanced exactly one step',
+    );
   });
 
   testWidgets('Next is disabled inside the window and enabled after', (
@@ -104,26 +119,27 @@ void main() {
     );
   });
 
-  testWidgets('unmounting mid-flight, then completing the handler, does not throw', (
-    tester,
-  ) async {
-    final f = gatedFixture();
-    await tester.pumpWidget(
-      ActionHost(task: f.task, registries: f.registries, onResult: (_) {}),
-    );
-    await tester.pumpAndSettle();
+  testWidgets(
+    'unmounting mid-flight, then completing the handler, does not throw',
+    (tester) async {
+      final f = gatedFixture();
+      await tester.pumpWidget(
+        ActionHost(task: f.task, registries: f.registries, onResult: (_) {}),
+      );
+      await tester.pumpAndSettle();
 
-    await tester.tap(find.byType(ElevatedButton));
-    await tester.pump();
+      await tester.tap(find.byType(ElevatedButton));
+      await tester.pump();
 
-    await tester.pumpWidget(const SizedBox());
-    // The handler completes AFTER disposal. A ValueNotifier whose value setter
-    // runs post-dispose asserts; SurveySession must no-op instead.
-    f.gate.complete();
-    await tester.pumpAndSettle();
+      await tester.pumpWidget(const SizedBox());
+      // The handler completes AFTER disposal. A ValueNotifier whose value setter
+      // runs post-dispose asserts; SurveySession must no-op instead.
+      f.gate.complete();
+      await tester.pumpAndSettle();
 
-    expect(tester.takeException(), isNull);
-  });
+      expect(tester.takeException(), isNull);
+    },
+  );
 
   testWidgets('Cancel is still honoured while an action is in flight', (
     tester,
