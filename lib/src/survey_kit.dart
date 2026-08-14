@@ -6,6 +6,9 @@ import 'package:survey_kit/src/configuration/survey_configuration.dart';
 import 'package:survey_kit/src/configuration/survey_handler_failure.dart';
 import 'package:survey_kit/src/configuration/survey_registries.dart';
 import 'package:survey_kit/src/controller/survey_controller.dart';
+import 'package:survey_kit/src/engine/survey_engine.dart';
+import 'package:survey_kit/src/engine/survey_feedback.dart';
+import 'package:survey_kit/src/engine/survey_host.dart';
 import 'package:survey_kit/src/exception/survey_kit_exception.dart';
 import 'package:survey_kit/src/model/content/styled_text_content.dart';
 import 'package:survey_kit/src/model/result/step_result.dart';
@@ -15,7 +18,6 @@ import 'package:survey_kit/src/navigator/navigable_task_navigator.dart';
 import 'package:survey_kit/src/navigator/ordered_task_navigator.dart';
 import 'package:survey_kit/src/navigator/task_navigator.dart';
 import 'package:survey_kit/src/presenter/survey_event.dart';
-import 'package:survey_kit/src/presenter/survey_session.dart';
 import 'package:survey_kit/src/presenter/survey_state.dart';
 import 'package:survey_kit/src/presenter/survey_state_provider.dart';
 import 'package:survey_kit/src/task/navigable_task.dart';
@@ -23,6 +25,7 @@ import 'package:survey_kit/src/task/ordered_task.dart';
 import 'package:survey_kit/src/task/task.dart';
 import 'package:survey_kit/src/view/widget/answer/answer_view.dart';
 import 'package:survey_kit/src/widget/survey_app_bar.dart';
+import 'package:survey_kit/src/widget/survey_feedback_dialog.dart';
 import 'package:survey_kit/src/widget/survey_kit_page_route_builder.dart';
 import 'package:survey_kit/src/widget/survey_progress_configuration.dart';
 
@@ -99,17 +102,25 @@ class SurveyKit extends StatefulWidget {
   _SurveyKitState createState() => _SurveyKitState();
 }
 
-class _SurveyKitState extends State<SurveyKit> {
+class _SurveyKitState extends State<SurveyKit> implements SurveyHost {
   late TaskNavigator _taskNavigator;
   late final GlobalKey<NavigatorState> _navigatorKey;
-  late final SurveySession _session;
+  late final SurveyEngine _engine;
 
   @override
   void initState() {
     super.initState();
+    // Order is load-bearing: _createTaskNavigator can throw
+    // UnsupportedTaskException, and when initState throws Flutter never calls
+    // dispose(), so the `late final _engine` must not have been assigned.
+    // Constructing the engine first breaks parse_throws_test.dart. (ADO #1033)
     _taskNavigator = _createTaskNavigator();
     _navigatorKey = GlobalKey<NavigatorState>();
-    _session = SurveySession(initialResults: widget.initialResults);
+    _engine = SurveyEngine(
+      taskNavigator: _taskNavigator,
+      host: this,
+      initialResults: widget.initialResults,
+    );
   }
 
   TaskNavigator _createTaskNavigator() {
@@ -130,9 +141,51 @@ class _SurveyKitState extends State<SurveyKit> {
 
   @override
   void dispose() {
-    _session.dispose();
+    _engine.dispose();
     super.dispose();
   }
+
+  // SurveyHost. NONE of these may read `context` or `mounted`.
+  //
+  // Every one can be called from a suspension that outlives this State — an
+  // action handler completing after SurveyKit unmounts is the ordinary case.
+  // `if (!mounted) return;` in deliverResult would silently discard the user's
+  // finished survey, and it would pass all 254 pre-existing tests. Measured on
+  // 56473c4: a terminal advance across an unmount DOES fire onResult today.
+  //
+  // Reading `widget` post-dispose is safe: StatefulElement.unmount clears
+  // _element and _state, never _widget. Reading `context` is NOT — it throws
+  // after unmount, which is why these use _navigatorKey rather than
+  // Navigator.of(context). The GlobalKey returns null once its Navigator
+  // unmounts, which is the same null-guarded no-op the pre-3c code relied on.
+  //
+  // `unawaited`, not `await`: pushNamed's future does not resolve until the
+  // pushed route is popped, so awaiting it would hang the advance and leave
+  // isAdvancing set forever. These being `void` keeps that temptation out of
+  // the engine entirely. (ADO #1040, review A6)
+
+  @override
+  void pushState(SurveyState state) =>
+      unawaited(_navigatorKey.currentState?.pushNamed('/', arguments: state));
+
+  @override
+  void replaceState(SurveyState state) => unawaited(
+    _navigatorKey.currentState?.pushReplacementNamed('/', arguments: state),
+  );
+
+  @override
+  void popSurvey() => _navigatorKey.currentState?.pop();
+
+  @override
+  void deliverResult(SurveyResult result) => widget.onResult(result);
+
+  @override
+  Future<void> showFeedback(SurveyFeedback feedback) =>
+      showSurveyFeedbackDialog(
+        navigatorKey: _navigatorKey,
+        feedback: feedback,
+        localizations: widget.localizations,
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -149,11 +202,8 @@ class _SurveyKitState extends State<SurveyKit> {
       variables: widget.task.variables,
       child: SurveyStateProvider(
         taskNavigator: _taskNavigator,
-        onResult: widget.onResult,
         stepShell: widget.stepShell,
-        session: _session,
-        navigatorKey: _navigatorKey,
-        localizations: widget.localizations,
+        engine: _engine,
         child: SurveyPage(
           length: widget.task.steps.length,
           onResult: widget.onResult,

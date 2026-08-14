@@ -3,7 +3,6 @@
 // PresentingSurveyState and StartSurvey only ever fires once.
 import 'package:flutter/material.dart' hide Step;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:survey_kit/src/presenter/survey_session.dart';
 import 'package:survey_kit/survey_kit.dart';
 
 import 'rebuild_harness.dart';
@@ -128,12 +127,5 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Two'), findsOneWidget);
-  });
-
-  test('endAdvance after dispose does not throw', () {
-    final session = SurveySession()
-      ..beginAdvance()
-      ..dispose();
-    expect(session.endAdvance, returnsNormally);
   });
 }
