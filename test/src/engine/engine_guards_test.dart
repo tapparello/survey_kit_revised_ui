@@ -1,11 +1,6 @@
-// Criterion 13, second clause: relocated from survey_session_test.dart when
-// SurveySession was absorbed into SurveyEngine. Tasks 5 and 6 add the rest of
-// this file's cases.
-//
-// No `package:survey_kit/survey_kit.dart` import yet: nothing here names a
-// symbol from the barrel — makeEngine, twoStepTask and FakeSurveyHost all come
-// from engine_harness.dart — and an unused import is a warning, which
-// `flutter analyze` fails on. Task 6 adds it when its cases need it.
+// Criteria 13-15: re-entrancy, currency and replay, driven with no widget tree.
+// The `endAdvance after dispose` case was relocated here from
+// survey_session_test.dart when SurveySession was absorbed into SurveyEngine.
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';

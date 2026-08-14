@@ -29,11 +29,19 @@ class CancelHost extends StatefulWidget {
 class CancelHostState extends State<CancelHost> {
   int _tick = 0;
 
-  // Held, not built in build(): SurveyProgressConfiguration declares no
-  // operator==, so a fresh instance per build would make
-  // SurveyConfiguration.updateShouldNotify true every time and rebuild the app
-  // bar for a reason unrelated to what criterion 19 is measuring.
-  late final SurveyProgressConfiguration _progress =
+  // Built fresh on every build, deliberately. SurveyProgressConfiguration
+  // declares no operator==, so this makes SurveyConfiguration.updateShouldNotify
+  // true on every parent rebuild — which is exactly the production condition
+  // criterion 19 is about (3a measured CONFIG notifies=true).
+  //
+  // Holding a single instance instead makes the criterion-19 loop vacuous:
+  // SurveyPage passes a `const SurveyAppBar()`, so Element.updateChild
+  // short-circuits on `child.widget == newWidget` and the app bar subtree is
+  // never rebuilt at all. Measured: held config = 0 app-bar builds across five
+  // setState calls, so the loop asserted only that an untouched subtree stayed
+  // put. Fresh config = 5 builds, 5 StreamBuilder runs, Cancel present in all
+  // five.
+  SurveyProgressConfiguration get _progress =>
       SurveyProgressConfiguration(showCloseButton: widget.showCloseButton);
 
   void rebuild() => setState(() => _tick++);
