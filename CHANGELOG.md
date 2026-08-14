@@ -1,3 +1,33 @@
+# 1.0.0-dev.19
+
+- **BREAKING: `SurveyStateProvider` loses its public `onResult`, `navigatorKey`
+  and `localizations` fields.** All three now live on `SurveyKit`'s `State`,
+  which is what reaches the widget layer on the engine's behalf; nothing outside
+  the package read them from the provider. They were public, so their removal is
+  a break. The `@internal` constructor also swaps `session:` for `engine:` and
+  drops those three arguments; that part is not a published break, the
+  constructor was already internal.
+- NEW (internal): the survey state machine moved out of the widget layer into
+  `lib/src/engine/`. `SurveyEngine` owns the state, the stream, the results, the
+  start time and the in-flight flag, and reaches the widget layer only through a
+  `SurveyHost` port implemented by `SurveyKit`'s `State`. None of it is
+  exported. The former internal `SurveySession` is absorbed and removed.
+- FIXED: the app-bar Cancel button is no longer painted while the survey is
+  still starting up. `CloseSurvey` is gated on a presented step, so the button
+  was inert for the whole startup window — which 1.0.0-dev.18 lengthened to
+  include the awaited replay of every action handler on a resumed path. It is
+  hidden until the first step is presented, mirroring the app bar's own Back
+  button, and remains visible after the survey terminates. Consumers setting
+  `showCloseButton: false` are unaffected.
+- `onResult` and `localizations` are now resolved when they are used — when the
+  result is delivered, and when the feedback dialog is shown — rather than
+  captured when the survey starts. A consumer that rebuilds with a different
+  callback or a different localization map gets the current one. Unobservable
+  for a consumer whose callback and map are the same on every build.
+- The answer-feedback dialog's colour is now chosen in the widget layer from a
+  semantic tone rather than in the presenter from a `Color`. The three rendered
+  outcomes are unchanged. (ADO #1041)
+
 # 1.0.0-dev.18
 
 - **BREAKING: `ActionHandler` is now
