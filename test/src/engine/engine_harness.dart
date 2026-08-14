@@ -91,3 +91,24 @@ NavigableTask twoStepTask() => NavigableTask(
     ),
   ],
 );
+
+/// A text answer for [id].
+///
+/// `answerType` is NOT optional here even though the constructor allows null:
+/// `_handleStepBack` interpolates `questionResult?.toJson()` into a log line,
+/// and `StepResult.toJson` throws `ResultCodecException` for a non-null result
+/// carrying no answerType. A null-answerType fixture would fail the StepBack
+/// test for a reason that has nothing to do with StepBack.
+StepResult<String> textResult(String id, String value) => StepResult<String>(
+  id: id,
+  result: value,
+  answerType: AnswerFormatType.text,
+  startTime: DateTime.now(),
+  endTime: DateTime.now(),
+);
+
+/// Lets the broadcast stream deliver what `updateState` has already added.
+///
+/// `StreamController.add` schedules delivery as a microtask, so an assertion
+/// made immediately after `await engine.handleEvent(...)` can race it.
+Future<void> drain() => Future<void>.delayed(Duration.zero);
