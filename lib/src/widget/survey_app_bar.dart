@@ -42,7 +42,30 @@ class SurveyAppBar extends StatelessWidget implements PreferredSizeWidget {
     );
 
     final actionWidget = progressbarConfiguration.showCloseButton
-        ? cancelButton
+        ? StreamBuilder<SurveyState>(
+            stream: surveyStream,
+            builder: (context, snapshot) {
+              final state = snapshot.data;
+              // Hidden only until the first step is presented, where
+              // CloseSurvey is gated out and the button would be inert.
+              // Deliberately NOT `state is PresentingSurveyState`: that would
+              // also hide Cancel for the whole terminal SurveyResultState
+              // window, which is a second rendered change this phase does not
+              // own. (ADO #1041)
+              //
+              // LoadingSurveyState is named even though it is never streamed
+              // today — `stateStream.add` has one call site, inside
+              // updateState, and the initial LoadingSurveyState is a field
+              // initialiser that never routes through it. That is a property of
+              // the current call graph, not a stated invariant; a later phase
+              // that emits it would otherwise silently un-hide the button with
+              // no failing test.
+              if (state == null || state is LoadingSurveyState) {
+                return const SizedBox.shrink();
+              }
+              return cancelButton;
+            },
+          )
         : const SizedBox.shrink();
 
     return AppBar(
