@@ -31,6 +31,15 @@ class SurveyStateProvider extends InheritedWidget {
   StepResult? getStepResultById(String id) => engine.resultById(id);
   ValueListenable<bool> get isAdvancing => engine.isAdvancing;
 
+  // These two delegate to the navigator rather than the engine, which is where
+  // they delegated before ADO #1041 too. They are public on an exported class,
+  // so dropping them when the engine gained its own copies would have been an
+  // undeclared break for any consumer rendering its own progress readout.
+  int get countSteps => taskNavigator.countSteps;
+  int currentStepIndex(Step step) {
+    return taskNavigator.currentStepIndex(step);
+  }
+
   /// Dispatches [event] to the engine. The state machine itself lives in
   /// `lib/src/engine/`, outside the widget layer. (ADO #1041)
   Future<void> onEvent(SurveyEvent event) => engine.handleEvent(event);
