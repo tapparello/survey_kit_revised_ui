@@ -9,12 +9,15 @@ import 'package:survey_kit/src/model/answer/answer_format.dart';
 import 'package:survey_kit/src/model/answer/multiple_choice_answer_with_feedback_format.dart';
 import 'package:survey_kit/src/model/answer/single_choice_answer_with_feedback_format.dart';
 import 'package:survey_kit/src/model/answer/text_choice.dart';
+import 'package:survey_kit/src/model/content/conditional_content.dart';
+import 'package:survey_kit/src/model/content/content.dart';
 import 'package:survey_kit/src/model/result/step_result.dart';
 import 'package:survey_kit/src/model/result/survey_result.dart';
 import 'package:survey_kit/src/model/step.dart';
 import 'package:survey_kit/src/navigator/task_navigator.dart';
 import 'package:survey_kit/src/presenter/survey_event.dart';
 import 'package:survey_kit/src/presenter/survey_state.dart';
+import 'package:survey_kit/src/util/content_variables.dart';
 import 'package:survey_kit/src/util/survey_kit_logger.dart';
 
 /// The survey state machine, and the mutable state for one run of a survey.
@@ -122,6 +125,56 @@ class SurveyEngine {
     return taskNavigator.currentStepIndex(step);
   }
 
+  /// The step to present: [step] itself, or a resolved copy of it.
+  ///
+  /// One resolution point for both kinds of conditional. Before ADO #1045 a
+  /// conditional answer format resolved at parse (so it could never see an
+  /// answer) while conditional content resolved in `ContentWidget.build`.
+  ///
+  /// Returns [step] **unchanged** when there is nothing to resolve, which is
+  /// the overwhelming common case. That identity short-circuit is load-bearing:
+  /// it keeps every ordinary step, including a consumer's `Step` subclass, off
+  /// the copy path entirely.
+  Step _resolveStep(Step step) {
+    final directive = step.conditionalAnswerFormat;
+    final needsResolution =
+        directive != null || step.content.any((c) => c is ConditionalContent);
+    if (!needsResolution) return step;
+
+    final variables = resolveVariables(results, taskNavigator.task.variables);
+
+    final content = step.content.expand((c) {
+      if (c is ConditionalContent) {
+        final resolved = c.resolveContent(variables);
+        return resolved != null ? [resolved] : <Content>[];
+      }
+      return [c];
+    }).toList();
+
+    final resolved = step.copyResolved(
+      content: content,
+      answerFormat: directive?.resolve(variables) ?? step.answerFormat,
+    );
+
+    if (resolved.runtimeType != step.runtimeType) {
+      SurveyKitLogger.w(
+        'copyResolved downgraded ${step.runtimeType} to '
+        '${resolved.runtimeType} for step ${step.id}; override copyResolved '
+        'to preserve subclass state.',
+      );
+    }
+    return resolved;
+  }
+
+  /// The authored step behind [step], which may be a resolved copy.
+  ///
+  /// Only needed where a step is read back OUT of a state and handed to the
+  /// navigator: `nextStep` calls `record(step)`, and
+  /// `NavigableTaskNavigator.previousInList` returns `history.last`, so a copy
+  /// in history would make back-navigation replay a stale resolution.
+  Step _authored(Step step) =>
+      taskNavigator.task.steps.firstWhereOrNull((s) => s.id == step.id) ?? step;
+
   Future<void> handleEvent(SurveyEvent event) async {
     try {
       if (event is StartSurvey) {
@@ -191,7 +244,7 @@ class SurveyEngine {
     );
 
     final next = await taskNavigator.nextStep(
-      step: currentState.currentStep,
+      step: _authored(currentState.currentStep),
       previousResults: results.toList(),
       questionResult: event.questionResult,
     );
@@ -319,7 +372,7 @@ class SurveyEngine {
       final questionResult = resultById(step.id);
 
       return PresentingSurveyState(
-        currentStep: step,
+        currentStep: _resolveStep(step),
         questionResults: results,
         steps: taskNavigator.task.steps,
         result: questionResult,
@@ -346,7 +399,7 @@ class SurveyEngine {
     final questionResult = resultById(nextStep.id);
 
     return PresentingSurveyState(
-      currentStep: nextStep,
+      currentStep: _resolveStep(nextStep),
       result: questionResult,
       steps: taskNavigator.task.steps,
       questionResults: results,
@@ -372,7 +425,7 @@ class SurveyEngine {
       );
 
       return PresentingSurveyState(
-        currentStep: previousStep,
+        currentStep: _resolveStep(previousStep),
         result: questionResult,
         steps: taskNavigator.task.steps,
         questionResults: results,
