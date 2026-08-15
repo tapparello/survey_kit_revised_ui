@@ -59,7 +59,11 @@ class ConditionalContent extends Content {
     Map<String, dynamic> variables = const {},
     Map<String, StyledTextContent>? contentStyles,
   }) {
-    // Default: returns empty widget. Actual resolution happens in ContentWidget.
+    // Never rendered directly: SurveyEngine resolves a step's ConditionalContent
+    // before the step reaches the state. Reaching here means a ConditionalContent
+    // nested as a value in another ConditionalContent's `options`, which
+    // resolution does not descend into — resolution is a single pass over the
+    // top-level list. A pre-existing limitation, unchanged by ADO #1045.
     return const SizedBox.shrink();
   }
 }

@@ -1,3 +1,53 @@
+# 1.0.0-dev.20
+
+- **BREAKING: `Step.fromJson` and `AnswerFormat.fromJson` lose their `variables`
+  parameter.** Conditional answer formats no longer resolve at parse time, so
+  parsing no longer needs the variables map. `Task.fromJson` is unchanged and
+  the `task.variables` field is unchanged; only these two signatures shrink.
+  Call `Task.fromJson`, as every consumer already does, and nothing changes.
+- **BREAKING: a conditional answer format now validates *every* variant when the
+  task loads, not just the selected one.** Previously only the variant a
+  directive actually selected was parsed, so a malformed variant that was never
+  chosen was inert dead JSON. It now throws at `Task.fromJson`. This is what
+  makes selection total: by the time a step is presented, resolution is a map
+  lookup that cannot fail.
+- **BREAKING: a conditional answer format may no longer nest inside another
+  conditional's `variants` map.** Previously, nested conditionals resolved
+  recursively during parse-time resolution; now every variant is parsed eagerly
+  as a concrete `AnswerFormat`, and since `conditional` is no longer an accepted
+  concrete type, nested directives throw `MalformedValueException` at task load.
+- **BREAKING (behaviour): conditional content resolves once per presentation
+  instead of once per rebuild.** Step answers only change at submission, which
+  pushes a new state, and `ActionContext.variables` writes are contracted as
+  "visible to the next step", so the two coincide — except for a step whose
+  content branches on its *own* live answer, which previously updated as the user
+  answered and now resolves once on entry.
+- **`PresentingSurveyState` equality weakens for conditional steps.** It compares
+  `currentStep` by reference, and a conditional step is now a fresh resolved copy
+  per presentation, so two states for the same conditional step no longer compare
+  equal. Ordinary steps are unaffected. Not a change anything in this package
+  consumes; tracked separately along with three pre-existing defects in that
+  equality.
+- NEW: `Step.conditionalAnswerFormat` holds a validated but unresolved
+  `ConditionalAnswerFormat`. `Step.answerFormat` and it are mutually exclusive,
+  and `answerFormat` stays **concrete** wherever a view or a result sees it —
+  the directive is deliberately not an `AnswerFormat` and not an
+  `AnswerFormatType` member.
+- **Conditional answer formats now resolve against a live, mutating map.**
+  `task.variables` also receives internal bookkeeping writes — `_currentStepId`,
+  written by `NavigableTaskNavigator._evaluateCustomRule`. Conditional *content*
+  already read that live map, so this is not new in kind, but it is the first
+  time an answer format reads it rather than a snapshot frozen at parse.
+- NEW: `Step.copyResolved` is the seam a resolved copy is built through. Override
+  it in a `Step` subclass that adds state, or the copy downgrades to a plain
+  `Step` and that state is lost; the engine logs a warning when that happens.
+  Subclasses with no conditional content and no conditional answer format never
+  reach it.
+- FIX: `TaskNavigator.currentStepIndex` compares steps by id instead of by
+  identity, so it can no longer return `-1` for a step read back out of
+  `PresentingSurveyState`. This also fixes the exported
+  `SurveyStateProvider.currentStepIndex` passthrough.
+
 # 1.0.0-dev.19
 
 - **BREAKING: `SurveyStateProvider` loses its public `onResult`, `navigatorKey`
