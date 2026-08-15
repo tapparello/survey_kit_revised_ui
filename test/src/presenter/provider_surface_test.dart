@@ -7,9 +7,10 @@
 // Nothing caught that: api_surface_test.dart does not name them, the engine's
 // normalised-diff gate only read the engine, and a consumer's progress readout
 // is the kind of code no test in this package renders. This file is that gate.
-// No barrel import: every symbol here comes from rebuild_harness.dart, and an
-// unused import is a warning that `flutter analyze --fatal-infos` fails on.
+// Every symbol comes from rebuild_harness.dart except Step, which is imported
+// directly to construct a copy for testing id-based comparison (ADO #1045).
 import 'package:flutter_test/flutter_test.dart';
+import 'package:survey_kit/survey_kit.dart';
 
 import 'rebuild_harness.dart';
 
@@ -27,5 +28,26 @@ void main() {
 
     final step = provider.taskNavigator.firstStep()!;
     expect(provider.currentStepIndex(step), 0);
+  });
+
+  testWidgets('the readout finds a step by id, not by identity', (
+    tester,
+  ) async {
+    // ADO #1045 makes SurveyEngine present a RESOLVED COPY of a conditional
+    // step — same id, different instance, and Step has no value equality. This
+    // method is public on an exported class, so a consumer's "step 1 of 2"
+    // readout passes exactly such an instance back in.
+    //
+    // task.steps.indexOf(copy) returns -1. Nothing else in the navigator
+    // compares by identity; this was the last one.
+    await tester.pumpWidget(RebuildHost(task: twoStepTask(), onResult: (_) {}));
+    await tester.pumpAndSettle();
+
+    final provider = providerFrom(tester, find.text('One'));
+    final authored = provider.taskNavigator.firstStep()!;
+    final copy = Step(id: authored.id, content: authored.content);
+
+    expect(copy, isNot(same(authored)), reason: 'the fixture must be a copy');
+    expect(provider.currentStepIndex(copy), 0);
   });
 }

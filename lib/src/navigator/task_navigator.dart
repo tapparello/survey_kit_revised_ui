@@ -73,6 +73,9 @@ abstract class TaskNavigator {
       // so the index reflects the user's actual position in the flow.
       return history.length;
     }
-    return task.steps.indexOf(step);
+    // By id, not by identity: SurveyEngine presents a resolved COPY of a
+    // conditional step and Step has no value equality, so indexOf would return
+    // -1. Every other member of this class already compares by id. (ADO #1045)
+    return task.steps.indexWhere((s) => s.id == step.id);
   }
 }
