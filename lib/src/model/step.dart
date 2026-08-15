@@ -95,4 +95,30 @@ class Step {
     }
     return json;
   }
+
+  /// Builds the resolved copy `SurveyEngine` presents: same step, with
+  /// [content] expanded and [answerFormat] made concrete.
+  ///
+  /// Public because `SurveyEngine` calls it from another library. Not
+  /// `@protected`: that annotation permits invocation only from the declaring
+  /// class or a subclass, and would make `flutter analyze --fatal-infos` fail
+  /// at the engine's call site.
+  ///
+  /// Override this in a `Step` subclass that adds state, or the copy downgrades
+  /// to a plain [Step] and that state is lost. The engine logs a warning when
+  /// the returned `runtimeType` differs from the input's, so a missing override
+  /// is diagnosable rather than silent. A subclass with no conditional content
+  /// and no conditional answer format never reaches this path — the engine
+  /// short-circuits on identity. (ADO #1045)
+  Step copyResolved({
+    required List<Content> content,
+    required AnswerFormat? answerFormat,
+  }) => Step(
+    id: id,
+    content: content,
+    isMandatory: isMandatory,
+    answerFormat: answerFormat,
+    buttonText: buttonText,
+    stepShell: stepShell,
+  );
 }
