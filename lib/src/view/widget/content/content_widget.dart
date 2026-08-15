@@ -31,13 +31,10 @@ class _ContentWidgetState extends State<ContentWidget> {
       config.variables,
     );
 
-    final resolvedContent = widget.content.expand((content) {
-      if (content is ConditionalContent) {
-        final resolved = content.resolveContent(variables);
-        return resolved != null ? [resolved] : <Content>[];
-      }
-      return [content];
-    }).toList();
+    // No conditional resolution here: SurveyEngine resolves the step before it
+    // reaches the state, so widget.content is already concrete. `variables` is
+    // still needed below for {{...}} interpolation in createWidget. (ADO #1045)
+    final resolvedContent = widget.content;
 
     final children = <Widget>[];
     for (final content in resolvedContent) {
