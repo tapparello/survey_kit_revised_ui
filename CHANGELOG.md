@@ -19,9 +19,31 @@
 - **BREAKING (behaviour): conditional content resolves once per presentation
   instead of once per rebuild.** Step answers only change at submission, which
   pushes a new state, and `ActionContext.variables` writes are contracted as
-  "visible to the next step", so the two coincide — except for a step whose
-  content branches on its *own* live answer, which previously updated as the user
-  answered and now resolves once on entry.
+  "visible to the next step", so the two normally coincide. Two things still
+  diverge: a step whose content branches on its *own* live answer, which
+  previously updated as the user answered and now resolves once on entry; and a
+  `CustomNavigationRule` handler that derives variables — `NavigationRuleHandler`
+  is explicitly sanctioned to do this, and `StepView.build` calls `hasNextStep`
+  on every render, which reaches the handler through `peekNextStep`, writing
+  into `task.variables`, the same map instance as `SurveyConfiguration.variables`.
+  Before this branch, `ContentWidget.build` ran later in the same frame and saw
+  those writes; now the step's content is resolved and frozen before `StepView`
+  builds. Not a regression for this package's own consumer: rule-derived keys
+  there are read only through `{{...}}` interpolation, which still re-resolves
+  on every rebuild.
+- **A recorded `StepResult` can outlive the format that produced it.**
+  Resolution now runs on every presentation, including back-navigation, so a
+  step whose format branches on an earlier answer can resolve to a different
+  `AnswerFormat` after the user changes that earlier answer via Back. Nothing
+  invalidates a `StepResult` recorded under the step's previous resolution: if
+  the restored value is rejected by the new view (e.g. `int.tryParse` fails on
+  a string typed under the old, text, resolution) `onChange` never fires, and if
+  the step is not mandatory the user can still press Next with
+  `questionAnswer.stepResult == null` — `SurveyEngine.addResult(null)` returns
+  early, so the stale result recorded under the old format survives into the
+  delivered `SurveyResult`. Not a coding defect; it is inherent to letting a
+  format branch on a mutable earlier answer, and it is new to this branch:
+  parse-time resolution could never change mid-run.
 - **`PresentingSurveyState` equality weakens for conditional steps.** It compares
   `currentStep` by reference, and a conditional step is now a fresh resolved copy
   per presentation, so two states for the same conditional step no longer compare
@@ -47,6 +69,13 @@
   identity, so it can no longer return `-1` for a step read back out of
   `PresentingSurveyState`. This also fixes the exported
   `SurveyStateProvider.currentStepIndex` passthrough.
+- **BREAKING (behaviour): the exported `ContentWidget` no longer resolves
+  conditional content.** It takes a bare `List<Content>` and now expects it to
+  already be resolved — resolution happens once, in `SurveyEngine`, before a
+  step reaches the widget tree. A consumer constructing `ContentWidget` directly
+  outside the engine's path (a preview screen, say) must resolve
+  `ConditionalContent` itself first, or a conditional branch renders as
+  `SizedBox.shrink()`.
 
 # 1.0.0-dev.19
 

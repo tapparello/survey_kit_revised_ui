@@ -2,6 +2,12 @@ import 'package:flutter/material.dart' hide Step;
 import 'package:survey_kit/src/util/content_variables.dart';
 import 'package:survey_kit/survey_kit.dart';
 
+/// Renders a list of [Content].
+///
+/// Expects [content] to already be resolved: `SurveyEngine` resolves any
+/// `ConditionalContent` before a step reaches the widget tree. Constructed
+/// directly with unresolved `ConditionalContent`, a conditional branch renders
+/// as `SizedBox.shrink()`. (ADO #1045)
 class ContentWidget extends StatefulWidget {
   const ContentWidget({
     super.key,
@@ -34,10 +40,8 @@ class _ContentWidgetState extends State<ContentWidget> {
     // No conditional resolution here: SurveyEngine resolves the step before it
     // reaches the state, so widget.content is already concrete. `variables` is
     // still needed below for {{...}} interpolation in createWidget. (ADO #1045)
-    final resolvedContent = widget.content;
-
     final children = <Widget>[];
-    for (final content in resolvedContent) {
+    for (final content in widget.content) {
       children.add(
         content.createWidget(
           variables: variables,
