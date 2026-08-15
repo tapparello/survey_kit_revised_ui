@@ -73,7 +73,6 @@ class NavigableTask extends Task {
                   (dynamic step) => Step.fromJson(
                     step as Map<String, dynamic>,
                     registries: registries,
-                    variables: variables,
                   ),
                 )
                 .toList()

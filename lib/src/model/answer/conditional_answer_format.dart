@@ -14,6 +14,12 @@ import 'package:survey_kit/src/model/answer/answer_format.dart';
 /// loudly when the task loads. Only the value lookup defers to present time —
 /// see [resolve], which cannot fail. (ADO #1045)
 class ConditionalAnswerFormat {
+  /// The wire discriminator. Spelled `conditional` to match
+  /// `ConditionalContent.type`, and deliberately *not* `custom`, which is
+  /// already `CustomNavigationRule`'s discriminator — one string with two
+  /// meanings across two factories is what this contract exists to remove.
+  static const discriminator = 'conditional';
+
   const ConditionalAnswerFormat({
     required this.variable,
     required this.variants,

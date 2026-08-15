@@ -2,7 +2,6 @@
 // live inside AnswerFormat._resolveConditional and ran at parse time; ADO #1045
 // splits it into shape validation here and value selection in SurveyEngine.
 import 'package:flutter_test/flutter_test.dart';
-import 'package:survey_kit/src/model/answer/conditional_answer_format.dart';
 import 'package:survey_kit/survey_kit.dart';
 
 /// A well-formed directive. Mirrors the consumer's real shape, including the

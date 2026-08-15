@@ -1,6 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:survey_kit/src/configuration/survey_registries.dart';
 import 'package:survey_kit/src/model/answer/answer_format.dart';
+import 'package:survey_kit/src/model/answer/conditional_answer_format.dart';
 import 'package:survey_kit/src/model/content/content.dart';
 import 'package:survey_kit/src/survey_kit.dart';
 import 'package:uuid/uuid.dart';
@@ -8,7 +9,7 @@ import 'package:uuid/uuid.dart';
 part 'step.g.dart';
 
 // createFactory: false — Step declares a hand-written fromJson (below) that
-// threads `registries` and `variables`. The generated factory could pass
+// threads `registries`. The generated factory could pass
 // neither, so it parsed content registry-less and forced Content.fromJson to
 // keep a shape-inference fallback for it. It had no callers. See ADO #1015.
 @JsonSerializable(createFactory: false)
@@ -16,6 +17,14 @@ class Step {
   final String id;
   final bool isMandatory;
   final AnswerFormat? answerFormat;
+
+  /// A validated but unresolved conditional directive. Mutually exclusive with
+  /// [answerFormat]; `SurveyEngine` resolves it when the step is presented.
+  ///
+  /// Excluded from codegen: `ConditionalAnswerFormat` is not a serialisable
+  /// type, and `toJson` below re-emits it under the `answerFormat` key instead.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  final ConditionalAnswerFormat? conditionalAnswerFormat;
   @JsonKey(defaultValue: 'Next', includeIfNull: false)
   final String? buttonText;
   final List<Content> content;
@@ -27,14 +36,19 @@ class Step {
     required this.content,
     this.isMandatory = true,
     this.answerFormat,
+    this.conditionalAnswerFormat,
     this.buttonText,
     this.stepShell,
-  }) : id = id ?? const Uuid().v4();
+  }) : id = id ?? const Uuid().v4(),
+       assert(
+         answerFormat == null || conditionalAnswerFormat == null,
+         'A step has either a concrete answerFormat or a conditional directive, '
+         'never both.',
+       );
 
   factory Step.fromJson(
     Map<String, dynamic> json, {
     SurveyRegistries? registries,
-    Map<String, dynamic> variables = const {},
   }) {
     // Registry first. Unlike the other dispatching factories, an absent or
     // unrecognised discriminator is not an error here — every built-in step
@@ -42,6 +56,11 @@ class Step {
     // resolveStep already returns null for a null or unregistered type.
     final custom = registries?.resolveStep(json);
     if (custom != null) return custom;
+
+    final rawFormat = json['answerFormat'] as Map<String, dynamic>?;
+    final isConditional =
+        rawFormat != null &&
+        rawFormat['type'] == ConditionalAnswerFormat.discriminator;
 
     return Step(
       id: json['id'] as String?,
@@ -54,15 +73,26 @@ class Step {
           )
           .toList(),
       isMandatory: json['isMandatory'] as bool? ?? true,
-      answerFormat: json['answerFormat'] == null
+      answerFormat: rawFormat == null || isConditional
           ? null
-          : AnswerFormat.fromJson(
-              json['answerFormat'] as Map<String, dynamic>,
-              variables: variables,
-            ),
+          : AnswerFormat.fromJson(rawFormat),
+      conditionalAnswerFormat: isConditional
+          ? ConditionalAnswerFormat.fromJson(rawFormat)
+          : null,
       buttonText: json['buttonText'] as String?,
     );
   }
 
-  Map<String, dynamic> toJson() => _$StepToJson(this);
+  Map<String, dynamic> toJson() {
+    final json = _$StepToJson(this);
+    final directive = conditionalAnswerFormat;
+    if (directive != null) {
+      // The generator emits null for answerFormat on a conditional step, which
+      // would lose the format entirely. Re-emit the authored directive — from
+      // the source map, so keys this package has no field for (the consumer's
+      // `formatId`) survive.
+      json['answerFormat'] = directive.sourceJson;
+    }
+    return json;
+  }
 }

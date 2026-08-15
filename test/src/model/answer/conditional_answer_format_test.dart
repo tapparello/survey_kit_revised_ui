@@ -1,13 +1,20 @@
+// The conditional directive's place in the PARSE pipeline. Selection itself is
+// tested in conditional_answer_format_parse_test.dart (unit) and
+// test/src/engine/engine_conditional_test.dart (end to end).
+//
+// Before ADO #1045 this file asserted that parsing RESOLVED the directive. It
+// no longer can: resolution moved to present time, and AnswerFormat.fromJson
+// cannot even return the directive type.
 import 'package:flutter_test/flutter_test.dart';
 import 'package:survey_kit/survey_kit.dart';
 
 Map<String, dynamic> conditional({
-  String variable = 'child',
-  String? defaultKey = 'Caroline',
+  Object? defaultKey = 'Caroline',
   Map<String, dynamic>? variants,
 }) => <String, dynamic>{
   'type': 'conditional',
-  'variable': variable,
+  'variable': 'child',
+  'formatId': 'child_function_answer',
   if (defaultKey != null) 'default': defaultKey,
   'variants':
       variants ??
@@ -17,193 +24,106 @@ Map<String, dynamic> conditional({
       },
 };
 
+Map<String, dynamic> stepJson() => <String, dynamic>{
+  'id': 's1',
+  'content': <dynamic>[],
+  'answerFormat': conditional(),
+};
+
 void main() {
-  group('resolution', () {
-    test('a matching variable selects its variant', () {
-      final format = AnswerFormat.fromJson(
-        conditional(),
-        variables: const <String, dynamic>{'child': 'Lilia'},
-      );
-      expect(format, isA<IntegerAnswerFormat>());
-      expect(format.answerType, AnswerFormatType.integer);
-    });
-
-    test('an absent variable falls to the declared default', () {
-      final format = AnswerFormat.fromJson(
-        conditional(),
-        variables: const <String, dynamic>{},
-      );
-      expect(format, isA<TextAnswerFormat>());
-    });
-
-    test('an unmatched variable falls to the declared default', () {
-      final format = AnswerFormat.fromJson(
-        conditional(),
-        variables: const <String, dynamic>{'child': 'Thomas'},
-      );
-      expect(format, isA<TextAnswerFormat>());
-    });
-
-    test('a non-string variable value is matched by its toString', () {
-      final format = AnswerFormat.fromJson(
-        conditional(
-          variants: <String, dynamic>{
-            '1': <String, dynamic>{'type': 'text'},
-            '2': <String, dynamic>{'type': 'integer'},
-          },
-          defaultKey: '1',
-        ),
-        variables: const <String, dynamic>{'child': 2},
-      );
-      expect(format, isA<IntegerAnswerFormat>());
-    });
-
-    test('no conditional value survives into the step', () {
-      // The whole point: question_answer.dart stamps step.answerFormat's
-      // discriminator onto every result, and _convert has no 'conditional'
-      // branch. Resolution at parse makes that unreachable by construction.
-      final step = Step.fromJson(
-        <String, dynamic>{
-          'id': 's1',
-          'content': <dynamic>[],
-          'answerFormat': conditional(),
-        },
-        variables: const <String, dynamic>{'child': 'Lilia'},
-      );
-      expect(step.answerFormat, isA<IntegerAnswerFormat>());
-      expect(step.answerFormat!.answerType, AnswerFormatType.integer);
-    });
+  test('AnswerFormat.fromJson rejects a bare directive', () {
+    // It returns AnswerFormat and structurally cannot return the directive
+    // type, so the dispatch lives in Step.fromJson. Reaching this arm means a
+    // directive was parsed outside a step.
+    expect(
+      () => AnswerFormat.fromJson(conditional()),
+      throwsA(isA<MalformedValueException>()),
+    );
   });
 
-  group('Task.fromJson threads its variables into Step.fromJson', () {
-    // Both OrderedTask.fromJson and NavigableTask.fromJson read
-    // json['variables'] and pass it to every Step.fromJson call. Nothing else
-    // exercises that link, so a dropped `variables: variables` at either call
-    // site would compile, keep every other test green, and silently resolve
-    // every conditional answer format to its `default` variant instead.
-    test('an OrderedTask resolves a non-default variant on its step', () {
+  test('Step.fromJson stores the directive and leaves answerFormat null', () {
+    // The invariant that used to hold by timing now holds by type:
+    // question_answer.dart stamps step.answerFormat's discriminator onto every
+    // result, and StepResult._convert has no 'conditional' branch. A directive
+    // is not an AnswerFormat, so it cannot reach either.
+    final step = Step.fromJson(stepJson());
+
+    expect(step.answerFormat, isNull);
+    expect(step.conditionalAnswerFormat, isNotNull);
+    expect(step.conditionalAnswerFormat!.variable, 'child');
+  });
+
+  test('a non-conditional answer format still parses concretely', () {
+    final step = Step.fromJson(<String, dynamic>{
+      'id': 's1',
+      'content': <dynamic>[],
+      'answerFormat': <String, dynamic>{'type': 'integer'},
+    });
+
+    expect(step.answerFormat, isA<IntegerAnswerFormat>());
+    expect(step.conditionalAnswerFormat, isNull);
+  });
+
+  group('Task.fromJson carries the directive onto its steps', () {
+    // Replaces the old 'threads its variables' group, which guarded a link that
+    // no longer exists. The equivalent end-to-end guard — that a variant is
+    // actually selected — moved to engine_conditional_test.dart.
+    test('an OrderedTask', () {
       final task = Task.fromJson(<String, dynamic>{
         'type': 'ordered',
         'id': 'ordered-task',
         'variables': const <String, dynamic>{'child': 'Lilia'},
-        'steps': <dynamic>[
-          <String, dynamic>{
-            'id': 's1',
-            'content': const <dynamic>[],
-            'answerFormat': conditional(),
-          },
-        ],
+        'steps': <dynamic>[stepJson()],
       });
-      final step = task.steps.single;
-      expect(step.answerFormat, isA<IntegerAnswerFormat>());
-      expect(step.answerFormat!.answerType, AnswerFormatType.integer);
+
+      expect(task.steps.single.conditionalAnswerFormat, isNotNull);
+      expect(task.steps.single.answerFormat, isNull);
+      expect(task.variables, <String, dynamic>{'child': 'Lilia'});
     });
 
-    test('a NavigableTask resolves a non-default variant on its step', () {
+    test('a NavigableTask', () {
       final task = Task.fromJson(<String, dynamic>{
         'type': 'navigable',
         'id': 'navigable-task',
         'variables': const <String, dynamic>{'child': 'Lilia'},
+        'steps': <dynamic>[stepJson()],
+      });
+
+      expect(task.steps.single.conditionalAnswerFormat, isNotNull);
+      expect(task.steps.single.answerFormat, isNull);
+      expect(task.variables, <String, dynamic>{'child': 'Lilia'});
+    });
+  });
+
+  test('a malformed directive still fails loudly at Task.fromJson', () {
+    // The end-to-end loudness property. The per-case validation lives in
+    // conditional_answer_format_parse_test.dart; this asserts the failure still
+    // surfaces when the task LOADS, not mid-survey.
+    expect(
+      () => Task.fromJson(<String, dynamic>{
+        'type': 'ordered',
+        'id': 'ordered-task',
         'steps': <dynamic>[
           <String, dynamic>{
             'id': 's1',
             'content': const <dynamic>[],
-            'answerFormat': conditional(),
+            'answerFormat': conditional(defaultKey: 'Nobody'),
           },
         ],
-      });
-      final step = task.steps.single;
-      expect(step.answerFormat, isA<IntegerAnswerFormat>());
-      expect(step.answerFormat!.answerType, AnswerFormatType.integer);
-    });
+      }),
+      throwsA(isA<MalformedValueException>()),
+    );
   });
 
-  group('malformed conditionals throw MalformedValueException', () {
-    test('missing variable', () {
-      final json = conditional()..remove('variable');
-      expect(
-        () => AnswerFormat.fromJson(json),
-        throwsA(
-          isA<MalformedValueException>().having(
-            (e) => e.field,
-            'field',
-            'variable',
-          ),
-        ),
-      );
-    });
+  test('Step.toJson re-emits the directive verbatim', () {
+    // Generated toJson would emit null here, losing the format. The override
+    // patches the one key from the retained source map, so formatId survives —
+    // which reconstructing from the parsed fields could not do.
+    final json = Step.fromJson(stepJson()).toJson();
+    final format = json['answerFormat'] as Map<String, dynamic>;
 
-    test('missing variants', () {
-      final json = conditional()..remove('variants');
-      expect(
-        () => AnswerFormat.fromJson(json),
-        throwsA(
-          isA<MalformedValueException>().having(
-            (e) => e.field,
-            'field',
-            'variants',
-          ),
-        ),
-      );
-    });
-
-    test('missing default', () {
-      // Required deliberately. The consumer's preprocessing fell back to
-      // `variants.values.first`, which makes behaviour depend on JSON key
-      // order. Requiring `default` makes the fallback authored.
-      final json = conditional(defaultKey: null);
-      expect(
-        () => AnswerFormat.fromJson(json),
-        throwsA(
-          isA<MalformedValueException>().having(
-            (e) => e.field,
-            'field',
-            'default',
-          ),
-        ),
-      );
-    });
-
-    test('default naming a key absent from variants', () {
-      // Caught at parse, so an authoring typo fails when the survey loads
-      // rather than when a user reaches the step.
-      final json = conditional(defaultKey: 'Nobody');
-      expect(
-        () => AnswerFormat.fromJson(json),
-        throwsA(
-          isA<MalformedValueException>()
-              .having((e) => e.field, 'field', 'default')
-              .having((e) => e.value, 'value', 'Nobody'),
-        ),
-      );
-    });
-
-    test('a variant that is not an object', () {
-      final json = conditional(
-        variants: <String, dynamic>{'Caroline': 'not-an-object'},
-      );
-      expect(
-        () => AnswerFormat.fromJson(json),
-        throwsA(isA<MalformedValueException>()),
-      );
-    });
-  });
-
-  test('an unknown variant type still throws UnknownTypeException', () {
-    // The variant is parsed through the normal dispatch, so it inherits the
-    // same contract.
-    final json = conditional(
-      variants: <String, dynamic>{
-        'Caroline': <String, dynamic>{'type': 'no-such-format'},
-      },
-    );
-    expect(
-      () => AnswerFormat.fromJson(json),
-      throwsA(
-        isA<UnknownTypeException>()
-            .having((e) => e.kind, 'kind', 'AnswerFormat')
-            .having((e) => e.discriminator, 'discriminator', 'no-such-format'),
-      ),
-    );
+    expect(format['type'], 'conditional');
+    expect(format['formatId'], 'child_function_answer');
+    expect(format['variants'], isA<Map<String, dynamic>>());
   });
 }
