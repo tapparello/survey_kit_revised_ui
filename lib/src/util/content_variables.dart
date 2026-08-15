@@ -1,4 +1,5 @@
 import 'package:survey_kit/src/model/answer/text_choice.dart';
+import 'package:survey_kit/src/model/result/step_result.dart';
 
 /// Extracts a single step result's answer into a template-friendly value
 /// (`String`, `List<String>`, `num`, `bool`) or `null` if it cannot be
@@ -37,4 +38,22 @@ Map<String, dynamic> mergeContentVariables(
   Map<String, dynamic> configVariables,
 ) {
   return {...stepAnswers, ...configVariables};
+}
+
+/// Builds the merged variables map from a run's [results] and its
+/// [configVariables] — the task's `variables`.
+///
+/// Shared by `ContentWidget` and `SurveyEngine`: conditional content and
+/// conditional answer formats resolve against the same map, which is the point
+/// of ADO #1045. `Iterable`, not `List`, because the engine holds a `Set`.
+Map<String, dynamic> resolveVariables(
+  Iterable<StepResult> results,
+  Map<String, dynamic> configVariables,
+) {
+  final stepAnswers = <String, dynamic>{};
+  for (final r in results) {
+    final value = extractAnswerValue(r.result);
+    if (value != null) stepAnswers[r.id] = value;
+  }
+  return mergeContentVariables(stepAnswers, configVariables);
 }

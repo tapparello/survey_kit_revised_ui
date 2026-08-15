@@ -26,12 +26,10 @@ class _ContentWidgetState extends State<ContentWidget> {
     // Overlay current-section step answers (keyed by step id) UNDER the
     // pre-populated config variables, so {{stepId}} / conditional variable:"stepId"
     // resolve to prior in-section answers. Config variables win on collisions.
-    final stepAnswers = <String, dynamic>{};
-    for (final r in SurveyStateProvider.of(context).results) {
-      final value = extractAnswerValue(r.result);
-      if (value != null) stepAnswers[r.id] = value;
-    }
-    final variables = mergeContentVariables(stepAnswers, config.variables);
+    final variables = resolveVariables(
+      SurveyStateProvider.of(context).results,
+      config.variables,
+    );
 
     final resolvedContent = widget.content.expand((content) {
       if (content is ConditionalContent) {
