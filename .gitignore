@@ -45,6 +45,7 @@ coverage/
 
 # Local tooling scratch space
 .superpowers/
+.understand-anything/
 
 # Private planning docs - specs and implementation plans stay local only.
 # They contain absolute paths, internal project names, and other details that
