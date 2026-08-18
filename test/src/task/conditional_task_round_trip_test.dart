@@ -99,6 +99,11 @@ void main() {
         final secondJson = back.toJson();
         // The directive intact AND byte-identical across a WHOLE-TASK round
         // trip, at exactly the granularity Gap 2 is about: the `steps` list.
+        // Narrowed to `steps` rather than the whole map because
+        // OrderedTask's generated toJson() also serializes `hashCode`, which
+        // is not stable across instances — comparing the whole map would
+        // make this test flaky for a reason that has nothing to do with
+        // whether the directive round-trips.
         expect(secondJson['steps'], firstJson['steps']);
       });
     }
