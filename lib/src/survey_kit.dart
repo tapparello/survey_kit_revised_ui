@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart' hide Step;
+import 'package:survey_kit/src/configuration/step_shell.dart';
 import 'package:survey_kit/src/configuration/survey_configuration.dart';
 import 'package:survey_kit/src/configuration/survey_handler_failure.dart';
 import 'package:survey_kit/src/configuration/survey_registries.dart';
@@ -13,7 +14,6 @@ import 'package:survey_kit/src/exception/survey_kit_exception.dart';
 import 'package:survey_kit/src/model/content/styled_text_content.dart';
 import 'package:survey_kit/src/model/result/step_result.dart';
 import 'package:survey_kit/src/model/result/survey_result.dart';
-import 'package:survey_kit/src/model/step.dart';
 import 'package:survey_kit/src/navigator/navigable_task_navigator.dart';
 import 'package:survey_kit/src/navigator/ordered_task_navigator.dart';
 import 'package:survey_kit/src/navigator/task_navigator.dart';
@@ -28,9 +28,6 @@ import 'package:survey_kit/src/widget/survey_app_bar.dart';
 import 'package:survey_kit/src/widget/survey_feedback_dialog.dart';
 import 'package:survey_kit/src/widget/survey_kit_page_route_builder.dart';
 import 'package:survey_kit/src/widget/survey_progress_configuration.dart';
-
-typedef StepShell =
-    Widget Function(Step step, Widget? answerWidget, BuildContext context);
 
 class SurveyKit extends StatefulWidget {
   /// [Task] for the configuraton of the survey
