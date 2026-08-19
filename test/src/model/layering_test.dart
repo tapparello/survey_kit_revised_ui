@@ -32,6 +32,10 @@ void main() {
     'package:survey_kit/src/view/': {},
     'package:survey_kit/survey_kit.dart': {},
     'package:survey_kit/src/survey_kit.dart': {},
+    // src/view/ is not the only widget directory: src/widget/ holds nine more
+    // widget-building files. Banning one and not the other left the rule true
+    // by luck rather than by construction.
+    'package:survey_kit/src/widget/': {},
     // TimeOfDay has no narrower home than material. Replacing these two held
     // Flutter value types is a follow-up item, deliberately not Phase 3e.
     'package:flutter/material.dart': {

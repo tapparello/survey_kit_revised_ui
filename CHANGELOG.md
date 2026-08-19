@@ -22,9 +22,18 @@
   rendered itself now registers a renderer in `SurveyRegistries.contentRenderers`,
   keyed by the same JSON discriminator it parses under. A registered content type
   with no renderer throws `UnregisteredRendererException` when it is rendered.
+  A renderer is a `Widget Function(Content content, ContentRenderContext context)`;
+  the `variables` and `contentStyles` that `createWidget` received as named
+  parameters are now `context.variables` and `context.contentStyles`, and
+  `context.render` renders a nested `Content`.
 - **BREAKING: `AnswerFormat.createView` is deleted.** The 14 built-in answer
   views moved to an internal table keyed by `AnswerFormatType`. There is no
   override map: answer discriminators are a closed set.
+  A consumer-defined `AnswerFormat` subclass can therefore no longer supply its
+  own view: it resolves to the built-in view for whichever `AnswerFormatType` its
+  `answerType` returns, which throws `AnswerFormatMismatchException` at render
+  time rather than failing to compile. Custom *content* remains the extension
+  point.
 - **Nested rendering is preserved, not lost.** `createWidget` let any `Content`
   render any other, because it was a method on the base class. Registered
   renderers get the same reach through `ContentRenderContext.render`, which
@@ -33,12 +42,15 @@
 - **Consumers can now override a built-in renderer.** `contentRenderers` is
   consulted before the built-in table, the same precedence `Content.fromJson`
   already uses for parsers.
+  An override replaces the built-in rather than wrapping it: the built-in table
+  is not exported, so a renderer cannot delegate to the one it shadows. Reaching
+  built-in renderers for nested *children* still works through `context.render`.
 - **No file under `lib/src/model/` builds a widget.** 25 renderers moved out, and
   `test/src/model/layering_test.dart` pins five import routes shut — including
-  the public barrel, which re-exports twelve view widgets, and `src/survey_kit.dart`,
-  which `step.dart` imported for one typedef. `TimeOfDay`, `BoxFit` and
-  `TextAlign` remain as model *fields*; replacing those held Flutter value types
-  is a follow-up item.
+  the public barrel, which re-exports the answer views and content widgets,
+  and `src/survey_kit.dart`, which `step.dart` imported for one typedef.
+  `TimeOfDay`, `BoxFit` and `TextAlign` remain as model *fields*; replacing
+  those held Flutter value types is a follow-up item.
 - `typedef StepShell` moves to `lib/src/configuration/step_shell.dart`. Still
   exported from the barrel under the same name and signature — no consumer change.
 
