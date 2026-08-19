@@ -1,3 +1,47 @@
+# 1.0.0-dev.21
+
+- **BREAKING: `ContentFactory` and `StepFactory` gain a `registries` parameter.**
+  Every `customContentTypes` / `customStepTypes` entry changes from
+  `(json) => Foo.fromJson(json)` to `(json, {registries}) => Foo.fromJson(json)`.
+  Dart function subtyping tolerates extra optional named parameters but not
+  missing ones, so this is a compile error rather than a silent mismatch. The
+  parameter exists so a custom type can resolve nested content —
+  `Content.fromJson(json['child'], registries: registries)` — including other
+  custom types, to any depth. `variables` is **not** part of the parse contract;
+  Phase 3d removed it.
+- **A custom factory must parse its children, not itself.** `resolveContent` and
+  `resolveStep` forward the registries they were called on, which is what lets
+  custom types nest to any depth. It also means a factory that re-enters
+  `Content.fromJson` or `Step.fromJson` with the *same* JSON map hits the same
+  registry entry again and recurses without bound. There is no depth guard, by
+  the same choice made for renderers: register a factory that constructs its
+  type directly, and call `fromJson` only on nested values. Passing a
+  dispatching `fromJson` as its own handler is the trap — it terminated before
+  this release only because the factory received no registries to recurse with.
+- **BREAKING: `Content.createWidget` is deleted.** A `Content` subclass that
+  rendered itself now registers a renderer in `SurveyRegistries.contentRenderers`,
+  keyed by the same JSON discriminator it parses under. A registered content type
+  with no renderer throws `UnregisteredRendererException` when it is rendered.
+- **BREAKING: `AnswerFormat.createView` is deleted.** The 14 built-in answer
+  views moved to an internal table keyed by `AnswerFormatType`. There is no
+  override map: answer discriminators are a closed set.
+- **Nested rendering is preserved, not lost.** `createWidget` let any `Content`
+  render any other, because it was a method on the base class. Registered
+  renderers get the same reach through `ContentRenderContext.render`, which
+  resolves through the registry the renderer itself came from. There is no cycle
+  guard — content that renders itself overflows the stack, as before.
+- **Consumers can now override a built-in renderer.** `contentRenderers` is
+  consulted before the built-in table, the same precedence `Content.fromJson`
+  already uses for parsers.
+- **No file under `lib/src/model/` builds a widget.** 25 renderers moved out, and
+  `test/src/model/layering_test.dart` pins five import routes shut — including
+  the public barrel, which re-exports twelve view widgets, and `src/survey_kit.dart`,
+  which `step.dart` imported for one typedef. `TimeOfDay`, `BoxFit` and
+  `TextAlign` remain as model *fields*; replacing those held Flutter value types
+  is a follow-up item.
+- `typedef StepShell` moves to `lib/src/configuration/step_shell.dart`. Still
+  exported from the barrel under the same name and signature — no consumer change.
+
 # 1.0.0-dev.20
 
 - **BREAKING: `Step.fromJson` and `AnswerFormat.fromJson` lose their `variables`
