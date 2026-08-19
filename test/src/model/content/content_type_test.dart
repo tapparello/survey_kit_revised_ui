@@ -80,7 +80,8 @@ void main() {
     test('a registered custom type still wins over the built-ins', () {
       final registries = SurveyRegistries(
         customContentTypes: {
-          'pdf': (json) => const TextContent(text: 'stand-in for pdf'),
+          'pdf': (json, {registries}) =>
+              const TextContent(text: 'stand-in for pdf'),
         },
       );
       final content = Content.fromJson(const <String, dynamic>{
@@ -95,7 +96,7 @@ void main() {
       // the new throw-on-unknown would then surface as a load failure.
       final registries = SurveyRegistries(
         customContentTypes: {
-          'pdf': (json) => const TextContent(text: 'nested pdf'),
+          'pdf': (json, {registries}) => const TextContent(text: 'nested pdf'),
         },
       );
       final content =

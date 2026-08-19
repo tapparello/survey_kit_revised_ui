@@ -51,6 +51,21 @@ Widget _probeRenderer(Content content, ContentRenderContext context) =>
 // rejects the annotation on a local, but the annotation IS the guard.
 const ContentRenderer _pinnedRenderer = _probeRenderer;
 
+Content _probeContentFactory(
+  Map<String, dynamic> json, {
+  SurveyRegistries? registries,
+}) => const StyledTextContent(text: 'probe');
+
+Step _probeStepFactory(
+  Map<String, dynamic> json, {
+  SurveyRegistries? registries,
+}) => Step(id: 'probe', content: const []);
+
+// Declared at file scope, not inside a test body: `omit_local_variable_types`
+// rejects the annotation on a local, but the annotation IS the guard.
+const ContentFactory _pinnedContentFactory = _probeContentFactory;
+const StepFactory _pinnedStepFactory = _probeStepFactory;
+
 void main() {
   test('TimeResult is constructible and round-trips through JSON', () {
     const result = TimeResult(timeOfDay: TimeOfDay(hour: 9, minute: 30));
@@ -249,5 +264,10 @@ void main() {
       ),
       isA<SizedBox>(),
     );
+  });
+
+  test('factory typedefs carry the parse context', () {
+    expect(_pinnedContentFactory({'type': 'x'}), isA<Content>());
+    expect(_pinnedStepFactory({'type': 'x'}), isA<Step>());
   });
 }
