@@ -3,8 +3,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:survey_kit/src/model/content/content_type.dart';
 import 'package:survey_kit/src/view/render/content_renderers.dart';
 import 'package:survey_kit/src/view/widget/content/audio_widget.dart';
+import 'package:survey_kit/src/view/widget/content/image_widget.dart';
 import 'package:survey_kit/src/view/widget/content/lottie_widget.dart';
+import 'package:survey_kit/src/view/widget/content/markdown_widget.dart';
 import 'package:survey_kit/src/view/widget/content/section_widget.dart';
+import 'package:survey_kit/src/view/widget/content/separator_widget.dart';
+import 'package:survey_kit/src/view/widget/content/styled_text_widget.dart';
 import 'package:survey_kit/survey_kit.dart';
 
 /// A custom content type with children, standing in for a consumer composite.
@@ -244,5 +248,61 @@ void main() {
         isA<VideoWidget>(),
       );
     });
+
+    test('renderImageContent builds an ImageWidget', () {
+      expect(
+        renderImageContent(const ImageContent(url: 'a.png'), _context()),
+        isA<ImageWidget>(),
+      );
+    });
+
+    test('renderSeparatorContent builds a SeparatorWidget', () {
+      expect(
+        renderSeparatorContent(const SeparatorContent(), _context()),
+        isA<SeparatorWidget>(),
+      );
+    });
+
+    test('renderMarkdownContent interpolates variables into the text', () {
+      final widget = renderMarkdownContent(
+        const MarkdownContent(text: 'Hello {{name}}'),
+        _context(variables: {'name': 'World'}),
+      );
+
+      expect(widget, isA<MarkdownWidget>());
+      expect((widget as MarkdownWidget).markdownContent.text, 'Hello World');
+    });
+  });
+
+  group('renderStyledTextContent', () {
+    test(
+      "a matching contentStyles entry wins over the content's own style",
+      () {
+        const content = StyledTextContent(
+          text: 'hello',
+          style: 'highlight',
+          fontSize: 16,
+          bold: false,
+        );
+        const namedStyle = StyledTextContent(
+          text: 'unused: only style properties are read',
+          fontSize: 30,
+          bold: true,
+        );
+
+        final widget = renderStyledTextContent(
+          content,
+          _context(contentStyles: {'highlight': namedStyle}),
+        );
+
+        expect(widget, isA<StyledTextWidget>());
+        final rendered = (widget as StyledTextWidget).content;
+        // The named style's properties win...
+        expect(rendered.fontSize, 30);
+        expect(rendered.bold, isTrue);
+        // ...but the text still comes from the content being rendered.
+        expect(rendered.text, 'hello');
+      },
+    );
   });
 }
