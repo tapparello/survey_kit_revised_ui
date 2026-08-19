@@ -267,7 +267,16 @@ void main() {
   });
 
   test('factory typedefs carry the parse context', () {
-    expect(_pinnedContentFactory({'type': 'x'}), isA<Content>());
-    expect(_pinnedStepFactory({'type': 'x'}), isA<Step>());
+    // `registries:` is passed explicitly because that is the entire guard.
+    // Dart tolerates a function with EXTRA optional named parameters being
+    // assigned to a type without them, so the const declarations above still
+    // compile if the typedefs lose `{registries}` - the assignment proves
+    // nothing. Naming the argument at the call site is what fails to compile
+    // when the parameter goes away. Do not "simplify" these calls.
+    expect(
+      _pinnedContentFactory({'type': 'x'}, registries: null),
+      isA<Content>(),
+    );
+    expect(_pinnedStepFactory({'type': 'x'}, registries: null), isA<Step>());
   });
 }
