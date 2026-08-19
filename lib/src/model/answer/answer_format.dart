@@ -1,10 +1,7 @@
-import 'package:flutter/material.dart' hide Step;
 import 'package:json_annotation/json_annotation.dart';
 import 'package:survey_kit/src/exception/survey_kit_exception.dart';
 import 'package:survey_kit/src/model/answer/answer_format_type.dart';
 import 'package:survey_kit/src/model/answer/conditional_answer_format.dart';
-import 'package:survey_kit/src/model/result/step_result.dart';
-import 'package:survey_kit/src/model/step.dart';
 
 abstract class AnswerFormat {
   const AnswerFormat({this.question});
@@ -32,8 +29,6 @@ abstract class AnswerFormat {
   AnswerFormatType get answerType;
 
   Map<String, dynamic> toJson();
-
-  Widget createView(Step step, StepResult? stepResult);
 
   factory AnswerFormat.fromJson(Map<String, dynamic> json) {
     final type = json['type'] as String?;

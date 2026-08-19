@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart' hide Step;
 import 'package:json_annotation/json_annotation.dart';
-import 'package:survey_kit/survey_kit.dart';
+import 'package:survey_kit/src/model/answer/answer_format.dart';
+import 'package:survey_kit/src/model/answer/answer_format_type.dart';
+import 'package:survey_kit/src/model/answer/text_choice.dart';
 
 part 'single_choice_answer_with_feedback_format.g.dart';
 
@@ -32,12 +33,4 @@ class SingleChoiceAnswerWithFeedbackFormat extends AnswerFormat {
   @override
   Map<String, dynamic> toJson() =>
       _$SingleChoiceAnswerWithFeedbackFormatToJson(this);
-
-  @override
-  Widget createView(Step step, StepResult? stepResult) {
-    return SingleChoiceAnswerWithFeedbackView(
-      questionStep: step,
-      result: stepResult,
-    );
-  }
 }
