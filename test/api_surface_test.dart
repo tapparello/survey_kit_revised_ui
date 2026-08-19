@@ -44,6 +44,13 @@ Widget _probeShell(Step step, Widget? answerWidget, BuildContext context) =>
 // but the annotation IS the guard - it pins StepShell's exact signature.
 const StepShell _pinnedShell = _probeShell;
 
+Widget _probeRenderer(Content content, ContentRenderContext context) =>
+    const SizedBox.shrink();
+
+// Declared at file scope, not inside a test body: `omit_local_variable_types`
+// rejects the annotation on a local, but the annotation IS the guard.
+const ContentRenderer _pinnedRenderer = _probeRenderer;
+
 void main() {
   test('TimeResult is constructible and round-trips through JSON', () {
     const result = TimeResult(timeOfDay: TimeOfDay(hour: 9, minute: 30));
@@ -196,5 +203,51 @@ void main() {
     ]) {
       expect(e.toString(), contains(e.message));
     }
+  });
+
+  test('content renderers are registrable through the public API', () {
+    Widget custom(Content content, ContentRenderContext context) =>
+        const SizedBox.shrink();
+    const pinned = SurveyRegistries();
+    final registries = SurveyRegistries(contentRenderers: {'pdf': custom});
+
+    expect(pinned.contentRenderers, isEmpty);
+    expect(registries.contentRenderers['pdf'], isNotNull);
+    expect(
+      registries.contentRenderers['pdf']!(
+        const StyledTextContent(text: 'x'),
+        ContentRenderContext(
+          variables: const {},
+          contentStyles: null,
+          render: (_) => const SizedBox.shrink(),
+        ),
+      ),
+      isA<SizedBox>(),
+    );
+  });
+
+  test('UnregisteredRendererException is public and structured', () {
+    const failure = UnregisteredRendererException(
+      kind: 'Content',
+      discriminator: 'pdf',
+    );
+
+    expect(failure, isA<SurveyKitException>());
+    expect(failure.discriminator, 'pdf');
+    expect(failure.message, contains('pdf'));
+  });
+
+  test('ContentRenderer signature is pinned', () {
+    expect(
+      _pinnedRenderer(
+        const StyledTextContent(text: 'x'),
+        ContentRenderContext(
+          variables: const {},
+          contentStyles: null,
+          render: (_) => const SizedBox.shrink(),
+        ),
+      ),
+      isA<SizedBox>(),
+    );
   });
 }

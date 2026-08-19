@@ -1,4 +1,5 @@
 import 'package:survey_kit/src/configuration/action_context.dart';
+import 'package:survey_kit/src/configuration/content_renderer.dart';
 import 'package:survey_kit/src/model/content/content.dart';
 import 'package:survey_kit/src/model/result/step_result.dart';
 import 'package:survey_kit/src/model/step.dart';
@@ -46,11 +47,21 @@ class SurveyRegistries {
   final Map<String, NavigationRuleHandler> customNavigationRules;
   final Map<String, ActionHandler> actionHandlers;
 
+  /// Renderers for content types, consulted before the built-in table.
+  ///
+  /// Independent of [customContentTypes] rather than bundled with it: a parse
+  /// site that never renders — a JSON validation test, or a resolver that only
+  /// calls `Task.fromJson` — would otherwise have to supply a renderer it never
+  /// invokes. The cost is that a registered type can lack a renderer, which
+  /// `UnregisteredRendererException` reports.
+  final Map<String, ContentRenderer> contentRenderers;
+
   const SurveyRegistries({
     this.customContentTypes = const {},
     this.customStepTypes = const {},
     this.customNavigationRules = const {},
     this.actionHandlers = const {},
+    this.contentRenderers = const {},
   });
 
   Content? resolveContent(Map<String, dynamic> json) {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' hide Step;
 import 'package:survey_kit/src/util/content_variables.dart';
+import 'package:survey_kit/src/view/render/content_renderers.dart';
 import 'package:survey_kit/survey_kit.dart';
 
 /// Renders a list of [Content].
@@ -37,17 +38,25 @@ class _ContentWidgetState extends State<ContentWidget> {
       config.variables,
     );
 
+    // One closure, reused for every content in this build and handed to each
+    // renderer as `context.render`, so a composite content resolves its
+    // children through the same registry it was resolved from.
+    Widget renderContent(Content content) =>
+        contentRendererFor(content.contentType, config.registries)(
+          content,
+          ContentRenderContext(
+            variables: variables,
+            contentStyles: contentStyles,
+            render: renderContent,
+          ),
+        );
+
     // No conditional resolution here: SurveyEngine resolves the step before it
     // reaches the state, so widget.content is already concrete. `variables` is
-    // still needed below for {{...}} interpolation in createWidget. (ADO #1045)
+    // still needed below for {{...}} interpolation. (ADO #1045)
     final children = <Widget>[];
     for (final content in widget.content) {
-      children.add(
-        content.createWidget(
-          variables: variables,
-          contentStyles: contentStyles,
-        ),
-      );
+      children.add(renderContent(content));
       // Append the 14px separator AFTER each content unless it opts out.
       // Default separatorAfter==true reproduces the previous behavior exactly
       // (including the trailing separator after the last content).
