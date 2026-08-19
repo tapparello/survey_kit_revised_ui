@@ -22,14 +22,6 @@ class _CompositeContent extends Content {
 
   @override
   Map<String, dynamic> toJson() => {'type': contentType};
-
-  // Required only until Task 5 deletes Content.createWidget; that task removes
-  // this override and the one on _LeafContent below.
-  @override
-  Widget createWidget({
-    Map<String, dynamic> variables = const {},
-    Map<String, StyledTextContent>? contentStyles,
-  }) => const SizedBox.shrink();
 }
 
 class _LeafContent extends Content {
@@ -37,12 +29,6 @@ class _LeafContent extends Content {
 
   @override
   Map<String, dynamic> toJson() => {'type': contentType};
-
-  @override
-  Widget createWidget({
-    Map<String, dynamic> variables = const {},
-    Map<String, StyledTextContent>? contentStyles,
-  }) => const SizedBox.shrink();
 }
 
 ContentRenderContext _context({

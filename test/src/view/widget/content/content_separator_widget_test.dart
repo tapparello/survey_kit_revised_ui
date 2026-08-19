@@ -28,12 +28,6 @@ class _ProbeContent extends Content {
 
   @override
   Map<String, dynamic> toJson() => {'type': contentType};
-
-  @override
-  Widget createWidget({
-    Map<String, dynamic> variables = const {},
-    Map<String, StyledTextContent>? contentStyles,
-  }) => const SizedBox.shrink();
 }
 
 class _CompositeProbeContent extends Content {
@@ -43,12 +37,6 @@ class _CompositeProbeContent extends Content {
 
   @override
   Map<String, dynamic> toJson() => {'type': contentType};
-
-  @override
-  Widget createWidget({
-    Map<String, dynamic> variables = const {},
-    Map<String, StyledTextContent>? contentStyles,
-  }) => const SizedBox.shrink();
 }
 
 void main() {
@@ -104,8 +92,9 @@ void main() {
     // This test guards against resolution regressions: if resolution stops
     // happening anywhere in the pipeline (ContentWidget, SurveyEngine, etc.),
     // the resolved text "resolved_branch" will not appear, and the test fails.
-    // The unresolved ConditionalContent.createWidget() returns SizedBox.shrink(),
-    // so the absence of the resolved text is discriminating.
+    // The unresolved ConditionalContent renders via renderConditionalContent,
+    // which returns SizedBox.shrink(), so the absence of the resolved text is
+    // discriminating.
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(

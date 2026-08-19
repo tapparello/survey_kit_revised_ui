@@ -1,7 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:survey_kit/src/view/widget/content/section_widget.dart';
-import 'package:survey_kit/survey_kit.dart';
+import 'package:survey_kit/src/model/content/content.dart';
+import 'package:survey_kit/src/model/content/styled_text_content.dart';
 
 part 'section_content.g.dart';
 
@@ -24,28 +23,6 @@ class SectionContent extends Content {
 
   @override
   Map<String, dynamic> toJson() => _$SectionContentToJson(this);
-
-  @override
-  Widget createWidget({
-    Map<String, dynamic> variables = const {},
-    Map<String, StyledTextContent>? contentStyles,
-  }) {
-    if (variables.isEmpty && contentStyles == null) {
-      return SectionWidget(sectionContent: this);
-    }
-    // Pass variables and styles through to each child
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: toList
-          .map(
-            (e) => e.createWidget(
-              variables: variables,
-              contentStyles: contentStyles,
-            ),
-          )
-          .toList(),
-    );
-  }
 }
 
 extension SectionContentExt on SectionContent {

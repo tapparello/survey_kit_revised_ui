@@ -1,8 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:survey_kit/src/model/content/content.dart';
-import 'package:survey_kit/src/model/content/styled_text_content.dart';
-import 'package:survey_kit/src/view/widget/content/audio_widget.dart';
 
 part 'audio_content.g.dart';
 
@@ -27,12 +24,4 @@ class AudioContent extends Content {
 
   @override
   Map<String, dynamic> toJson() => _$AudioContentToJson(this);
-
-  @override
-  Widget createWidget({
-    Map<String, dynamic> variables = const {},
-    Map<String, StyledTextContent>? contentStyles,
-  }) {
-    return AudioWidget(audioContent: this);
-  }
 }

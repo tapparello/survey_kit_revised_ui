@@ -1,8 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:survey_kit/src/model/content/content.dart';
-import 'package:survey_kit/src/model/content/styled_text_content.dart';
-import 'package:survey_kit/src/view/widget/content/video_widget.dart';
 
 part 'video_content.g.dart';
 
@@ -37,12 +34,4 @@ class VideoContent extends Content {
 
   @override
   Map<String, dynamic> toJson() => _$VideoContentToJson(this);
-
-  @override
-  Widget createWidget({
-    Map<String, dynamic> variables = const {},
-    Map<String, StyledTextContent>? contentStyles,
-  }) {
-    return VideoWidget(videoContent: this);
-  }
 }

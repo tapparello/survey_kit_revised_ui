@@ -1,9 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:survey_kit/src/configuration/survey_registries.dart';
 import 'package:survey_kit/src/exception/survey_kit_exception.dart';
 import 'package:survey_kit/src/model/content/content_type.dart';
-import 'package:survey_kit/src/model/content/styled_text_content.dart';
 
 abstract class Content {
   @JsonKey(includeIfNull: false)
@@ -52,9 +50,4 @@ abstract class Content {
   }
 
   Map<String, dynamic> toJson();
-
-  Widget createWidget({
-    Map<String, dynamic> variables = const {},
-    Map<String, StyledTextContent>? contentStyles,
-  });
 }

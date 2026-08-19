@@ -1,8 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:survey_kit/src/model/content/content.dart';
-import 'package:survey_kit/src/model/content/styled_text_content.dart';
-import 'package:survey_kit/src/view/widget/content/image_widget.dart';
 
 part 'image_content.g.dart';
 
@@ -29,12 +27,4 @@ class ImageContent extends Content {
 
   @override
   Map<String, dynamic> toJson() => _$ImageContentToJson(this);
-
-  @override
-  Widget createWidget({
-    Map<String, dynamic> variables = const {},
-    Map<String, StyledTextContent>? contentStyles,
-  }) {
-    return ImageWidget(imageContent: this);
-  }
 }

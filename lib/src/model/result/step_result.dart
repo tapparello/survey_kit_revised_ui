@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart' hide Step;
+import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:survey_kit/src/exception/survey_kit_exception.dart';
 import 'package:survey_kit/src/model/answer/answer_format_type.dart';
