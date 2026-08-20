@@ -12,6 +12,19 @@ NavigationRule roundTrip(NavigationRule rule) => NavigationRule.fromJson(
   jsonDecode(jsonEncode(rule.toJson())) as Map<String, dynamic>,
 );
 
+/// Invokes the rule's mapper the way the navigator does: a probe passes null,
+/// a real advance passes the step result whose value decides the branch.
+String? navigateOn(ConditionalNavigationRule rule, Object? result) =>
+    rule.resultToStepIdentifierMapper(
+      const [],
+      StepResult<Object?>(
+        id: 's1',
+        result: result,
+        startTime: DateTime(2026),
+        endTime: DateTime(2026),
+      ),
+    );
+
 void main() {
   group('every serializable rule type survives its own toJson', () {
     test('direct', () {
@@ -109,26 +122,37 @@ void main() {
             as Map<String, dynamic>,
       );
 
-      // StepResult is generic and its date fields are startTime/endTime.
-      // _extractValue falls back to `result?.toString()`, so a plain String
-      // result is all this needs — no answerType, no TextChoice.
-      final match = StepResult<String>(
-        id: 's1',
-        result: 'yes',
-        startTime: DateTime(2026),
-        endTime: DateTime(2026),
-      );
-      final miss = StepResult<String>(
-        id: 's1',
-        result: 'maybe',
-        startTime: DateTime(2026),
-        endTime: DateTime(2026),
-      );
-
-      expect(rule.resultToStepIdentifierMapper(const [], match), 's2');
-      expect(rule.resultToStepIdentifierMapper(const [], miss), isNull);
+      // navigateOn's StepResult<Object?> exercises _extractValue's
+      // `result?.toString()` fallback for a plain String result.
+      expect(navigateOn(rule, 'yes'), 's2');
+      expect(navigateOn(rule, 'maybe'), isNull);
       // A probe passes null as the second argument and must be safe.
       expect(rule.resultToStepIdentifierMapper(const [], null), isNull);
+
+      // _extractValue's TextChoice branch has the actual production usage:
+      // example/lib/main.dart casts a step's result to exactly this type. The
+      // fallback above never touches this branch, so it needs its own case.
+      expect(navigateOn(rule, TextChoice(text: 'Yes', value: 'yes')), 's2');
+    });
+
+    test('the field and the closure share one map; toJson output does not', () {
+      final rule = ConditionalNavigationRule.fromJson(
+        jsonDecode('{"type":"conditional","values":{"yes":"s2"}}')
+            as Map<String, dynamic>,
+      );
+
+      // Mutating toJson's output must NOT reach the rule: that map is a copy,
+      // so a caller cannot rewrite this rule's navigation through it.
+      (rule.toJson()['values'] as Map<String, String>)['yes'] = 'hijacked';
+      expect(rule.values, <String, String>{'yes': 's2'});
+      expect(navigateOn(rule, 'yes'), 's2');
+
+      // Mutating the FIELD does reach the closure, because they are the same
+      // object. This is what makes "the field and the navigation cannot
+      // diverge" true rather than aspirational: a fromJson that copied into
+      // the field would leave the closure on the old map and fail here.
+      rule.values!['yes'] = 's9';
+      expect(navigateOn(rule, 'yes'), 's9');
     });
 
     test('a closure-built rule throws rather than emitting an empty map', () {
