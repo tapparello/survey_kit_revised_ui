@@ -84,27 +84,23 @@ void main() {
         expectDirectiveIntact(task.steps.first);
 
         final firstJson = task.toJson();
-        // Round-trip through actual JSON text, not just Dart maps, then
-        // through the CONCRETE type's fromJson — Task.fromJson's dispatcher
-        // needs a `type` key that neither toJson() emits (a pre-existing gap,
-        // unrelated to conditional formats, noted in the coverage-gap
-        // report), so this is the honest way back in.
+        // Round-trip through actual JSON text, and back in through the public
+        // Task.fromJson DISPATCHER. The comment this replaces said the
+        // dispatcher could not be used because neither toJson emitted `type`;
+        // both do now, and using it is the point of ADO #1007.
         final decoded =
             jsonDecode(jsonEncode(firstJson)) as Map<String, dynamic>;
-        final back = type == 'ordered'
-            ? OrderedTask.fromJson(decoded)
-            : NavigableTask.fromJson(decoded);
+        final back = Task.fromJson(decoded);
+        expect(back.runtimeType, task.runtimeType);
         expectDirectiveIntact(back.steps.first);
 
         final secondJson = back.toJson();
-        // The directive intact AND byte-identical across a WHOLE-TASK round
-        // trip, at exactly the granularity Gap 2 is about: the `steps` list.
-        // Narrowed to `steps` rather than the whole map because
-        // OrderedTask's generated toJson() also serializes `hashCode`, which
-        // is not stable across instances — comparing the whole map would
-        // make this test flaky for a reason that has nothing to do with
-        // whether the directive round-trips.
-        expect(secondJson['steps'], firstJson['steps']);
+        // The WHOLE map, not just `steps`. The narrowing this replaces existed
+        // because OrderedTask's generated writer also emitted `hashCode`, which
+        // is not stable across instances. With that gone a full comparison is
+        // possible, and it is strictly stronger: it catches any field the wire
+        // format gets wrong, not only the steps list.
+        expect(secondJson, firstJson);
       });
     }
   });

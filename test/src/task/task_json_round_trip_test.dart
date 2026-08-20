@@ -216,4 +216,148 @@ void main() {
     // toJson must not hand a caller a live handle to the task's own state.
     expect(task.variables['a'], 1);
   });
+
+  group('a rules-bearing NavigableTask round-trips exactly', () {
+    // One rule of every serializable type, each on its own trigger. The
+    // conditional one is PARSED, not closure-built: a closure-built rule throws
+    // from toJson by design, which navigation_rule_round_trip_test.dart covers.
+    NavigableTask fixture() => NavigableTask(
+      id: 'rules-1',
+      steps: <Step>[
+        Step(id: 's1', content: const []),
+        Step(id: 's2', content: const []),
+        Step(id: 's3', content: const []),
+        Step(id: 's4', content: const []),
+      ],
+      // 's3', not 's1': an initialStepId equal to the first step's id would
+      // also match a writer that wrongly emits "the first step" instead of the
+      // resolved one.
+      initialStepId: 's3',
+      // `const` — Task is @immutable and the lint requires it.
+      variables: const <String, dynamic>{'child': 'Lilia'},
+      stepCount: 9,
+      // Insertion order is deliberately NOT sorted order. With 's1'..'s4'
+      // inserted in sequence the two coincide, and a writer that sorted by key
+      // — say `SplayTreeMap.from(navigationRules)` — would emit byte-identical
+      // output and pass the strict comparison below. Shuffled, it cannot.
+      // (This literal is not const-eligible: DirectNavigationRule's
+      // constructor is not const and the conditional rule is parsed.)
+      navigationRules: <String, NavigationRule>{
+        's3': const CustomNavigationRule(ruleId: 'r1'),
+        's1': DirectNavigationRule('s2'),
+        's4': ConditionalNavigationRule.fromJson(
+          jsonDecode('{"type":"conditional","values":{"yes":"s2"}}')
+              as Map<String, dynamic>,
+        ),
+        's2': const ActionNavigationRule(
+          actionId: 'a1',
+          nextStepIdentifier: 's3',
+        ),
+      },
+    );
+
+    test('every rule lands back under its own trigger', () {
+      final back = roundTrip(fixture()) as NavigableTask;
+
+      expect(back.navigationRules.keys.toSet(), <String>{
+        's1',
+        's2',
+        's3',
+        's4',
+      });
+
+      final s1 = back.getRuleByStepIdentifier('s1');
+      final s2 = back.getRuleByStepIdentifier('s2');
+      final s3 = back.getRuleByStepIdentifier('s3');
+      final s4 = back.getRuleByStepIdentifier('s4');
+
+      expect(s1, isA<DirectNavigationRule>());
+      expect(s2, isA<ActionNavigationRule>());
+      expect(s3, isA<CustomNavigationRule>());
+      expect(s4, isA<ConditionalNavigationRule>());
+
+      // Types alone would survive a writer that shuffled the triggers, so pin
+      // one payload per rule as well.
+      expect((s1! as DirectNavigationRule).destinationStepIdentifier, 's2');
+      expect((s2! as ActionNavigationRule).actionId, 'a1');
+      expect((s3! as CustomNavigationRule).ruleId, 'r1');
+      expect((s4! as ConditionalNavigationRule).values, <String, String>{
+        'yes': 's2',
+      });
+    });
+
+    test('the whole map is stable across a second trip', () {
+      // The strict comparison on a fixture that actually HAS rules.
+      // conditional_task_round_trip_test.dart's fixtures author only
+      // type/id/steps, so its whole-map assertion only ever compares
+      // `rules: []` — a rules-list ordering or shape bug would slip past it.
+      final task = fixture();
+      final firstJson = task.toJson();
+
+      // The emitted order, asserted DIRECTLY rather than only through the
+      // self-comparison below. `expect(second, first)` compares one writer
+      // against itself, so a writer that sorted by trigger key would be
+      // self-consistent and pass it. This pins insertion order instead:
+      // navigationRules is insertion-ordered, and fromJson putIfAbsent's the
+      // list in sequence (navigable_task.dart:54-64), so the order survives.
+      final triggers = (firstJson['rules'] as List)
+          .cast<Map<String, dynamic>>()
+          .map(
+            (rule) =>
+                (rule['triggerStepIdentifier'] as Map<String, dynamic>)['id'],
+          )
+          .toList();
+      expect(triggers, <String>['s3', 's1', 's4', 's2']);
+
+      expect(roundTrip(task).toJson(), firstJson);
+    });
+  });
+
+  test('a step with populated content and a concrete answerFormat', () {
+    // Every other fixture here and in conditional_task_round_trip_test.dart
+    // uses `content: []`, so Step.toJson's nested-content path is unproven at
+    // TASK level. This is ADO #1007's stated coverage concern. Its cited
+    // fixture — test/src/result/question/mock.dart, `sampleStep` — no longer
+    // exists: Phase 2b removed it when StepResult stopped embedding Step, so
+    // the gap is closed here instead.
+    final authored = <String, dynamic>{
+      'type': 'ordered',
+      'id': 'content-1',
+      'initialStepId': 's1',
+      'steps': <dynamic>[
+        <String, dynamic>{
+          'id': 's1',
+          'isMandatory': true,
+          'answerFormat': <String, dynamic>{'type': 'text'},
+          // `id` spelled out: Content.id would otherwise be a fresh Uuid, and
+          // while a round trip preserves it, an explicit value keeps a failure
+          // here readable.
+          'content': <dynamic>[
+            <String, dynamic>{
+              'type': 'text',
+              'id': 'c1',
+              'text': 'How are you?',
+            },
+          ],
+        },
+      ],
+    };
+
+    final task = Task.fromJson(authored);
+    final firstJson = task.toJson();
+    final back = roundTrip(task);
+
+    expect(back.steps.single.content, hasLength(1));
+    expect(back.steps.single.content.single, isA<TextContent>());
+    expect(
+      (back.steps.single.content.single as TextContent).text,
+      'How are you?',
+    );
+    expect(back.steps.single.answerFormat, isA<TextAnswerFormat>());
+    // Compared against the task's own first output, never the authored literal
+    // above: toJson always spells out defaults (TextContent's fontSize and
+    // textAlign, TextAnswerFormat's hint and validationRegEx) that the literal
+    // omits, so a literal comparison would fail on noise.
+    expect(back.toJson(), firstJson);
+  });
 }
