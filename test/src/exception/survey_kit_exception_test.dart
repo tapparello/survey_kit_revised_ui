@@ -16,6 +16,7 @@ String describe(SurveyKitException e) => switch (e) {
   ResultCodecException() => 'resultCodec',
   UnregisteredActionException() => 'unregisteredAction',
   UnregisteredRendererException() => 'unregisteredRenderer',
+  UnserializableRuleException() => 'unserializableRule',
 };
 
 void main() {
@@ -41,6 +42,7 @@ void main() {
         ResultCodecException(stepId: 's', answerType: 'text', cause: 'c'),
         UnregisteredActionException(actionId: 'a'),
         UnregisteredRendererException(kind: 'Content', discriminator: 'pdf'),
+        UnserializableRuleException(ruleType: 'ConditionalNavigationRule'),
       ];
       for (final e in subtypes) {
         expect(e, isA<Exception>());
@@ -103,6 +105,18 @@ void main() {
       expect(wrong.discriminator, 'nope');
       expect(wrong.message, contains('nope'));
       expect(absent.message, isNot(contains('nope')));
+    });
+
+    test('UnserializableRuleException names the rule class and the cause', () {
+      const e = UnserializableRuleException(
+        ruleType: 'ConditionalNavigationRule',
+      );
+      expect(e.ruleType, 'ConditionalNavigationRule');
+      expect(e.message, contains('ConditionalNavigationRule'));
+      // The message has to say WHY, not just what: a consumer hitting this
+      // needs to know the fix is to author the rule as JSON.
+      expect(e.message, contains('closure'));
+      expect(e.message, contains('JSON'));
     });
   });
 }
