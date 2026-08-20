@@ -49,8 +49,11 @@
   latter also carried a dead generated reader that nothing called.
 - For a `NavigableTask` that has been run, `toJson()['variables']` now contains
   engine and action-handler scratch alongside authored variables — specifically
-  `_currentStepId`, which the navigator writes on every step transition and
-  which `SurveyRegistries`' custom-rule contract documents. `variables` was
+  `_currentStepId`, which the navigator writes whenever it evaluates a
+  `CustomNavigationRule` — including on read-only probes, since
+  `peekNextStep` goes through the same path, which is why it can appear
+  without the user having advanced — and which `SurveyRegistries`'
+  custom-rule contract documents. `variables` was
   never emitted before this release, so there was nowhere for that state to
   leak; it is reachable now. Serializing a task definition is therefore best
   done before a run, not after one — and if any `variables` value is not
