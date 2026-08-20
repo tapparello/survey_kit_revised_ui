@@ -180,3 +180,25 @@ final class UnregisteredActionException extends SurveyKitException {
   /// The unmatched action id, as authored in the rule.
   final String actionId;
 }
+
+/// A type parsed successfully but has no registered renderer.
+///
+/// Thrown from the render path rather than at task load: catching this early
+/// would mean walking every step's content and descending into
+/// `ConditionalContent.options`, and the message already names both the
+/// discriminator and the fix.
+final class UnregisteredRendererException extends SurveyKitException {
+  const UnregisteredRendererException({
+    required this.kind,
+    required this.discriminator,
+  }) : super(
+         "No renderer is registered for the $kind type '$discriminator'. "
+         'Register one in SurveyRegistries.contentRenderers.',
+       );
+
+  /// The abstract family being rendered, e.g. `'Content'`.
+  final String kind;
+
+  /// The discriminator with no renderer.
+  final String discriminator;
+}

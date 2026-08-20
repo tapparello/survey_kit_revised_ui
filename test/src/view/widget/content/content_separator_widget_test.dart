@@ -3,22 +3,41 @@
 // gap between two blocks.
 import 'package:flutter/material.dart' hide Step;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:survey_kit/src/view/widget/content/html_widget.dart';
 import 'package:survey_kit/survey_kit.dart'; // exports ContentSeparator (do NOT also import content_widget.dart — redundant, trips analyze)
 
-Widget _app(List<Content> content) => MaterialApp(
-  home: Scaffold(
-    body: SurveyKit(
-      task: OrderedTask(
-        id: 't',
-        steps: [
-          Step(id: 's', content: content, buttonText: 'Next'),
-          CompletionStep(title: 'Done', text: 'x', buttonText: 'Submit'),
-        ],
+Widget _app(List<Content> content, {SurveyRegistries? registries}) =>
+    MaterialApp(
+      home: Scaffold(
+        body: SurveyKit(
+          task: OrderedTask(
+            id: 't',
+            steps: [
+              Step(id: 's', content: content, buttonText: 'Next'),
+              CompletionStep(title: 'Done', text: 'x', buttonText: 'Submit'),
+            ],
+          ),
+          onResult: (_) {},
+          registries: registries,
+        ),
       ),
-      onResult: (_) {},
-    ),
-  ),
-);
+    );
+
+class _ProbeContent extends Content {
+  const _ProbeContent() : super(contentType: 'probe');
+
+  @override
+  Map<String, dynamic> toJson() => {'type': contentType};
+}
+
+class _CompositeProbeContent extends Content {
+  const _CompositeProbeContent(this.children) : super(contentType: 'composite');
+
+  final List<Content> children;
+
+  @override
+  Map<String, dynamic> toJson() => {'type': contentType};
+}
 
 void main() {
   testWidgets('default: separator after every content (incl. trailing)', (
@@ -73,8 +92,9 @@ void main() {
     // This test guards against resolution regressions: if resolution stops
     // happening anywhere in the pipeline (ContentWidget, SurveyEngine, etc.),
     // the resolved text "resolved_branch" will not appear, and the test fails.
-    // The unresolved ConditionalContent.createWidget() returns SizedBox.shrink(),
-    // so the absence of the resolved text is discriminating.
+    // The unresolved ConditionalContent renders via renderConditionalContent,
+    // which returns SizedBox.shrink(), so the absence of the resolved text is
+    // discriminating.
     await tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
@@ -107,5 +127,56 @@ void main() {
     // appears. If resolution stopped, SizedBox.shrink() renders nothing and
     // this assertion fails — making the test discriminating.
     expect(find.text('resolved_branch'), findsOneWidget);
+  });
+
+  testWidgets('a registered renderer reaches the screen', (tester) async {
+    // The plumbing test: ContentWidget must pass SurveyConfiguration.registries
+    // into contentRendererFor. Pass `null` there instead and every unit test in
+    // content_renderers_test.dart still passes while this one fails.
+    await tester.pumpWidget(
+      _app(
+        [const _ProbeContent()],
+        registries: SurveyRegistries(
+          contentRenderers: {
+            'probe': (content, context) => const Placeholder(),
+          },
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byType(Placeholder), findsOneWidget);
+  });
+
+  testWidgets('a composite renderer nests through the real closure', (
+    tester,
+  ) async {
+    // Reentrancy against ContentWidget's own closure, not a reproduction of it.
+    // The composite renders one custom child and one built-in child, so this
+    // covers both halves of the resolver.
+    await tester.pumpWidget(
+      _app(
+        [
+          const _CompositeProbeContent([
+            _ProbeContent(),
+            HtmlContent(html: '<p>built-in</p>'),
+          ]),
+        ],
+        registries: SurveyRegistries(
+          contentRenderers: {
+            'probe': (content, context) => const Placeholder(),
+            'composite': (content, context) => Column(
+              children: (content as _CompositeProbeContent).children
+                  .map(context.render)
+                  .toList(),
+            ),
+          },
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byType(Placeholder), findsOneWidget);
+    expect(find.byType(HtmlWidget), findsOneWidget);
   });
 }

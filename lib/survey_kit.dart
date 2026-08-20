@@ -1,4 +1,6 @@
 export 'src/configuration/action_context.dart';
+export 'src/configuration/content_renderer.dart';
+export 'src/configuration/step_shell.dart';
 export 'src/configuration/survey_configuration.dart';
 export 'src/configuration/survey_handler_failure.dart';
 export 'src/configuration/survey_registries.dart';

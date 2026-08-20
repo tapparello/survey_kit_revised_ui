@@ -1,8 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:survey_kit/src/model/content/content.dart';
-import 'package:survey_kit/src/model/content/styled_text_content.dart';
-import 'package:survey_kit/src/view/widget/content/lottie_widget.dart';
 
 part 'lottie_content.g.dart';
 
@@ -31,12 +28,4 @@ class LottieContent extends Content {
 
   @override
   Map<String, dynamic> toJson() => _$LottieContentToJson(this);
-
-  @override
-  Widget createWidget({
-    Map<String, dynamic> variables = const {},
-    Map<String, StyledTextContent>? contentStyles,
-  }) {
-    return LottieWidget(lottieContent: this);
-  }
 }

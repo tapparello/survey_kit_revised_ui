@@ -1,7 +1,5 @@
-import 'package:flutter/widgets.dart';
 import 'package:survey_kit/src/configuration/survey_registries.dart';
 import 'package:survey_kit/src/model/content/content.dart';
-import 'package:survey_kit/src/model/content/styled_text_content.dart';
 
 class ConditionalContent extends Content {
   static const type = 'conditional';
@@ -52,18 +50,5 @@ class ConditionalContent extends Content {
     if (match != null) return match;
     if (defaultOption != null) return options[defaultOption];
     return null;
-  }
-
-  @override
-  Widget createWidget({
-    Map<String, dynamic> variables = const {},
-    Map<String, StyledTextContent>? contentStyles,
-  }) {
-    // Never rendered directly: SurveyEngine resolves a step's ConditionalContent
-    // before the step reaches the state. Reaching here means a ConditionalContent
-    // nested as a value in another ConditionalContent's `options`, which
-    // resolution does not descend into — resolution is a single pass over the
-    // top-level list. A pre-existing limitation, unchanged by ADO #1045.
-    return const SizedBox.shrink();
   }
 }

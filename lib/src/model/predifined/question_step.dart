@@ -1,4 +1,6 @@
-import 'package:survey_kit/survey_kit.dart';
+import 'package:survey_kit/src/model/answer/answer_format.dart';
+import 'package:survey_kit/src/model/content/text_content.dart';
+import 'package:survey_kit/src/model/step.dart';
 
 /// It is uppercase to support previous implementions of the QuestionStep
 @Deprecated('Create Step from Step.dart')

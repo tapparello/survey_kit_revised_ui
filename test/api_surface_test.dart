@@ -44,6 +44,28 @@ Widget _probeShell(Step step, Widget? answerWidget, BuildContext context) =>
 // but the annotation IS the guard - it pins StepShell's exact signature.
 const StepShell _pinnedShell = _probeShell;
 
+Widget _probeRenderer(Content content, ContentRenderContext context) =>
+    const SizedBox.shrink();
+
+// Declared at file scope, not inside a test body: `omit_local_variable_types`
+// rejects the annotation on a local, but the annotation IS the guard.
+const ContentRenderer _pinnedRenderer = _probeRenderer;
+
+Content _probeContentFactory(
+  Map<String, dynamic> json, {
+  SurveyRegistries? registries,
+}) => const StyledTextContent(text: 'probe');
+
+Step _probeStepFactory(
+  Map<String, dynamic> json, {
+  SurveyRegistries? registries,
+}) => Step(id: 'probe', content: const []);
+
+// Declared at file scope, not inside a test body: `omit_local_variable_types`
+// rejects the annotation on a local, but the annotation IS the guard.
+const ContentFactory _pinnedContentFactory = _probeContentFactory;
+const StepFactory _pinnedStepFactory = _probeStepFactory;
+
 void main() {
   test('TimeResult is constructible and round-trips through JSON', () {
     const result = TimeResult(timeOfDay: TimeOfDay(hour: 9, minute: 30));
@@ -196,5 +218,65 @@ void main() {
     ]) {
       expect(e.toString(), contains(e.message));
     }
+  });
+
+  test('content renderers are registrable through the public API', () {
+    Widget custom(Content content, ContentRenderContext context) =>
+        const SizedBox.shrink();
+    const pinned = SurveyRegistries();
+    final registries = SurveyRegistries(contentRenderers: {'pdf': custom});
+
+    expect(pinned.contentRenderers, isEmpty);
+    expect(registries.contentRenderers['pdf'], isNotNull);
+    expect(
+      registries.contentRenderers['pdf']!(
+        const StyledTextContent(text: 'x'),
+        ContentRenderContext(
+          variables: const {},
+          contentStyles: null,
+          render: (_) => const SizedBox.shrink(),
+        ),
+      ),
+      isA<SizedBox>(),
+    );
+  });
+
+  test('UnregisteredRendererException is public and structured', () {
+    const failure = UnregisteredRendererException(
+      kind: 'Content',
+      discriminator: 'pdf',
+    );
+
+    expect(failure, isA<SurveyKitException>());
+    expect(failure.discriminator, 'pdf');
+    expect(failure.message, contains('pdf'));
+  });
+
+  test('ContentRenderer signature is pinned', () {
+    expect(
+      _pinnedRenderer(
+        const StyledTextContent(text: 'x'),
+        ContentRenderContext(
+          variables: const {},
+          contentStyles: null,
+          render: (_) => const SizedBox.shrink(),
+        ),
+      ),
+      isA<SizedBox>(),
+    );
+  });
+
+  test('factory typedefs carry the parse context', () {
+    // `registries:` is passed explicitly because that is the entire guard.
+    // Dart tolerates a function with EXTRA optional named parameters being
+    // assigned to a type without them, so the const declarations above still
+    // compile if the typedefs lose `{registries}` - the assignment proves
+    // nothing. Naming the argument at the call site is what fails to compile
+    // when the parameter goes away. Do not "simplify" these calls.
+    expect(
+      _pinnedContentFactory({'type': 'x'}, registries: null),
+      isA<Content>(),
+    );
+    expect(_pinnedStepFactory({'type': 'x'}, registries: null), isA<Step>());
   });
 }
