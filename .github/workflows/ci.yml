@@ -69,7 +69,7 @@ jobs:
       # Regeneration must be a no-op. Uses `git status --porcelain` rather than
       # `git diff --exit-code` so generated files that are ADDED or DELETED are
       # caught, not just modified - build_runner has been observed deleting all
-      # 33 of them. Two `defaultValue` warnings are expected and do not fail the
+      # 31 of them. Two `defaultValue` warnings are expected and do not fail the
       # build. See ADO #1001.
       - name: Verify generated code is up to date
         run: |

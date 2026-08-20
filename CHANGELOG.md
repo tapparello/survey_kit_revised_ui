@@ -1,3 +1,48 @@
+# 1.0.0-dev.22
+
+- **BREAKING: `OrderedTask.toJson()`'s output shape changes.** `initialStep` (a
+  whole nested `Step`) and `hashCode` are gone; `type` and `initialStepId` are
+  new. The old output could never be read back — `fromJson` reads
+  `initialStepId` and the writer emitted `initialStep`, so the two keys never
+  met — which is why nothing consumed it. Both task writers now go through one
+  shared `Task.baseJson` helper, so they cannot drift apart again.
+- **BREAKING: `ConditionalNavigationRule.toJson()` throws on a closure-built
+  rule.** It previously returned `{'values': {}}`, which does not merely lose
+  the mapping but asserts there was none: a rule that navigated correctly
+  round-tripped into one that navigates nowhere. A rule parsed from JSON now
+  retains its authored mapping in a new `values` field and serializes properly;
+  a rule built from the public closure constructor throws
+  `UnserializableRuleException`, because arbitrary Dart code is not data. The
+  closure constructor itself is unchanged.
+- **BREAKING: `UnserializableRuleException` is a new `SurveyKitException`
+  subtype.** The hierarchy is sealed, so an exhaustive `switch` over it needs a
+  new case.
+- **`ConditionalNavigationRule.fromJson` now rejects a non-String destination at
+  parse time.** It previously deferred the check to navigation, so a rule
+  authored as `{"values": {"yes": 2}}` loaded fine and threw only if the user
+  reached that answer. It now fails when the task loads. Every authored
+  conditional rule surveyed uses quoted string step ids, so this is expected to
+  be unreachable in practice; it is listed because it is a change in what a
+  public reader accepts.
+- **`Task.fromJson(task.toJson())` now works** for both task types. Neither
+  writer emitted the `type` discriminator the dispatcher reads, so feeding a
+  task's own output back in threw `UnknownTypeException`. (ADO #1052, #1007)
+- **`NavigableTask.toJson()` no longer produces unencodable output.** It emitted
+  live `NavigationRule` objects in a map, under a key its own reader never
+  looked at; `jsonEncode` threw as soon as any rule was present. Rules are now
+  emitted as the list `fromJson` reads, each carrying the
+  `triggerStepIdentifier` that only the map key used to hold. It also emits
+  `initialStepId`, `variables` and `stepCount`, all of which it silently
+  dropped.
+- **`DirectNavigationRule.toJson()` emits its `type` discriminator.** Without
+  it, `NavigationRule.fromJson` could not dispatch on the second most common
+  rule type in authored surveys.
+- `Task.toJson()` now returns a copy of `variables` rather than the task's own
+  map, so a caller cannot mutate a task through its serialized output.
+- Two generated writers are deleted (`ordered_task.g.dart`,
+  `direct_navigation_rule.g.dart`), both replaced by hand-written ones. The
+  latter also carried a dead generated reader that nothing called.
+
 # 1.0.0-dev.21
 
 - **BREAKING: `ContentFactory` and `StepFactory` gain a `registries` parameter.**
