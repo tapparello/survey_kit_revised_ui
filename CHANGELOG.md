@@ -17,6 +17,15 @@
 - **BREAKING: `UnserializableRuleException` is a new `SurveyKitException`
   subtype.** The hierarchy is sealed, so an exhaustive `switch` over it needs a
   new case.
+- **BREAKING: `NavigableTask.toJson()`'s output shape changes.** With zero
+  navigation rules the old writer produced `{'id', 'steps',
+  'navigationRules': {}}`; that key is gone and `id`/`steps` are now joined by
+  four new ones. It previously emitted live `NavigationRule` objects in a map,
+  under a key its own reader never looked at; `jsonEncode` threw as soon as any
+  rule was present. Rules are now emitted as the list `fromJson` reads, each
+  carrying the `triggerStepIdentifier` that only the map key used to hold. It
+  also emits `initialStepId`, `variables` and `stepCount`, all of which it
+  silently dropped.
 - **`ConditionalNavigationRule.fromJson` now rejects a non-String destination at
   parse time.** It previously deferred the check to navigation, so a rule
   authored as `{"values": {"yes": 2}}` loaded fine and threw only if the user
@@ -27,21 +36,26 @@
 - **`Task.fromJson(task.toJson())` now works** for both task types. Neither
   writer emitted the `type` discriminator the dispatcher reads, so feeding a
   task's own output back in threw `UnknownTypeException`. (ADO #1052, #1007)
-- **`NavigableTask.toJson()` no longer produces unencodable output.** It emitted
-  live `NavigationRule` objects in a map, under a key its own reader never
-  looked at; `jsonEncode` threw as soon as any rule was present. Rules are now
-  emitted as the list `fromJson` reads, each carrying the
-  `triggerStepIdentifier` that only the map key used to hold. It also emits
-  `initialStepId`, `variables` and `stepCount`, all of which it silently
-  dropped.
 - **`DirectNavigationRule.toJson()` emits its `type` discriminator.** Without
   it, `NavigationRule.fromJson` could not dispatch on the second most common
   rule type in authored surveys.
-- `Task.toJson()` now returns a copy of `variables` rather than the task's own
-  map, so a caller cannot mutate a task through its serialized output.
+- `Task.toJson()` now returns a shallow copy of `variables` rather than the task's
+  own map, so a caller cannot replace or remove a top-level entry through the
+  serialized output. The copy is one level deep: `variables` is
+  `Map<String, dynamic>`, so a nested map or list is still shared, and mutating
+  one through `task.toJson()['variables']` does reach the task.
 - Two generated writers are deleted (`ordered_task.g.dart`,
   `direct_navigation_rule.g.dart`), both replaced by hand-written ones. The
   latter also carried a dead generated reader that nothing called.
+- For a `NavigableTask` that has been run, `toJson()['variables']` now contains
+  engine and action-handler scratch alongside authored variables — specifically
+  `_currentStepId`, which the navigator writes on every step transition and
+  which `SurveyRegistries`' custom-rule contract documents. `variables` was
+  never emitted before this release, so there was nowhere for that state to
+  leak; it is reachable now. Serializing a task definition is therefore best
+  done before a run, not after one — and if any `variables` value is not
+  JSON-encodable (a `DateTime`, say), `jsonEncode` will throw on the result.
+  Moving engine state off `task.variables` is tracked separately.
 
 # 1.0.0-dev.21
 

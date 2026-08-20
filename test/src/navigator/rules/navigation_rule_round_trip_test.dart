@@ -33,6 +33,12 @@ void main() {
       // The discriminator is what NavigationRule.fromJson dispatches on, so
       // asserting it directly says WHY the round trip below works.
       expect(rule.toJson()['type'], 'direct');
+      // fromJson deliberately accepts BOTH a bare string and a nested
+      // {'id': ...} object (see the test below), so a writer emitting the
+      // nested form would round-trip identically and still pass every
+      // assertion after this point. Only a direct assertion on the emitted
+      // value pins which shape the writer actually produces.
+      expect(rule.toJson()['destinationStepIdentifier'], 's2');
 
       final back = roundTrip(rule);
       expect(back, isA<DirectNavigationRule>());
@@ -49,8 +55,11 @@ void main() {
       final back = roundTrip(rule);
       expect(back, isA<ActionNavigationRule>());
       expect((back as ActionNavigationRule).actionId, 'a1');
-      // Its reader accepts `nextStep` OR `nextStepIdentifier`; the writer emits
-      // the former. Asserting the value proves the two agree on which.
+      // This only proves a non-null next step survives the round trip, not
+      // which key the writer emits: the reader accepts `nextStep` OR
+      // `nextStepIdentifier`, so either key would pass this assertion. The
+      // key itself is pinned in action_navigation_rule_test.dart, which
+      // asserts `json['nextStep']` directly.
       expect(back.nextStepIdentifier, 's3');
     });
 
@@ -151,6 +160,9 @@ void main() {
       // object. This is what makes "the field and the navigation cannot
       // diverge" true rather than aspirational: a fromJson that copied into
       // the field would leave the closure on the old map and fail here.
+      // This asserts the aliasing invariant, not that `values` ought to be
+      // publicly mutable. If `values` is ever made an UnmodifiableMapView,
+      // this line needs rewriting to probe the aliasing another way.
       rule.values!['yes'] = 's9';
       expect(navigateOn(rule, 'yes'), 's9');
     });

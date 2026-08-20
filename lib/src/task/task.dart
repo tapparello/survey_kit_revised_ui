@@ -72,6 +72,8 @@ abstract class Task {
     // constructor above defaults it to a growable `{}` — so emitting it
     // directly would hand a caller a live handle to this task's own state via
     // `task.toJson()['variables']`. The generated writer this replaces aliased.
+    // The copy is shallow: a nested map or list value is still shared, so
+    // mutating one through the copy still reaches this task.
     'variables': Map<String, dynamic>.from(variables),
     'stepCount': stepCount,
   };
