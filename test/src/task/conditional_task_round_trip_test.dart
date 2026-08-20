@@ -110,7 +110,7 @@ void main() {
   });
 
   group('a conditional-format step used AS initialStep — the path nothing '
-      'currently touches', () {
+      'used to touch', () {
     test('NavigableTask: the directive is intact immediately after parse', () {
       final authored = <String, dynamic>{
         'type': 'navigable',
@@ -137,14 +137,10 @@ void main() {
       expectDirectiveIntact(task.initialStep!);
     });
 
-    // MEASURED, not assumed — same discipline as the back-navigation gap.
-    // Both of the following pin a REAL, OBSERVED result, not an expectation
-    // written in advance. Both fail the "round trip" half of this group's
-    // name for reasons that have nothing to do with conditional formats —
-    // see the coverage-gap report for the full explanation and why this is
-    // reported as a finding rather than patched here (test-only branch).
-    test('NavigableTask: initialStep does NOT survive toJson -> fromJson '
-        '(pre-existing, unrelated to conditional formats)', () {
+    // These two measured the loss on purpose before ADO #1052; the assertions
+    // are flipped rather than deleted, so the file still names exactly what
+    // used to break.
+    test('NavigableTask: initialStep survives toJson -> fromJson', () {
       final task = NavigableTask(
         id: 't',
         steps: [
@@ -152,29 +148,32 @@ void main() {
           Step.fromJson(plainStepJson('s2')),
         ],
         initialStepId: 's1',
+        // Non-empty on purpose: NavigableTask.toJson dropped `variables`
+        // entirely, and a presence-only check (`containsKey`) would be
+        // satisfied by a writer emitting a hardcoded `{}`.
+        variables: const <String, dynamic>{'child': 'Lilia'},
       );
       expect(task.initialStep?.id, 's1', reason: 'fixture guard');
 
-      // NavigableTask.toJson() (hand-written) emits only id/steps/
-      // navigationRules — it has never emitted initialStepId (or
-      // variables), for any task, conditional or not.
+      // NavigableTask.toJson used to emit only id/steps/navigationRules — it
+      // had never emitted initialStepId or variables, for any task.
       final json = task.toJson();
-      expect(json.containsKey('initialStepId'), isFalse);
+      expect(json['type'], 'navigable');
+      expect(json['initialStepId'], 's1');
+      expect(json['variables'], <String, dynamic>{'child': 'Lilia'});
+      expect(
+        json.containsKey('navigationRules'),
+        isFalse,
+        reason: 'the live-object key no reader ever read is gone',
+      );
 
       final back = NavigableTask.fromJson(json);
-      expect(
-        back.initialStep,
-        isNull,
-        reason:
-            'MEASURED: initialStep information is silently dropped by '
-            'NavigableTask.toJson(), so a round trip always loses it — '
-            'unrelated to this branch, flagged in the coverage-gap '
-            'report',
-      );
+      expect(back.initialStep?.id, 's1');
+      expect(back.variables, <String, dynamic>{'child': 'Lilia'});
+      expectDirectiveIntact(back.initialStep!);
     });
 
-    test('OrderedTask: initialStep does NOT survive toJson -> fromJson '
-        '(pre-existing, unrelated to conditional formats)', () {
+    test('OrderedTask: initialStep survives toJson -> fromJson', () {
       final task = OrderedTask(
         id: 't',
         steps: [
@@ -185,25 +184,20 @@ void main() {
       );
       expect(task.initialStep?.id, 's1', reason: 'fixture guard');
 
-      // The generated toJson() emits the resolved step itself under the
-      // key `initialStep` (a full nested object); fromJson reads a
-      // DIFFERENT key, `initialStepId` (a bare string). That asymmetry —
-      // present since the codegen regeneration of ADO #1001, long before
-      // #1045 — means the key fromJson needs is never the key toJson
-      // produced.
+      // The generated writer emitted the resolved step itself under
+      // `initialStep` (a full nested object) while fromJson read a DIFFERENT
+      // key, `initialStepId` (a bare string). That asymmetry dated from the
+      // codegen regeneration of ADO #1001. Both writers now go through
+      // Task.baseJson, so the two cannot disagree again.
       final json = task.toJson();
-      expect(json.containsKey('initialStep'), isTrue);
-      expect(json.containsKey('initialStepId'), isFalse);
+      expect(json['type'], 'ordered');
+      expect(json['initialStepId'], 's1');
+      expect(json.containsKey('initialStep'), isFalse);
+      expect(json.containsKey('hashCode'), isFalse);
 
       final back = OrderedTask.fromJson(json);
-      expect(
-        back.initialStep,
-        isNull,
-        reason:
-            'MEASURED: toJson emits `initialStep`, fromJson reads '
-            '`initialStepId` — the two never meet, so a round trip '
-            'always loses it, independent of conditional formats',
-      );
+      expect(back.initialStep?.id, 's1');
+      expectDirectiveIntact(back.initialStep!);
     });
   });
 }
