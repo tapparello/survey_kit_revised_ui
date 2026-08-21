@@ -1,9 +1,5 @@
-import 'package:json_annotation/json_annotation.dart';
 import 'package:survey_kit/src/navigator/rules/navigation_rule.dart';
 
-part 'direct_navigation_rule.g.dart';
-
-@JsonSerializable()
 class DirectNavigationRule implements NavigationRule {
   final String destinationStepIdentifier;
 
@@ -17,5 +13,8 @@ class DirectNavigationRule implements NavigationRule {
     return DirectNavigationRule(id);
   }
   @override
-  Map<String, dynamic> toJson() => _$DirectNavigationRuleToJson(this);
+  Map<String, dynamic> toJson() => <String, dynamic>{
+    'type': 'direct',
+    'destinationStepIdentifier': destinationStepIdentifier,
+  };
 }

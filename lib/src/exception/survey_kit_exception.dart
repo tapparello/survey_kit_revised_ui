@@ -202,3 +202,16 @@ final class UnregisteredRendererException extends SurveyKitException {
   /// The discriminator with no renderer.
   final String discriminator;
 }
+
+/// A navigation rule's mapping exists only as Dart code and cannot be written.
+final class UnserializableRuleException extends SurveyKitException {
+  const UnserializableRuleException({required this.ruleType})
+    : super(
+        '$ruleType was built from a Dart closure, so its mapping is code '
+        'rather than data and cannot be serialized. Parse the rule from JSON '
+        'if it needs to round-trip.',
+      );
+
+  /// Name of the rule class that could not be serialized.
+  final String ruleType;
+}

@@ -55,6 +55,29 @@ abstract class Task {
     );
   }
 
+  /// The wire fields every task shares. Subclasses spread this and add their
+  /// own.
+  ///
+  /// `initialStepId` is derived rather than stored: [initialStep] holds a
+  /// resolved [Step], and the id is the key [Task.fromJson] reads back. Both
+  /// readers do `json['id'] as String` — a non-null cast — so emitting `id`
+  /// unconditionally is load-bearing, not cosmetic.
+  @protected
+  Map<String, dynamic> baseJson(String type) => <String, dynamic>{
+    'type': type,
+    'id': id,
+    'steps': steps.map((step) => step.toJson()).toList(),
+    'initialStepId': initialStep?.id,
+    // Copied, not aliased: the field is final but the map is not — the
+    // constructor above defaults it to a growable `{}` — so emitting it
+    // directly would hand a caller a live handle to this task's own state via
+    // `task.toJson()['variables']`. The generated writer this replaces aliased.
+    // The copy is shallow: a nested map or list value is still shared, so
+    // mutating one through the copy still reaches this task.
+    'variables': Map<String, dynamic>.from(variables),
+    'stepCount': stepCount,
+  };
+
   Map<String, dynamic> toJson();
 
   @override

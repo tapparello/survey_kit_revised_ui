@@ -1,3 +1,65 @@
+# 1.0.0-dev.22
+
+- **BREAKING: `OrderedTask.toJson()`'s output shape changes.** `initialStep` (a
+  whole nested `Step`) and `hashCode` are gone; `type` and `initialStepId` are
+  new. The old output could never be read back — `fromJson` reads
+  `initialStepId` and the writer emitted `initialStep`, so the two keys never
+  met — which is why nothing consumed it. Both task writers now go through one
+  shared `Task.baseJson` helper, so they cannot drift apart again.
+- **BREAKING: `ConditionalNavigationRule.toJson()` throws on a closure-built
+  rule.** It previously returned `{'values': {}}`, which does not merely lose
+  the mapping but asserts there was none: a rule that navigated correctly
+  round-tripped into one that navigates nowhere. A rule parsed from JSON now
+  retains its authored mapping in a new `values` field and serializes properly;
+  a rule built from the public closure constructor throws
+  `UnserializableRuleException`, because arbitrary Dart code is not data. The
+  closure constructor itself is unchanged.
+- **BREAKING: `UnserializableRuleException` is a new `SurveyKitException`
+  subtype.** The hierarchy is sealed, so an exhaustive `switch` over it needs a
+  new case.
+- **BREAKING: `NavigableTask.toJson()`'s output shape changes.** With zero
+  navigation rules the old writer produced `{'id', 'steps',
+  'navigationRules': {}}`; that key is gone and `id`/`steps` are now joined by
+  four new ones. It previously emitted live `NavigationRule` objects in a map,
+  under a key its own reader never looked at; `jsonEncode` threw as soon as any
+  rule was present. Rules are now emitted as the list `fromJson` reads, each
+  carrying the `triggerStepIdentifier` that only the map key used to hold. It
+  also emits `initialStepId`, `variables` and `stepCount`, all of which it
+  silently dropped.
+- **`ConditionalNavigationRule.fromJson` now rejects a non-String destination at
+  parse time.** It previously deferred the check to navigation, so a rule
+  authored as `{"values": {"yes": 2}}` loaded fine and threw only if the user
+  reached that answer. It now fails when the task loads. Every authored
+  conditional rule surveyed uses quoted string step ids, so this is expected to
+  be unreachable in practice; it is listed because it is a change in what a
+  public reader accepts.
+- **`Task.fromJson(task.toJson())` now works** for both task types. Neither
+  writer emitted the `type` discriminator the dispatcher reads, so feeding a
+  task's own output back in threw `UnknownTypeException`. (ADO #1052, #1007)
+- **`DirectNavigationRule.toJson()` emits its `type` discriminator.** Without
+  it, `NavigationRule.fromJson` could not dispatch on the second most common
+  rule type in authored surveys.
+- `Task.toJson()` now returns a shallow copy of `variables` rather than the task's
+  own map, so a caller cannot replace or remove a top-level entry through the
+  serialized output. The copy is one level deep: `variables` is
+  `Map<String, dynamic>`, so a nested map or list is still shared, and mutating
+  one through `task.toJson()['variables']` does reach the task.
+- Two generated writers are deleted (`ordered_task.g.dart`,
+  `direct_navigation_rule.g.dart`), both replaced by hand-written ones. The
+  latter also carried a dead generated reader that nothing called.
+- For a `NavigableTask` that has been run, `toJson()['variables']` now contains
+  engine and action-handler scratch alongside authored variables — specifically
+  `_currentStepId`, which the navigator writes whenever it evaluates a
+  `CustomNavigationRule` — including on read-only probes, since
+  `peekNextStep` goes through the same path, which is why it can appear
+  without the user having advanced — and which `SurveyRegistries`'
+  custom-rule contract documents. `variables` was
+  never emitted before this release, so there was nowhere for that state to
+  leak; it is reachable now. Serializing a task definition is therefore best
+  done before a run, not after one — and if any `variables` value is not
+  JSON-encodable (a `DateTime`, say), `jsonEncode` will throw on the result.
+  Moving engine state off `task.variables` is tracked separately.
+
 # 1.0.0-dev.21
 
 - **BREAKING: `ContentFactory` and `StepFactory` gain a `registries` parameter.**

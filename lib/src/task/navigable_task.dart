@@ -86,8 +86,20 @@ class NavigableTask extends Task {
 
   @override
   Map<String, dynamic> toJson() => <String, dynamic>{
-    'id': id,
-    'steps': steps.map((step) => step.toJson()).toList(),
-    'navigationRules': navigationRules,
+    ...baseJson('navigable'),
+    // The trigger id lives in the navigationRules KEY, not on the rule — no
+    // rule class has a field for it — so it is re-attached here, in the nested
+    // shape `fromJson` above reads. A List rather than a Map because that is
+    // what `json['rules'] as List` needs; the key this replaces
+    // (`navigationRules`) held live objects that no reader ever looked at and
+    // that jsonEncode threw on.
+    'rules': navigationRules.entries
+        .map(
+          (entry) => <String, dynamic>{
+            ...entry.value.toJson(),
+            'triggerStepIdentifier': <String, dynamic>{'id': entry.key},
+          },
+        )
+        .toList(),
   };
 }
