@@ -46,6 +46,10 @@ coverage/
 # Local tooling scratch space
 .superpowers/
 .understand-anything/
+# Knowledge graph output. Node ids and manifest keys embed the absolute path of
+# the machine that built it, so the artifact is not portable across checkouts -
+# rebuild locally with `/graphify .` instead of pulling it.
+graphify-out/
 
 # Private planning docs - specs and implementation plans stay local only.
 # They contain absolute paths, internal project names, and other details that
